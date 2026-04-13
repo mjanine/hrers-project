@@ -1,47 +1,48 @@
-const form = document.getElementById("passwordForm");
-const oldPassword = document.getElementById("oldPassword");
-const newPassword = document.getElementById("newPassword");
+document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("changePasswordForm");
+    const currentPassword = document.getElementById("currentPassword");
+    const newPassword = document.getElementById("newPassword");
+    const confirmPassword = document.getElementById("confirmPassword");
+    const passwordError = document.getElementById("passwordError");
 
-const lengthReq = document.getElementById("length");
-const upperReq = document.getElementById("upper");
-const specialReq = document.getElementById("special");
-const matchReq = document.getElementById("match");
-
-newPassword.addEventListener("input", validatePassword);
-
-function validatePassword() {
-    const value = newPassword.value;
-
-    // 8+ characters
-    if (value.length >= 8) {
-        lengthReq.classList.replace("invalid", "valid");
-    } else {
-        lengthReq.classList.replace("valid", "invalid");
+    if (!form || !newPassword || !confirmPassword || !passwordError) {
+        return;
     }
 
-    // Uppercase, lowercase, number
-    if (/[A-Z]/.test(value) && /[a-z]/.test(value) && /[0-9]/.test(value)) {
-        upperReq.classList.replace("invalid", "valid");
-    } else {
-        upperReq.classList.replace("valid", "invalid");
+    function showError(message) {
+        passwordError.textContent = message;
+        passwordError.style.display = "block";
     }
 
-    // Special character
-    if (/[!@#$%^&*(),.?":{}|<>]/.test(value)) {
-        specialReq.classList.replace("invalid", "valid");
-    } else {
-        specialReq.classList.replace("valid", "invalid");
+    function clearError() {
+        passwordError.textContent = "";
+        passwordError.style.display = "none";
     }
 
-    // Not same as old password
-    if (value !== oldPassword.value && value.length > 0) {
-        matchReq.classList.replace("invalid", "valid");
-    } else {
-        matchReq.classList.replace("valid", "invalid");
-    }
-}
+    form.addEventListener("submit", function (event) {
+        event.preventDefault();
 
-form.addEventListener("submit", function(e){
-    e.preventDefault();
-    alert("Password changed successfully!");
+        if (!currentPassword.value.trim()) {
+            showError("Current password is required.");
+            return;
+        }
+
+        if (newPassword.value.length < 8) {
+            showError("New password must be at least 8 characters long.");
+            return;
+        }
+
+        if (newPassword.value !== confirmPassword.value) {
+            showError("New password and confirmation do not match.");
+            return;
+        }
+
+        clearError();
+        form.reset();
+        alert("Password updated successfully.");
+    });
+
+    [currentPassword, newPassword, confirmPassword].forEach(function (field) {
+        field.addEventListener("input", clearError);
+    });
 });

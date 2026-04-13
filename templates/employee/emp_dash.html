@@ -1,12 +1,11 @@
 <!DOCTYPE html>
-{% load static %}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Employee Dashboard | Employee Portal</title>
-    <link rel="shortcut icon" type="image/png" href="{% static 'img/general/uph.png' %}">
-    <link rel="stylesheet" href="{% static 'css/employee/emp_dash.css' %}">
+    <link rel="shortcut icon" type="image/png" href="/static/img/general/uph.png">
+    <link rel="stylesheet" href="/static/css/employee/emp_dash.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
@@ -61,7 +60,7 @@
     <div class="sidebar" id="sidebar">
         <div class="top-section">
             <div class="logo-wrapper" id="logoToggle">
-                <img src="{% static 'img/general/uph.png' %}" class="logo" alt="Logo">
+                <img src="/static/img/general/uph.png" class="logo" alt="Employee Portal logo" width="45" height="45">
                 <div class="open-icon">
                     <i class="fas fa-chevron-right"></i>
                 </div>
@@ -116,27 +115,9 @@
                 </a>
             </li>
         </ul>
-                <a href="#" class="menu-item">
-                    <i class="fas fa-plane-departure"></i>
-                    <span>Leave Request</span>
-                </a>
-            </li>
-            <li>
-                <a href="#" class="menu-item">
-                    <i class="fas fa-star"></i>
-                    <span>Performance Evaluation</span>
-                </a>
-            </li>
-            <li>
-                <a href="#" class="menu-item">
-                    <i class="fas fa-chalkboard-teacher"></i>
-                    <span>Trainings</span>
-                </a>
-            </li>
-        </ul>
 
         <div class="bottom-section">
-            <a href="{% url 'logout' %}" class="menu-item logout">
+            <a href="../login/login.html" class="menu-item logout">
                 <i class="fas fa-sign-out-alt"></i>
                 <span>Log Out</span>
             </a>
@@ -148,10 +129,10 @@
             <div class="dashboard-container">
                 
                 <div class="welcome-section">
-                    <h1>Welcome back, {{ user.first_name|default:"Employee" }}! 👋</h1>
+                    <h1>Welcome back, Employee! 👋</h1>
                     <p style="color: #666; font-size: 1.1rem; margin-bottom: 10px;">
-                        <strong>Role:</strong> {{ user.get_role_display|default:"Staff" }} | 
-                        <strong>Department:</strong> {{ user.department.name|default:"General" }}
+                        <strong>Role:</strong> Staff |
+                        <strong>Department:</strong> General
                     </p>
                     <p class="daily-quote" id="dailyQuote" style="font-style: italic; color: #888;">
                         "Success is the sum of small efforts repeated day in and day out."
@@ -163,7 +144,7 @@
                         <i class="fas fa-clock"></i>
                         <div>
                             <h3>Latest Time-In</h3>
-                            <p>{{ user.last_login|date:"M d, Y H:i"|default:"No recent login" }}</p>
+                            <p>No recent login</p>
                         </div>
                     </div>
                     <div class="stat-card">
@@ -253,6 +234,6 @@
         </div>
     </main>
 
-    <script src="{% static 'js/employee/emp_dash.js' %}"></script>
+    <script src="/static/js/employee/emp_dash.js"></script>
 </body>
 </html>

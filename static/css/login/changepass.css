@@ -28,7 +28,7 @@ body {
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 
     padding: 40px;
-    color: white;
+    color: #ffffff;
 }
 
 /* Logo */
@@ -36,7 +36,10 @@ body {
     position: absolute;
     top: 25px;
     left: 30px;
-    width: 60px;
+    width: 84px;
+    height: 84px;
+    display: block;
+    object-fit: contain;
 }
 
 /* Center Content */
@@ -51,6 +54,13 @@ body {
 .content h2 {
     margin-bottom: 30px;
     letter-spacing: 1px;
+    color: #ffffff;
+    text-shadow: 0 1px 10px rgba(0, 0, 0, 0.25);
+}
+
+.intro {
+    text-align: center;
+    margin-bottom: 20px;
 }
 
 /* Inputs */
@@ -68,6 +78,13 @@ input {
     border: none;
     outline: none;
     background: rgba(255,255,255,0.85);
+    color: #1f2937;
+    font-size: 15px;
+}
+
+input::placeholder {
+    color: #6b7280;
+    opacity: 1;
 }
 
 /* Requirements */
@@ -75,10 +92,16 @@ input {
     width: 320px;
     font-size: 13px;
     margin-bottom: 20px;
+    padding: 10px 14px;
+    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.28);
+    border: 1px solid rgba(255, 255, 255, 0.22);
 }
 
 .requirements p {
-    opacity: 0.7;
+    margin: 4px 0;
+    opacity: 1;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
 }
 
 .valid {
@@ -87,7 +110,8 @@ input {
 }
 
 .invalid {
-    color: #ff4d4d;
+    color: #ffe3e3;
+    font-weight: 600;
 }
 
 /* Button */
@@ -112,7 +136,7 @@ button:hover {
     bottom: 25px;
     text-align: center;
     font-size: 13px;
-    opacity: 0.7;
+    color: rgba(255, 255, 255, 0.92);
     width: 100%;
     left: 0;
 }

@@ -26,10 +26,14 @@ document.addEventListener('DOMContentLoaded', function () {
     const filterStatus = document.getElementById('filterStatus');
     const tableBody = document.getElementById('employeeTableBody');
 
+    if (!searchInput || !tableBody) {
+        return;
+    }
+
     function filterTable() {
         const searchTerm = searchInput.value.toLowerCase();
-        const selectedPosition = filterPosition.value;
-        const selectedStatus = filterStatus.value;
+        const selectedPosition = filterPosition ? filterPosition.value : "";
+        const selectedStatus = filterStatus ? filterStatus.value : "";
 
         Array.from(tableBody.rows).forEach(row => {
             const cells = row.cells;
@@ -46,6 +50,12 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     searchInput.addEventListener('input', filterTable);
-    filterPosition.addEventListener('change', filterTable);
-    filterStatus.addEventListener('change', filterTable);
+
+    if (filterPosition) {
+        filterPosition.addEventListener('change', filterTable);
+    }
+
+    if (filterStatus) {
+        filterStatus.addEventListener('change', filterTable);
+    }
 });

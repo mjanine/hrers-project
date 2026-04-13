@@ -1,12 +1,11 @@
-{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Employee Records | HR System</title>
-    <link rel="shortcut icon" type="image/png" href="{% static 'img/general/uph.png' %}">
-    <link rel="stylesheet" href="{% static 'css/hr/hr_employeelist.css' %}">
+    <link rel="shortcut icon" type="image/png" href="/static/img/general/uph.png">
+    <link rel="stylesheet" href="/static/css/hr/hr_employeelist.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
@@ -17,7 +16,7 @@
     <div class="sidebar" id="sidebar">
         <div class="top-section">
             <div class="logo-wrapper" id="logoToggle">
-                <img src="{% static 'img/general/uph.png' %}" class="logo">
+                <img src="/static/img/general/uph.png" class="logo" alt="HR system logo" width="45" height="45">
                 <div class="open-icon"><i class="fas fa-chevron-right"></i></div>
             </div>
             <button class="close-btn" id="closeBtn"><i class="fas fa-chevron-left"></i></button>
@@ -44,9 +43,9 @@
             <div class="header">
                 <h1>Employee Records</h1>
                 <div class="search-add">
-                    <form method="GET" action="{% url 'employee_list' %}" style="display: flex; gap: 10px; width: 100%;">
-                        <input type="text" name="search" id="searchInput" placeholder="Search by Name or ID..." value="{{ request.GET.search }}">
-                        <a href="{% url 'add_employee' %}"><button type="button" class="add-btn"><i class="fas fa-plus"></i> Add Employee</button></a>
+                    <form method="get" action="#" style="display: flex; gap: 10px; width: 100%;">
+                        <input type="text" name="search" id="searchInput" placeholder="Search by Name or ID..." value="">
+                        <a href="hr_addemployee.html"><button type="button" class="add-btn"><i class="fas fa-plus"></i> Add Employee</button></a>
                     </form>
                 </div>
             </div>
@@ -64,47 +63,78 @@
                         </tr>
                     </thead>
                     <tbody id="employeeTableBody">
-                        {% for emp in employees %}
                         <tr>
-                            <td>{{ emp.profile.employee_id|default:"---" }}</td>
-                            <td>{{ emp.get_full_name }}</td>
-                            <td>{{ emp.department.name|default:"Unassigned" }}</td>
-                            <td>{{ emp.get_role_display }}</td>
+                            <td>EMP-1001</td>
+                            <td>Alex Santos</td>
+                            <td>Human Resources</td>
+                            <td>HR Staff</td>
                             <td>
-                                {% if emp.is_active %}
-                                    <span class="status-active">Active</span>
-                                {% else %}
-                                    <span class="status-inactive">Inactive</span>
-                                {% endif %}
+                                <span class="status-active">Active</span>
                             </td>
-                            <<td>
-    <a href="{% url 'employee_profile' emp.id %}" class="action-link" title="View">
-        <i class="fas fa-eye"></i>
-    </a>
-
-    <span class="separator">|</span>
-
-    <a href="{% url 'edit_employee' emp.id %}" class="action-link" title="Edit">
-        <i class="fas fa-pen"></i>
-    </a>
-
-    <span class="separator">|</span>
-
-    <form action="{% url 'delete_employee' emp.id %}" method="POST" style="display:inline;" 
-          onsubmit="return confirm('Are you sure you want to delete {{ emp.get_full_name }}? This action cannot be undone.');">
-        {% csrf_token %}
-        <button type="submit" class="action-link" title="Delete" 
-                style="background: none; border: none; color: #a02d2d; cursor: pointer; padding: 0; font-size: inherit;">
-            <i class="fas fa-trash"></i>
-        </button>
-    </form>
-</td>
+                            <td>
+                                <a href="hr_employee_view.html" class="action-link" title="View">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <span class="separator">|</span>
+                                <a href="hr_employee_edit.html" class="action-link" title="Edit">
+                                    <i class="fas fa-pen"></i>
+                                </a>
+                                <span class="separator">|</span>
+                                <button type="button" class="action-link" title="Delete"
+                                        style="background: none; border: none; color: #a02d2d; cursor: pointer; padding: 0; font-size: inherit;"
+                                        onclick="confirm('Delete Alex Santos? This action cannot be undone.')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
                         </tr>
-                        {% empty %}
                         <tr>
-                            <td colspan="6" style="text-align: center;">No employees found.</td>
+                            <td>EMP-1002</td>
+                            <td>Maria Reyes</td>
+                            <td>Finance</td>
+                            <td>Analyst</td>
+                            <td>
+                                <span class="status-active">Active</span>
+                            </td>
+                            <td>
+                                <a href="hr_employee_view.html" class="action-link" title="View">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <span class="separator">|</span>
+                                <a href="hr_employee_edit.html" class="action-link" title="Edit">
+                                    <i class="fas fa-pen"></i>
+                                </a>
+                                <span class="separator">|</span>
+                                <button type="button" class="action-link" title="Delete"
+                                        style="background: none; border: none; color: #a02d2d; cursor: pointer; padding: 0; font-size: inherit;"
+                                        onclick="confirm('Delete Maria Reyes? This action cannot be undone.')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
                         </tr>
-                        {% endfor %}
+                        <tr>
+                            <td>EMP-1003</td>
+                            <td>John Dela Cruz</td>
+                            <td>IT</td>
+                            <td>Support Staff</td>
+                            <td>
+                                <span class="status-inactive">Inactive</span>
+                            </td>
+                            <td>
+                                <a href="hr_employee_view.html" class="action-link" title="View">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <span class="separator">|</span>
+                                <a href="hr_employee_edit.html" class="action-link" title="Edit">
+                                    <i class="fas fa-pen"></i>
+                                </a>
+                                <span class="separator">|</span>
+                                <button type="button" class="action-link" title="Delete"
+                                        style="background: none; border: none; color: #a02d2d; cursor: pointer; padding: 0; font-size: inherit;"
+                                        onclick="confirm('Delete John Dela Cruz? This action cannot be undone.')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -112,6 +142,6 @@
     </main>
 </div>
 
-<script src="{% static 'js/hr/hr_employeelist.js' %}"></script>
+<script src="/static/js/hr/hr_employeelist.js"></script>
 </body>
 </html>
