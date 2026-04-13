@@ -1,0 +1,154 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+body::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url("../../../static/img/login/building3.jpg") no-repeat center center/cover;
+    filter: blur(8px);
+    transform: scale(1.1); 
+    z-index: -1;
+}
+
+.logo {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+}
+
+.logo img {
+    width: 60px;
+    height: auto;
+}
+
+.container {
+    width: 900px;
+    height: 500px;
+    background: white;
+    display: flex;
+    border-radius: 10px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+/* Left Section */
+.left-section {
+    flex: 1;
+    background: #ffffff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.left-section img {
+    width: 100%;
+}
+
+/* Right Section */
+.right-section {
+    flex: 1;
+    padding: 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.right-section h2 {
+    margin-bottom: 15px;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.right-section p {
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 20px;
+}
+
+.input-group {
+    margin-bottom: 20px;
+}
+
+input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 25px;
+    border: 1px solid #ccc;
+    outline: none;
+    font-size: 14px;
+    transition: 0.3s;
+}
+
+input:focus {
+    border-color: #8b0000;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 25px;
+    background-color: #8b0000;
+    color: white;
+    font-size: 15px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+button:hover {
+    background-color: #a50000;
+}
+
+.message {
+    margin-top: 15px;
+    font-size: 14px;
+    display: none;
+}
+
+.back-login {
+    margin-top: 30px;
+    font-size: 14px;
+    text-align: center;
+    cursor: pointer;
+    color: #555;
+}
+
+.back-login:hover {
+    text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+        width: 90%;
+        height: auto;
+    }
+
+    .left-section {
+        padding: 20px;
+    }
+
+    .right-section {
+        padding: 30px;
+    }
+}

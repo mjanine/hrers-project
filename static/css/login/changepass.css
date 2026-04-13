@@ -1,0 +1,118 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #ff7a18, #af002d 70%);
+}
+
+/* Glass Container */
+.glass-container {
+    position: relative;
+    width: 900px;
+    height: 500px;
+    border-radius: 25px;
+
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+
+    padding: 40px;
+    color: white;
+}
+
+/* Logo */
+.logo {
+    position: absolute;
+    top: 25px;
+    left: 30px;
+    width: 60px;
+}
+
+/* Center Content */
+.content {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.content h2 {
+    margin-bottom: 30px;
+    letter-spacing: 1px;
+}
+
+/* Inputs */
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+input {
+    width: 320px;
+    padding: 12px 20px;
+    margin-bottom: 18px;
+    border-radius: 30px;
+    border: none;
+    outline: none;
+    background: rgba(255,255,255,0.85);
+}
+
+/* Requirements */
+.requirements {
+    width: 320px;
+    font-size: 13px;
+    margin-bottom: 20px;
+}
+
+.requirements p {
+    opacity: 0.7;
+}
+
+.valid {
+    color: #00ff88;
+    opacity: 1;
+}
+
+.invalid {
+    color: #ff4d4d;
+}
+
+/* Button */
+button {
+    width: 200px;
+    padding: 10px;
+    border-radius: 25px;
+    border: none;
+    background: #5a0000;
+    color: white;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+button:hover {
+    background: #7a0000;
+}
+
+/* Bottom Note */
+.note {
+    position: absolute;
+    bottom: 25px;
+    text-align: center;
+    font-size: 13px;
+    opacity: 0.7;
+    width: 100%;
+    left: 0;
+}

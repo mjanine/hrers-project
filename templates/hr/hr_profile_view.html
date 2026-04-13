@@ -1,0 +1,162 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile | {{ employee.get_full_name }}</title>
+    <link rel="shortcut icon" href="{% static 'img/general/uph.png' %}">
+    <link rel="stylesheet" href="{% static 'css/hr/hr_profile_view.css' %}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+</head>
+
+<body>
+
+<div class="background"></div>
+
+<div class="dashboard-viewport">
+    <div class="sidebar" id="sidebar">
+        <div class="top-section">
+            <div class="logo-wrapper" id="logoToggle">
+                <img src="{% static 'img/general/uph.png' %}" class="logo">
+                <div class="open-icon"><i class="fas fa-chevron-right"></i></div>
+            </div>
+            <button class="close-btn" id="closeBtn"><i class="fas fa-chevron-left"></i></button>
+        </div>
+
+            <ul class="menu">
+        <li><a href="hr_dash.html" class="menu-item"><i class="fas fa-border-all"></i><span>Dashboard</span></a></li>
+        <li><a href="hr_profile_view.html" class="menu-item active"><i class="fas fa-user"></i><span>Profile</span></a></li>
+        <hr>
+        <li><a href="hr_appmanagement.html" class="menu-item"><i class="fas fa-file"></i><span>Application Management</span></a></li>
+        <li><a href="hr_employeelist.html" class="menu-item"><i class="fas fa-database"></i><span>Employee Records</span></a></li>
+        <li><a href="hr_attendancemonitoring.html" class="menu-item"><i class="fas fa-calendar"></i><span>Attendance Monitoring</span></a></li>
+        <li><a href="hr_leaveselect.html" class="menu-item"><i class="fas fa-briefcase"></i><span>Leave Management</span></a></li>
+        <li><a href="#" class="menu-item"><i class="fas fa-star"></i><span>Performance Evaluation</span></a></li>
+        <li><a href="hr_training.html" class="menu-item"><i class="fas fa-chalkboard-teacher"></i><span>Trainings</span></a></li>
+        <li><a href="hr_reports.html" class="menu-item"><i class="fas fa-chart-line"></i><span>Reports / Analytics</span></a></li>
+    </ul>
+
+            <div class="bottom-section">
+        <a href="../login/login.html" class="menu-item logout"><i class="fas fa-sign-out-alt"></i><span>Log Out</span></a>
+    </div>
+    </div>
+
+    <main class="main-content">
+        <div class="profile-page-container">
+
+            <div class="profile-card">
+                <div class="profile-left">
+                    {% if employee.profile_pic %}
+                        <img src="{{ employee.profile_pic.url }}" class="profile-img">
+                    {% else %}
+                        <img src="{% static 'img/sample-profile-pic.jfif' %}" class="profile-img">
+                    {% endif %}
+                    
+                    <div class="profile-info">
+                        <h2>{{ employee.get_full_name }}</h2>
+                        <p class="role">{{ employee.get_role_display }}</p>
+                        <p class="employee-id">Employee ID: {{ employee.profile.employee_id|default:"---" }}</p>
+
+                        <div class="employment-details">
+                            <p><strong>Status</strong> 
+                                <span class="status-dot {% if employee.is_active %}active-dot{% else %}inactive-dot{% endif %}"></span>
+                            </p>
+                            <p><strong>Department:</strong> {{ employee.department.name|default:"Not Assigned" }}</p>
+                            <p><strong>Employment Type:</strong> {{ employee.profile.get_employment_type_display|default:"---" }}</p>
+                            <p><strong>Date Hired:</strong> {{ employee.date_joined|date:"F d, Y" }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-right">
+                    <a href="{% url 'edit_employee' employee.id %}"><button class="edit-btn">Edit Profile</button></a>
+                    <div class="contact-info">
+                        <h4>Contact Information</h4>
+                        <p><i class="fas fa-envelope"></i> {{ employee.email }}</p>
+                        <p><i class="fas fa-phone"></i> {{ employee.profile.contact_number|default:"+63 --- --- ----" }}</p>
+                        <p><i class="fas fa-location-dot"></i> {{ employee.profile.address|default:"No address saved" }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tabs">
+                <button class="tab active" data-tab="dept">Department</button>
+                <button class="tab" data-tab="docs">Documents</button>
+                <button class="tab" data-tab="history">History</button>
+            </div>
+
+            <div class="tab-content">
+                <div class="tab-content-item active" id="dept">
+                    <div class="info-card">
+                        <h4>Department Details</h4>
+                        <div class="info-row"><span>Assigned Department</span><span>{{ employee.department.name|default:"Unassigned" }}</span></div>
+                        <div class="info-row"><span>Department Code</span><span>{{ employee.department.id|default:"N/A" }}</span></div>
+                        <div class="info-row"><span>Supervisor Status</span><span>{% if employee.role == 'ADM' %}Managerial{% else %}Staff{% endif %}</span></div>
+                    </div>
+                </div>
+
+                <div class="tab-content-item" id="docs">
+                    <div class="doc-header"><span>Employee Document Repository</span></div>
+                    <table class="doc-table">
+                        <thead>
+                            <tr>
+                                <th>Document Name</th>
+                                <th>Format</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Employee Information Form</td>
+                                <td>System Gen</td>
+                                <td style="color: #28a745; font-weight: bold;">Verified</td>
+                                <td><a href="#"><i class="fas fa-eye"></i></a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="tab-content-item" id="history">
+                    <div class="history-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h4>Employment Timeline</h4>
+                        <button class="add-event-btn" id="openHistoryModal">
+                            <i class="fas fa-plus"></i> Add Event
+                        </button>
+                    </div>
+
+                    <div class="timeline" id="timelineContainer">
+                        <div class="timeline-item">
+                            <div class="timeline-date">{{ employee.date_joined|date:"Y" }}</div>
+                            <div class="timeline-content">
+                                <h4>Onboarded</h4>
+                                <p>Officially joined the UPH HR System.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<div id="historyModal" class="modal" style="display:none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Add New History Event</h3>
+            <span class="close-modal" id="closeHistoryModal">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div class="form-group"><label>Year</label><input type="text" id="eventDate" placeholder="2026"></div>
+            <div class="form-group"><label>Title</label><input type="text" id="eventTitle" placeholder="e.g., Promotion"></div>
+            <div class="form-group"><label>Description</label><textarea id="eventDesc" rows="3"></textarea></div>
+            <button id="saveEventBtn" class="save-btn">Save to Timeline</button>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'js/hr/hr_profile_view.js' %}"></script>
+
+</body>
+</html>

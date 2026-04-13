@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Employee Portal</title>
+    <link rel="shortcut icon" type="image/png" href="../../static/img/general/uph.png">
+    <link rel="stylesheet" href="../../static/css/application/application_info.css">
+    <link rel="stylesheet" href="../../static/css/admin/admin_dash.css">
+    <link rel="stylesheet" href="../../static/css/admin/admin.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            background: transparent;
+        }
+
+        .sidebar {
+            z-index: 1000;
+        }
+
+        .dashboard-viewport {
+            display: flex;
+            height: 100vh;
+            width: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+            gap: 20px;
+        }
+
+        .main-content.dashboard-main {
+            flex: 1;
+            height: 100%;
+            margin-left: 320px;
+            display: flex;
+            min-width: 0;
+            transition: margin-left 0.35s ease;
+        }
+
+        .sidebar.collapsed ~ .dashboard-viewport .main-content.dashboard-main {
+            margin-left: 110px;
+        }
+
+        .form-card.dashboard-card {
+            background: #ffffff;
+            border-radius: 25px;
+            padding: 25px 32px;
+            width: 100%;
+            height: 100%;
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box;
+        }
+
+        .form-body.dashboard-body {
+            flex: 1;
+            overflow: auto;
+            padding-right: 0.5rem;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .form-body.dashboard-body::-webkit-scrollbar {
+            display: none;
+        }
+
+        .admin-dashboard {
+            padding: 0;
+            background: transparent;
+            min-height: auto;
+        }
+
+        .admin-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .section-wide .section-title {
+            width: 100%;
+            max-width: none;
+        }
+
+        @media (max-width: 1100px) {
+            .main-content.dashboard-main {
+                margin-left: 110px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-viewport {
+                padding: 12px;
+                gap: 12px;
+            }
+
+            .main-content.dashboard-main {
+                margin-left: 0;
+            }
+
+            .form-card.dashboard-card {
+                padding: 18px;
+                border-radius: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="background"></div>
+
+    <div class="sidebar" id="sidebar">
+        <div class="top-section">
+            <div class="logo-wrapper" id="logoToggle">
+                <img src="../../static/img/general/uph.png" class="logo" alt="Logo">
+                <div class="open-icon"><i class="fas fa-chevron-right"></i></div>
+            </div>
+            <button class="close-btn" id="closeBtn"><i class="fas fa-chevron-left"></i></button>
+        </div>
+
+        <ul class="menu">
+            <li><a href="dashboard.html" class="menu-item active"><i class="fas fa-home"></i> <span>Dashboard</span></a></li>
+            <li><a href="user_management.html" class="menu-item"><i class="fas fa-users"></i> <span>User Management</span></a></li>
+            <li><a href="department_management.html" class="menu-item"><i class="fas fa-sitemap"></i> <span>Department Management</span></a></li>
+            <li><a href="audit_trails.html" class="menu-item"><i class="fas fa-history"></i> <span>Audit Trails</span></a></li>
+        </ul>
+
+        <div class="bottom-section">
+            <a href="../login/login.html" class="menu-item logout"><i class="fas fa-sign-out-alt"></i> <span>Log Out</span></a>
+        </div>
+    </div>
+
+    <div class="dashboard-viewport">
+    <main class="main-content dashboard-main">
+        <div class="form-card dashboard-card">
+            <div class="form-body dashboard-body">
+                <div class="admin-dashboard">
+                    <div class="admin-header">
+                        <div>
+                            <h1>Admin Dashboard</h1>
+                            <p class="subtitle">System Overview &amp; Management</p>
+                        </div>
+                    </div>
+
+                    <div class="stats-container">
+                        <div class="stat-card">
+                            <div class="stat-icon users-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="stat-content">
+                                <p class="stat-label">Total Users</p>
+                                <h2 class="stat-number">135</h2>
+                                <span class="stat-change positive">↑ 128 Active</span>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon departments-icon">
+                                <i class="fas fa-sitemap"></i>
+                            </div>
+                            <div class="stat-content">
+                                <p class="stat-label">Total Departments</p>
+                                <h2 class="stat-number">8</h2>
+                                <span class="stat-change">8 Heads Assigned</span>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon activity-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="stat-content">
+                                <p class="stat-label">System Activity</p>
+                                <h2 class="stat-number">47</h2>
+                                <span class="stat-change">Logins Today</span>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon pending-icon">
+                                <i class="fas fa-hourglass-end"></i>
+                            </div>
+                            <div class="stat-content">
+                                <p class="stat-label">Pending Actions</p>
+                                <h2 class="stat-number">3</h2>
+                                <span class="stat-change warning">Require Attention</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-grid">
+                        <div class="section-wide">
+                            <h2 class="section-title">System Activity Overview</h2>
+                            <div class="activity-container">
+                                <div class="chart-wrapper">
+                                    <h3>Login Activity (Last 7 Days)</h3>
+                                    <canvas id="loginChart"></canvas>
+                                </div>
+                                <div class="chart-wrapper">
+                                    <h3>User Distribution by Role</h3>
+                                    <canvas id="roleChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="section">
+                            <h2 class="section-title">Recent System Activity</h2>
+                            <div class="activity-feed">
+                                <div class="activity-item">
+                                    <div class="activity-icon">
+                                        <i class="fas fa-sign-in-alt"></i>
+                                    </div>
+                                    <div class="activity-details">
+                                        <p class="activity-action">John Doe logged in</p>
+                                        <p class="activity-user">by Admin</p>
+                                    </div>
+                                    <p class="activity-time">10 mins ago</p>
+                                </div>
+
+                                <div class="activity-item">
+                                    <div class="activity-icon">
+                                        <i class="fas fa-user-plus"></i>
+                                    </div>
+                                    <div class="activity-details">
+                                        <p class="activity-action">New user Sarah Smith created</p>
+                                        <p class="activity-user">by Admin User</p>
+                                    </div>
+                                    <p class="activity-time">25 mins ago</p>
+                                </div>
+
+                                <div class="activity-item">
+                                    <div class="activity-icon">
+                                        <i class="fas fa-user-tie"></i>
+                                    </div>
+                                    <div class="activity-details">
+                                        <p class="activity-action">Role changed for Mike Johnson to HR</p>
+                                        <p class="activity-user">by Admin</p>
+                                    </div>
+                                    <p class="activity-time">1 hour ago</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="section">
+                            <h2 class="section-title">Quick Actions</h2>
+                            <div class="quick-actions">
+                                <a href="user_management.html" class="action-btn primary">
+                                    <i class="fas fa-user-plus"></i>
+                                    <span>Manage Users</span>
+                                </a>
+                                <a href="department_management.html" class="action-btn secondary">
+                                    <i class="fas fa-sitemap"></i>
+                                    <span>Manage Departments</span>
+                                </a>
+                                <a href="audit_trails.html" class="action-btn secondary">
+                                    <i class="fas fa-history"></i>
+                                    <span>View Audit Trails</span>
+                                </a>
+                                <a href="#" class="action-btn secondary">
+                                    <i class="fas fa-file-export"></i>
+                                    <span>Export Report</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="section">
+                            <h2 class="section-title">System Status</h2>
+                            <div class="status-list">
+                                <div class="status-item">
+                                    <span class="status-label">Database</span>
+                                    <span class="status-badge success">Connected</span>
+                                </div>
+                                <div class="status-item">
+                                    <span class="status-label">Email Service</span>
+                                    <span class="status-badge success">Active</span>
+                                </div>
+                                <div class="status-item">
+                                    <span class="status-label">File Storage</span>
+                                    <span class="status-badge success">Available</span>
+                                </div>
+                                <div class="status-item">
+                                    <span class="status-label">Backup</span>
+                                    <span class="status-badge warning">Scheduled</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    </div>
+
+    <script src="../../static/js/admin/sidebar.js"></script>
+    <script src="../../static/js/admin/dashboard.js"></script>
+</body>
+</html>

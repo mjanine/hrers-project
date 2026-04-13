@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Leave Management | Head System</title>
+    <link rel="shortcut icon" type="image/png" href="../../static/img/general/uph.png">
+    <link rel="stylesheet" href="../../static/css/head/head_leaverequest.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="background"></div>
+    
+    <div class="sidebar" id="sidebar">
+        <div class="top-section">
+            <div class="logo-wrapper" id="logoToggle">
+                <img src="../../static/img/general/uph.png" class="logo">
+                <div class="open-icon"><i class="fas fa-chevron-right"></i></div>
+            </div>
+            <button class="close-btn" id="closeBtn"><i class="fas fa-chevron-left"></i></button>
+        </div>
+        <ul class="menu">
+            <li><a href="head_dash.html" class="menu-item"><i class="fas fa-border-all"></i> <span>Dashboard</span></a></li>
+            <li><a href="head_profile_view.html" class="menu-item"><i class="fas fa-user"></i> <span>Profile</span></a></li>
+            <hr>
+            <li>
+                <a href="head_appmanagement.html" class="menu-item">
+                    <i class="fas fa-file"></i>
+                    <span>Application Management</span>
+                </a>
+            </li>            
+            <li>
+                <a href="head_employeelist.html" class="menu-item">
+                    <i class="fas fa-database"></i>
+                    <span>Employee Records</span>
+                </a>
+            </li>
+            <li>
+                <a href="head_attendancemonitoring.html" class="menu-item">
+                    <i class="fas fa-calendar"></i>
+                    <span>Attendance Monitoring</span>
+                </a>
+            </li>
+            <li>
+                <a href="head_leaveselect.html" class="menu-item active">
+                    <i class="fas fa-briefcase"></i>
+                    <span>Leave Management</span>
+                </a>
+            </li>
+            <li><a href="#" class="menu-item"><i class="fas fa-star"></i> <span>Performance Evaluation</span></a></li>
+            <li><a href="head_training.html" class="menu-item"><i class="fas fa-chalkboard-teacher"></i><span>Trainings</span></a></li>
+        </ul>
+        <div class="bottom-section">
+            <a href="../login/login.html" class="menu-item logout"><i class="fas fa-sign-out-alt"></i> <span>Log Out</span></a>
+        </div>
+    </div>
+
+    <div class="dashboard-viewport">
+        <main class="main-content">
+            <div class="leave-card">
+                <div class="header">
+                    <h1>Leave Management</h1>
+                    <div class="search-add">
+                        <div class="search-wrapper">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="tableSearch" placeholder="Search Employee / Type...">
+                        </div>
+                        <div class="tab-group">
+                            <button class="tab-btn active" id="tab-requests">Leave Requests</button>
+                            <button class="tab-btn" id="tab-history">Leave History</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-body">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Employee</th>
+                                <th>Leave Type</th>
+                                <th>Start Date</th>
+                                <th>End Date</th>
+                                <th>Days</th>
+                                <th>Status</th>
+                                <th>Reviewed By</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaveTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="viewModal" class="modal-overlay">
+        <div class="view-modal-content">
+            <div class="modal-header">
+                <h3>Leave Application Detail</h3>
+            </div>
+            <div class="modal-grid">
+                <div class="doc-preview">
+                    <div class="doc-tab-label">Supporting Document</div>
+                    <div class="doc-box">
+                        <div class="doc-header" id="modalFileName">Document.pdf</div>
+                        <div class="pdf-placeholder">
+                            <i class="fas fa-file-pdf"></i>
+                            <p>Document Preview Mode</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="info-panel" id="modalInfoTarget">
+                    <div class="info-item">
+                        <label>Application Status</label>
+                        <div id="modalStatusContainer"></div>
+                        <p id="modalReviewerText"><small>Reviewed by: ---</small></p>
+                    </div>
+                    <div class="info-item">
+                        <label>Submission Date</label>
+                        <p id="modalSubmitDate">---</p>
+                    </div>
+                    <div class="info-item">
+                        <label>Reason</label>
+                        <p id="modalReason" class="modal-text-unified">---</p>
+                    </div>
+                    <div class="info-item" id="creditsBlock" style="display: none;">
+                        <label>Sick Leave Credits</label>
+                        <p id="modalCredits" class="modal-text-unified">---</p>
+                    </div>
+                    <div class="info-item">
+                        <label>Review Remarks</label>
+                        <p id="modalRemarks" class="modal-text-unified">---</p>
+                    </div>
+                    <div class="modal-footer" id="modalActions" style="display: none;">
+                        <button class="btn-approve" onclick="processHeadRequest('Approved')">Approve Request</button>
+                        <button class="btn-reject" onclick="processHeadRequest('Rejected')">Reject Request</button>
+                    </div>
+                    <button class="modal-close-btn" onclick="closeViewModal()">Close View</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <template id="headRowTemplate">
+        <tr>
+            <td class="col-emp"></td>
+            <td class="col-type"></td>
+            <td class="col-start"></td>
+            <td class="col-end"></td>
+            <td class="col-days"></td>
+            <td class="col-status"></td>
+            <td class="col-reviewer"></td>
+            <td><span class="action-link">View Details</span></td>
+        </tr>
+    </template>
+
+    <script src="../../static/js/head/head_leaverequest.js"></script>
+</body>
+</html>

@@ -1,0 +1,128 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Employee Portal{% endblock %}</title>
+
+    <link rel="shortcut icon" type="image/png" href="{% static 'img/general/uph.png' %}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/admin/admin.css' %}">
+
+    {% block extra_css %}{% endblock %}
+
+    <style>
+        /* Essential Layout to prevent 'Merging' or 'Mobile' looks */
+        html, body {
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #800000; /* Maroon base match */
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .sidebar {
+            width: 280px;
+            height: 100vh;
+            background: linear-gradient(180deg, #ff5722 0%, #800000 100%) !important; 
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 4px 0 15px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .dashboard-viewport {
+            margin-left: 280px; 
+            background-color: #800000; 
+            height: 100vh;
+            width: calc(100% - 280px);
+            padding: 25px; 
+            box-sizing: border-box;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* The Menu Item Styling */
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 14px 22px;
+            margin: 8px 18px;
+            border-radius: 12px;
+            text-decoration: none;
+            color: white !important;
+            transition: 0.3s;
+        }
+
+        .menu-item:hover, .menu-item.active {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(8px);
+        }
+
+        .sidebar hr {
+            border: 0;
+            height: 1px;
+            background: rgba(255,255,255,0.1);
+            margin: 10px 25px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar" id="sidebar">
+        <div class="top-section" style="padding: 20px; text-align: center;">
+            <div class="logo-wrapper">
+                <img src="{% static 'img/general/uph.png' %}" style="width: 50px;" alt="Logo">
+            </div>
+        </div>
+
+        <ul class="menu" style="list-style: none; padding: 0;">
+            <li>
+                <a href="{% url 'admin_dashboard' %}" class="menu-item {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
+                    <i class="fas fa-border-all"></i> <span>Dashboard</span>
+                </a>
+            </li>
+            <hr>
+            <li>
+                <a href="{% url 'employee_list' %}" class="menu-item {% if request.resolver_match.url_name == 'employee_list' %}active{% endif %}">
+                    <i class="fas fa-database"></i> <span>Employee Records</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'department_management' %}" class="menu-item {% if request.resolver_match.url_name == 'department_management' %}active{% endif %}">
+                    <i class="fas fa-sitemap"></i> <span>Departments</span>
+                </a>
+            </li>
+            <hr>
+            <li>
+                <a href="{% url 'audit_trails' %}" class="menu-item {% if request.resolver_match.url_name == 'audit_trails' %}active{% endif %}">
+                    <i class="fas fa-history"></i> <span>Audit Trails</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="bottom-section" style="margin-top: auto; padding-bottom: 20px;">
+            <form action="{% url 'logout' %}" method="post" id="logout-form" style="display:none;">
+                {% csrf_token %}
+            </form>
+            <a href="#" class="menu-item" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                <i class="fas fa-sign-out-alt"></i> <span>Log Out</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="dashboard-viewport">
+        {% block content %}{% endblock %}
+    </div>
+
+    <script src="{% static 'js/admin/sidebar.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

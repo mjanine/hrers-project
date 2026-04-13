@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trainings | Head System</title>
+    <link rel="shortcut icon" type="image/png" href="../../static/img/general/uph.png">
+    <link rel="stylesheet" href="../../static/css/training_management/head_training.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="background"></div>
+
+<!-- ================= SIDEBAR ================= -->
+<div class="sidebar" id="sidebar">
+    <div class="top-section">
+        <div class="logo-wrapper" id="logoToggle">
+            <img src="../../static/img/general/uph.png" class="logo" alt="Logo">
+            <div class="open-icon"><i class="fas fa-chevron-right"></i></div>
+        </div>
+        <button class="close-btn" id="closeBtn"><i class="fas fa-chevron-left"></i></button>
+    </div>
+
+    <ul class="menu">
+        <li>
+            <a href="head_dash.html" class="menu-item">
+                <i class="fas fa-border-all"></i>
+                <span>Dashboard</span>
+            </a>
+        </li>
+        <li>
+            <a href="head_profile_view.html" class="menu-item">
+                <i class="fas fa-user"></i>
+                <span>Profile</span>
+            </a>
+        </li>
+        <hr>
+        <li>
+            <a href="#" class="menu-item">
+                <i class="fas fa-user-edit"></i>
+                <span>Position Change Request</span>
+            </a>
+        </li>
+        <li>
+            <a href="head_employeelist.html" class="menu-item">
+                <i class="fas fa-database"></i>
+                <span>Employee Records</span>
+            </a>
+        </li>
+        <li>
+            <a href="#" class="menu-item">
+                <i class="fas fa-calendar"></i>
+                <span>Attendance Monitoring</span>
+            </a>
+        </li>
+        <li>
+            <a href="head_leaveselect.html" class="menu-item">
+                <i class="fas fa-briefcase"></i>
+                <span>Leave Management</span>
+            </a>
+        </li>
+        <li>
+            <a href="#" class="menu-item">
+                <i class="fas fa-star"></i>
+                <span>Performance Evaluation</span>
+            </a>
+        </li>
+        <li>
+            <a href="head_training.html" class="menu-item active">
+                <i class="fas fa-chalkboard-teacher"></i>
+                <span>Trainings</span>
+            </a>
+        </li>
+    </ul>
+
+    <div class="bottom-section">
+        <a href="../login/login.html" class="menu-item logout">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Log Out</span>
+        </a>
+    </div>
+</div>
+
+<!-- ================= MAIN CONTENT ================= -->
+<div class="main-content" id="mainContent">
+    <h2>Trainings</h2>
+    <div class="content-layout">
+
+        <!-- Grid of training cards -->
+        <div class="trainings-grid">
+
+            <div class="training-card"
+                data-title="Outcomes-Based Education Workshop"
+                data-category="Teaching"
+                data-type="Onsite"
+                data-date="March 12, 2026"
+                data-status="Open"
+                data-description="College of Computer Studies"
+                data-provider="CCS - 201"
+                data-location="Main building 2nd floor"
+                data-contact="ccs.admin@email.com"
+                data-slots="+ 63 987 654 3210">
+                <h3>Outcomes-Based Education Workshop</h3>
+                <div class="category">Teaching</div>
+                <div class="date">March 12, 2026</div>
+                <span class="badge">Onsite</span>
+                <div class="slots">25 / 30 slots left</div>
+                <button class="register-btn">Register</button>
+            </div>
+
+            <div class="training-card"
+                data-title="Advanced Research Methods Seminar"
+                data-category="Research"
+                data-type="Online"
+                data-date="April 5, 2026"
+                data-status="Open"
+                data-description="Graduate School Office"
+                data-provider="GSO - Research Division"
+                data-location="https://meet.uphsd.edu/research-seminar"
+                data-contact="gso.research@email.com"
+                data-slots="+ 63 987 654 3211">
+                <h3>Advanced Research Methods Seminar</h3>
+                <div class="category">Research</div>
+                <div class="date">April 5, 2026</div>
+                <span class="badge badge-online">Online</span>
+                <div class="slots">18 / 40 slots left</div>
+                <button class="register-btn">Register</button>
+            </div>
+
+            <div class="training-card"
+                data-title="Leadership & Management Training"
+                data-category="Leadership"
+                data-type="Onsite"
+                data-date="April 20, 2026"
+                data-status="Open"
+                data-description="Human Resources Department"
+                data-provider="HR - Training Division"
+                data-location="Admin Building Conference Room"
+                data-contact="hr.training@email.com"
+                data-slots="+ 63 987 654 3212">
+                <h3>Leadership & Management Training</h3>
+                <div class="category">Leadership</div>
+                <div class="date">April 20, 2026</div>
+                <span class="badge">Onsite</span>
+                <div class="slots">10 / 25 slots left</div>
+                <button class="register-btn">Register</button>
+            </div>
+
+            <div class="training-card"
+                data-title="Digital Literacy & Technology Integration"
+                data-category="Technology"
+                data-type="Hybrid"
+                data-date="May 8, 2026"
+                data-status="Open"
+                data-description="Information Technology Office"
+                data-provider="ITO - Digital Learning"
+                data-location="Computer Lab 3 / Online Stream"
+                data-contact="ito.training@email.com"
+                data-slots="+ 63 987 654 3213">
+                <h3>Digital Literacy & Technology Integration</h3>
+                <div class="category">Technology</div>
+                <div class="date">May 8, 2026</div>
+                <span class="badge badge-hybrid">Hybrid</span>
+                <div class="slots">30 / 50 slots left</div>
+                <button class="register-btn">Register</button>
+            </div>
+
+        </div>
+
+        <!-- My Trainings Panel -->
+        <div class="my-trainings-panel">
+            <h4>My Trainings</h4>
+            <div id="myTrainingsList">
+                <!-- Populated dynamically via JS -->
+                <div class="empty-state">No registered trainings yet.</div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- ================= MODAL ================= -->
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal" id="modalBox">
+        <div class="modal-header">
+            <h3 id="modal-title"></h3>
+            <div class="modal-meta" id="modal-meta"></div>
+            <span class="status-open" id="modal-status"></span>
+        </div>
+        <div class="modal-body">
+            <div class="modal-section-title">Training Information</div>
+            <table class="info-table">
+                <tr><td>Description</td><td id="modal-description"></td></tr>
+                <tr><td>Trainer / Provider</td><td id="modal-provider"></td></tr>
+                <tr><td>Location / Link</td><td id="modal-location"></td></tr>
+                <tr><td>Contact</td><td id="modal-contact"></td></tr>
+                <tr><td>Slots</td><td id="modal-slots"></td></tr>
+            </table>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-close-modal" id="btnCloseModal">Close</button>
+            <button class="btn-register-modal" id="btnRegisterModal">Register</button>
+        </div>
+    </div>
+</div>
+
+<script src="../../static/js/training_management/head_training.js"></script>
+</body>
+</html>

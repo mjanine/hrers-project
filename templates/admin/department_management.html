@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Department Management | Employee Portal</title>
+    <link rel="shortcut icon" type="image/png" href="../../static/img/general/uph.png">
+    <link rel="stylesheet" href="../../static/css/application/application_info.css">
+    <link rel="stylesheet" href="../../static/css/admin/admin_dash.css">
+    <link rel="stylesheet" href="../../static/css/admin/admin.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <style>
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            background: transparent;
+        }
+
+        .sidebar {
+            z-index: 1000;
+        }
+
+        .dashboard-viewport {
+            display: flex;
+            height: 100vh;
+            width: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+            gap: 20px;
+        }
+
+        .main-content.department-main {
+            flex: 1;
+            height: 100%;
+            margin-left: 320px;
+            display: flex;
+            min-width: 0;
+            transition: margin-left 0.35s ease;
+        }
+
+        .sidebar.collapsed ~ .dashboard-viewport .main-content.department-main {
+            margin-left: 110px;
+        }
+
+        .form-card.department-card {
+            background: #ffffff;
+            border-radius: 25px;
+            padding: 25px 32px;
+            width: 100%;
+            height: 100%;
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box;
+        }
+
+        .form-body.department-body {
+            flex: 1;
+            overflow: auto;
+            padding-right: 0.5rem;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .form-body.department-body::-webkit-scrollbar {
+            display: none;
+        }
+
+        .admin-section {
+            padding: 0;
+            background: transparent;
+            min-height: auto;
+        }
+
+        .section-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .table-view {
+            margin-top: 1rem;
+        }
+
+        .department-card .card-header {
+            position: relative;
+        }
+
+        .action-cell {
+            position: relative;
+            text-align: center;
+        }
+
+        .action-btn {
+            padding: 0;
+            margin: 0 0 0 auto;
+            min-width: 0;
+            width: auto;
+            height: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            background: transparent;
+            box-shadow: none;
+            color: #fff;
+            font-size: 1rem;
+            appearance: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+        }
+
+        .action-btn i {
+            color: #fff;
+        }
+
+        .action-btn:hover,
+        .action-btn:focus,
+        .action-btn:active {
+            background: transparent;
+            box-shadow: none;
+            outline: none;
+            color: #fff;
+        }
+
+        .action-btn:focus-visible {
+            outline: none;
+        }
+
+        .department-card .card-header .dropdown-menu {
+            right: 0;
+            top: calc(100% + 0.5rem);
+        }
+
+        .action-cell.open .dropdown-menu,
+        .department-card.open .dropdown-menu {
+            display: block;
+        }
+
+        @media (max-width: 1100px) {
+            .main-content.department-main {
+                margin-left: 110px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-viewport {
+                padding: 12px;
+                gap: 12px;
+            }
+
+            .main-content.department-main {
+                margin-left: 0;
+            }
+
+            .form-card.department-card {
+                padding: 18px;
+                border-radius: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="background"></div>
+
+    <div class="sidebar" id="sidebar">
+        <div class="top-section">
+            <div class="logo-wrapper" id="logoToggle">
+                <img src="../../static/img/general/uph.png" class="logo" alt="Logo">
+                <div class="open-icon"><i class="fas fa-chevron-right"></i></div>
+            </div>
+            <button class="close-btn" id="closeBtn"><i class="fas fa-chevron-left"></i></button>
+        </div>
+
+        <ul class="menu">
+            <li><a href="dashboard.html" class="menu-item"><i class="fas fa-home"></i> <span>Dashboard</span></a></li>
+            <li><a href="user_management.html" class="menu-item"><i class="fas fa-users"></i> <span>User Management</span></a></li>
+            <li><a href="department_management.html" class="menu-item active"><i class="fas fa-sitemap"></i> <span>Department Management</span></a></li>
+            <li><a href="audit_trails.html" class="menu-item"><i class="fas fa-history"></i> <span>Audit Trails</span></a></li>
+        </ul>
+
+        <div class="bottom-section">
+            <a href="../login/login.html" class="menu-item logout"><i class="fas fa-sign-out-alt"></i> <span>Log Out</span></a>
+        </div>
+    </div>
+
+    <div class="dashboard-viewport">
+    <main class="main-content department-main">
+        <div class="form-card department-card">
+            <div class="form-body department-body">
+                <div class="admin-section">
+                    <div class="section-header">
+                        <h1>Department Management</h1>
+                        <button class="btn btn-primary" id="addDepartmentBtn">
+                            <i class="fas fa-plus"></i> Add Department
+                        </button>
+                    </div>
+
+                    <div class="filters-container">
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="departmentSearch" placeholder="Search departments...">
+                        </div>
+                        <select id="headFilter" class="filter-select">
+                            <option value="">All Departments</option>
+                            <option value="unassigned">Without Head</option>
+                            <option value="assigned">With Head</option>
+                        </select>
+                    </div>
+
+                    <div class="view-toggle">
+                        <button class="toggle-btn active" data-view="grid">
+                            <i class="fas fa-th"></i> Grid View
+                        </button>
+                        <button class="toggle-btn" data-view="list">
+                            <i class="fas fa-list"></i> List View
+                        </button>
+                    </div>
+
+                    <div id="departmentsGrid" class="departments-grid">
+                        <div class="department-card" data-dept-id="1">
+                            <div class="card-header">
+                                <h3>Human Resources</h3>
+                                <button class="action-btn" onclick="toggleCardDropdown(this)">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <a href="#" class="dropdown-item edit-dept" data-dept-id="1"><i class="fas fa-edit"></i> Edit</a>
+                                    <a href="#" class="dropdown-item assign-head" data-dept-id="1"><i class="fas fa-user-tie"></i> Assign Head</a>
+                                    <hr>
+                                    <a href="#" class="dropdown-item delete-dept" data-dept-id="1"><i class="fas fa-trash"></i> Delete</a>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="dept-info">
+                                    <div class="info-group">
+                                        <span class="info-label">Department Head</span>
+                                        <p class="info-value"><i class="fas fa-user-circle"></i> Sarah Johnson</p>
+                                    </div>
+                                    <div class="info-group">
+                                        <span class="info-label">Total Employees</span>
+                                        <p class="info-value">15</p>
+                                    </div>
+                                    <div class="info-group">
+                                        <span class="info-label">Email</span>
+                                        <p class="info-value">hr@company.com</p>
+                                    </div>
+                                    <div class="info-group">
+                                        <span class="info-label">Location</span>
+                                        <p class="info-value">Building A, 2nd Floor</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="department-card" data-dept-id="2">
+                            <div class="card-header">
+                                <h3>Information Technology</h3>
+                                <button class="action-btn" onclick="toggleCardDropdown(this)">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <a href="#" class="dropdown-item edit-dept" data-dept-id="2"><i class="fas fa-edit"></i> Edit</a>
+                                    <a href="#" class="dropdown-item assign-head" data-dept-id="2"><i class="fas fa-user-tie"></i> Assign Head</a>
+                                    <hr>
+                                    <a href="#" class="dropdown-item delete-dept" data-dept-id="2"><i class="fas fa-trash"></i> Delete</a>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="dept-info">
+                                    <div class="info-group">
+                                        <span class="info-label">Department Head</span>
+                                        <p class="info-value"><i class="fas fa-user-circle"></i> Mike Brown</p>
+                                    </div>
+                                    <div class="info-group">
+                                        <span class="info-label">Total Employees</span>
+                                        <p class="info-value">22</p>
+                                    </div>
+                                    <div class="info-group">
+                                        <span class="info-label">Email</span>
+                                        <p class="info-value">it@company.com</p>
+                                    </div>
+                                    <div class="info-group">
+                                        <span class="info-label">Location</span>
+                                        <p class="info-value">Building B, 3rd Floor</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="department-card" data-dept-id="3">
+                            <div class="card-header">
+                                <h3>Finance</h3>
+                                <button class="action-btn" onclick="toggleCardDropdown(this)">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <a href="#" class="dropdown-item edit-dept" data-dept-id="3"><i class="fas fa-edit"></i> Edit</a>
+                                    <a href="#" class="dropdown-item assign-head" data-dept-id="3"><i class="fas fa-user-tie"></i> Assign Head</a>
+                                    <hr>
+                                    <a href="#" class="dropdown-item delete-dept" data-dept-id="3"><i class="fas fa-trash"></i> Delete</a>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="dept-info">
+                                    <div class="info-group">
+                                        <span class="info-label">Department Head</span>
+                                        <p class="info-value unassigned"><i class="fas fa-user-slash"></i> Not Assigned</p>
+                                    </div>
+                                    <div class="info-group">
+                                        <span class="info-label">Total Employees</span>
+                                        <p class="info-value">10</p>
+                                    </div>
+                                    <div class="info-group">
+                                        <span class="info-label">Email</span>
+                                        <p class="info-value">finance@company.com</p>
+                                    </div>
+                                    <div class="info-group">
+                                        <span class="info-label">Location</span>
+                                        <p class="info-value">Building A, 4th Floor</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="departmentsTable" class="table-view" style="display: none;">
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Department Name</th>
+                                        <th>Department Head</th>
+                                        <th>Total Employees</th>
+                                        <th>Email</th>
+                                        <th>Location</th>
+                                        <th>Created Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="dept-row" data-dept-id="1">
+                                        <td><strong>Human Resources</strong></td>
+                                        <td>Sarah Johnson</td>
+                                        <td>15</td>
+                                        <td>hr@company.com</td>
+                                        <td>Building A, 2nd Floor</td>
+                                        <td>Jan 10, 2024</td>
+                                        <td class="action-cell">
+                                            <button class="action-btn" onclick="toggleDropdown(this)">
+                                                <i class="fas fa-ellipsis-v"></i>
+                                            </button>
+                                            <div class="dropdown-menu">
+                                                <a href="#" class="dropdown-item edit-dept" data-dept-id="1"><i class="fas fa-edit"></i> Edit</a>
+                                                <a href="#" class="dropdown-item assign-head" data-dept-id="1"><i class="fas fa-user-tie"></i> Assign Head</a>
+                                                <hr>
+                                                <a href="#" class="dropdown-item delete-dept" data-dept-id="1"><i class="fas fa-trash"></i> Delete</a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr class="dept-row" data-dept-id="2">
+                                        <td><strong>Information Technology</strong></td>
+                                        <td>Mike Brown</td>
+                                        <td>22</td>
+                                        <td>it@company.com</td>
+                                        <td>Building B, 3rd Floor</td>
+                                        <td>Feb 05, 2024</td>
+                                        <td class="action-cell">
+                                            <button class="action-btn" onclick="toggleDropdown(this)">
+                                                <i class="fas fa-ellipsis-v"></i>
+                                            </button>
+                                            <div class="dropdown-menu">
+                                                <a href="#" class="dropdown-item edit-dept" data-dept-id="2"><i class="fas fa-edit"></i> Edit</a>
+                                                <a href="#" class="dropdown-item assign-head" data-dept-id="2"><i class="fas fa-user-tie"></i> Assign Head</a>
+                                                <hr>
+                                                <a href="#" class="dropdown-item delete-dept" data-dept-id="2"><i class="fas fa-trash"></i> Delete</a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr class="dept-row" data-dept-id="3">
+                                        <td><strong>Finance</strong></td>
+                                        <td><span class="unassigned">Not Assigned</span></td>
+                                        <td>10</td>
+                                        <td>finance@company.com</td>
+                                        <td>Building A, 4th Floor</td>
+                                        <td>Mar 01, 2024</td>
+                                        <td class="action-cell">
+                                            <button class="action-btn" onclick="toggleDropdown(this)">
+                                                <i class="fas fa-ellipsis-v"></i>
+                                            </button>
+                                            <div class="dropdown-menu">
+                                                <a href="#" class="dropdown-item edit-dept" data-dept-id="3"><i class="fas fa-edit"></i> Edit</a>
+                                                <a href="#" class="dropdown-item assign-head" data-dept-id="3"><i class="fas fa-user-tie"></i> Assign Head</a>
+                                                <hr>
+                                                <a href="#" class="dropdown-item delete-dept" data-dept-id="3"><i class="fas fa-trash"></i> Delete</a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    </div>
+
+    <div id="departmentModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="deptModalTitle">Add Department</h2>
+
+            <form id="departmentForm">
+                <input type="hidden" id="deptId">
+
+                <div class="form-group">
+                    <label>Department Name *</label>
+                    <input type="text" id="deptName" name="name" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="deptEmail" name="email" placeholder="department@company.com">
+                </div>
+
+                <div class="form-group">
+                    <label>Location</label>
+                    <input type="text" id="deptLocation" name="location" placeholder="Building, Floor">
+                </div>
+
+                <div class="form-group">
+                    <label>Budget (Optional)</label>
+                    <input type="number" id="deptBudget" name="budget" step="0.01" min="0">
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Save Department</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeDepartmentModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="assignHeadModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Assign Department Head</h2>
+            <p id="deptNameDisplay"></p>
+
+            <form id="assignHeadForm">
+                <input type="hidden" id="assignHeadDeptId">
+
+                <div class="form-group">
+                    <label>Select Department Head *</label>
+                    <div class="head-selection">
+                        <input type="text" id="headSearch" placeholder="Search by name or email...">
+                        <div id="headList" class="head-list">
+                            <div class="head-option" data-user-id="1">
+                                <input type="radio" name="head_id" value="1" id="head_1">
+                                <label for="head_1">
+                                    <span class="head-name">Sarah Johnson</span>
+                                    <span class="head-email">sarah.johnson@company.com</span>
+                                </label>
+                            </div>
+                            <div class="head-option" data-user-id="2">
+                                <input type="radio" name="head_id" value="2" id="head_2">
+                                <label for="head_2">
+                                    <span class="head-name">Mike Brown</span>
+                                    <span class="head-email">mike.brown@company.com</span>
+                                </label>
+                            </div>
+                            <div class="head-option" data-user-id="3">
+                                <input type="radio" name="head_id" value="3" id="head_3">
+                                <label for="head_3">
+                                    <span class="head-name">Lisa Davis</span>
+                                    <span class="head-email">lisa.davis@company.com</span>
+                                </label>
+                            </div>
+                            <div class="head-option" data-user-id="4">
+                                <input type="radio" name="head_id" value="4" id="head_4">
+                                <label for="head_4">
+                                    <span class="head-name">Robert Wilson</span>
+                                    <span class="head-email">robert.wilson@company.com</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="notifyHead">
+                        Send notification to new department head
+                    </label>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Assign Head</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeAssignHeadModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="confirmModal" class="modal">
+        <div class="modal-content modal-small">
+            <h2>Confirm Action</h2>
+            <p id="confirmMessage"></p>
+            <div class="form-actions">
+                <button class="btn btn-primary" id="confirmBtn">Confirm</button>
+                <button class="btn btn-secondary" onclick="closeConfirmModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../static/js/admin/sidebar.js"></script>
+    <script src="../../static/js/admin/department_management.js"></script>
+</body>
+</html>

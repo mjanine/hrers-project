@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Head System</title>
+    <link rel="shortcut icon" type="image/png" href="../../static/img/general/uph.png">
+    <link rel="stylesheet" href="../../static/css/head/head_dash.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <div class="background"></div>
+
+    <div class="sidebar" id="sidebar">
+        <div class="top-section">
+            <div class="logo-wrapper" id="logoToggle">
+                <img src="../../static/img/general/uph.png" class="logo" alt="Logo">
+                <div class="open-icon">
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+            </div>
+            <button class="close-btn" id="closeBtn">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+        </div>
+
+        <ul class="menu">
+            <li>
+                <a href="head_dash.html" class="menu-item active">
+                    <i class="fas fa-border-all"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="head_profile_view.html" class="menu-item">
+                    <i class="fas fa-user"></i>
+                    <span>Profile</span>
+                </a>
+            </li>
+            <hr>
+            <li>
+                <a href="head_appmanagement.html" class="menu-item">
+                    <i class="fas fa-file"></i>
+                    <span>Application Management</span>
+                </a>
+            </li>
+            <li>
+                <a href="head_employeelist.html" class="menu-item">
+                    <i class="fas fa-database"></i>
+                    <span>Employee Records</span>
+                </a>
+            </li>
+            <li>
+                <a href="head_attendancemonitoring.html" class="menu-item">
+                    <i class="fas fa-calendar"></i>
+                    <span>Attendance Monitoring</span>
+                </a>
+            </li>
+            <li>
+                <a href="head_leaveselect.html" class="menu-item">
+                    <i class="fas fa-briefcase"></i>
+                    <span>Leave Management</span>
+                </a>
+            </li>
+            <li>
+                <a href="#" class="menu-item">
+                    <i class="fas fa-star"></i>
+                    <span>Performance Evaluation</span>
+                </a>
+            </li>
+            <li>
+                <a href="head_training.html" class="menu-item">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                    <span>Trainings</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="bottom-section">
+            <a href="../login/login.html" class="menu-item logout">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Log Out</span>
+            </a>
+        </div>
+    </div>
+
+    <main class="main-content">
+        <div class="content-wrapper">
+            <!-- Left Content Area -->
+            <div class="dashboard-container">
+                <!-- Header Section -->
+                <div class="dashboard-header">
+                    <h1 class="dashboard-title">Dashboard</h1>
+                    <p class="dashboard-greeting">Hello, <span id="userName">Chief</span>! 👋</p>
+                    <p class="daily-quote" id="dailyQuote">Success is the sum of small efforts repeated day in and day out.</p>
+                </div>
+
+                <!-- KPI Cards Section -->
+                <section class="kpi-section">
+                    <h2 class="section-title">Overview</h2>
+                    <div class="kpi-grid">
+                        <div class="kpi-card">
+                            <div class="kpi-icon employees-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="kpi-content">
+                                <p class="kpi-label">Total Employees</p>
+                                <p class="kpi-number" id="totalEmployees">450</p>
+                                <p class="kpi-change positive">
+                                    <i class="fas fa-arrow-up"></i> 12 this quarter
+                                </p>
+                            </div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-icon active-icon">
+                                <i class="fas fa-user-check"></i>
+                            </div>
+                            <div class="kpi-content">
+                                <p class="kpi-label">Active Employees</p>
+                                <p class="kpi-number" id="activeEmployees">428</p>
+                                <p class="kpi-change positive">
+                                    <i class="fas fa-arrow-up"></i> 95% active rate
+                                </p>
+                            </div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-icon leave-icon">
+                                <i class="fas fa-user-clock"></i>
+                            </div>
+                            <div class="kpi-content">
+                                <p class="kpi-label">Employees on Leave</p>
+                                <p class="kpi-number" id="onLeave">22</p>
+                                <p class="kpi-change neutral">
+                                    <i class="fas fa-info-circle"></i> 5% on leave
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Attendance Overview Section -->
+                <section class="attendance-section">
+                    <h2 class="section-title">Attendance Overview</h2>
+                    <div class="chart-container">
+                        <canvas id="attendanceChart"></canvas>
+                    </div>
+                </section>
+
+                <!-- Support Section -->
+                <section class="support-section">
+                    <h2 class="section-title">Need Help?</h2>
+                    <div class="support-content">
+                        <p class="support-text">Our support team is here to help. Contact us anytime for assistance with HR processes.</p>
+                        <a href="mailto:support@company.com" class="support-link">
+                            <i class="fas fa-envelope"></i> support@company.com
+                        </a>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Right Notification Panel -->
+            <aside class="notification-panel">
+                <div class="notification-header">
+                    <h3>Notifications</h3>
+                    <button class="notification-clear" title="Clear all">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </div>
+                <div class="notifications-list">
+                    <div class="notification-item">
+                        <div class="notification-icon success">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="notification-content">
+                            <p class="notification-message">Leave request approved</p>
+                            <p class="notification-time">2 hours ago</p>
+                        </div>
+                    </div>
+                    <div class="notification-item">
+                        <div class="notification-icon info">
+                            <i class="fas fa-info-circle"></i>
+                        </div>
+                        <div class="notification-content">
+                            <p class="notification-message">New policy updated</p>
+                            <p class="notification-time">1 day ago</p>
+                        </div>
+                    </div>
+                    <div class="notification-item">
+                        <div class="notification-icon warning">
+                            <i class="fas fa-exclamation-circle"></i>
+                        </div>
+                        <div class="notification-content">
+                            <p class="notification-message">Pending reports review</p>
+                            <p class="notification-time">3 days ago</p>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </main>
+
+    <script src="../../static/js/head/head_dash.js"></script>
+</body>
+</html>

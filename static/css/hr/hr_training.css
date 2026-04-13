@@ -1,0 +1,137 @@
+/* Training Management — extends hr_appmanagement.css */
+
+.search-add {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+}
+
+.search-input-wrap {
+    flex: 1;
+    min-width: 280px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #ffffff;
+    border: 1px solid #d9d9d9;
+    border-radius: 12px;
+    padding: 0 14px;
+    height: 44px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.search-input-wrap i {
+    color: #7a7a7a;
+    font-size: 14px;
+}
+
+#tableSearch {
+    border: none;
+    outline: none;
+    width: 100%;
+    font-size: 14px;
+    color: #222;
+    background: transparent;
+}
+
+#tableSearch::placeholder {
+    color: #8a8a8a;
+}
+
+.add-training-btn {
+    margin-left: auto;
+    border: none;
+    border-radius: 12px;
+    background: #4a1d1d;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 11px 16px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.add-training-btn:hover {
+    background: #5d2626;
+    transform: translateY(-1px);
+}
+
+.section-heading {
+    font-size: 14px;
+    font-weight: 700;
+    color: #4a1d1d;
+    margin-bottom: 12px;
+}
+
+.status-pill.open {
+    background-color: #fff3cd;
+    color: #856404;
+    min-width: 72px;
+}
+
+.status-pill.full {
+    background-color: #f8d7da;
+    color: #721c24;
+    min-width: 72px;
+}
+
+.status-pill.completed {
+    background-color: #d4edda;
+    color: #155724;
+    min-width: 96px;
+}
+
+.status-pill.cancelled {
+    background-color: #f8d7da;
+    color: #721c24;
+    min-width: 88px;
+}
+
+.complete-option {
+    color: #155724;
+}
+
+.cancel-option {
+    color: #721c24;
+}
+
+.modal-text-unified {
+    font-size: 14px;
+    color: #333;
+    line-height: 1.4;
+}
+
+/* Add Training modal — same as #cancelRequest in hr_appmanagement.css */
+#cancelAddTraining {
+    background: #e0e0e0;
+    color: #333;
+    border: none;
+    padding: 10px 28px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+#cancelAddTraining:hover {
+    background: #cacaca;
+}
+
+@media (max-width: 768px) {
+    .search-add {
+        flex-wrap: wrap;
+    }
+
+    .search-input-wrap {
+        width: 100%;
+        min-width: 100%;
+    }
+
+    .add-training-btn {
+        margin-left: 0;
+    }
+}

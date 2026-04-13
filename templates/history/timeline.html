@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Position Change Records | Employee System</title>
+	<link rel="shortcut icon" type="image/png" href="../../static/img/general/uph.png">
+	<link rel="stylesheet" href="../../static/css/employee/position_change_request.css">
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+	<style>
+		:root {
+			--muted: #6b7280;
+			--brand: #4a1d1d;
+			--brand-deep: #3a1515;
+			--brand-soft: #f5eded;
+			--border: #e8e6e3;
+			--success: #0f766e;
+			--warning: #b45309;
+		}
+
+		.records-main-container {
+			display: flex;
+			flex-direction: column;
+			gap: 0;
+		}
+
+		.form-card-header {
+			margin-bottom: 18px;
+		}
+
+		.form-card-header h2 {
+			margin-bottom: 6px;
+		}
+
+		.employee-chip {
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			margin-top: 12px;
+			padding: 9px 12px;
+			border-radius: 999px;
+			background: var(--brand-soft);
+			color: var(--brand);
+			font-size: 12px;
+			font-weight: 700;
+		}
+
+		.btn-records {
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			text-decoration: none;
+			background: var(--brand);
+			border-color: var(--brand);
+			color: #fff;
+		}
+
+		.btn-records:hover {
+			background: var(--brand-deep);
+			border-color: var(--brand-deep);
+			color: #fff;
+		}
+
+		.view-toggle-header {
+			display: flex;
+			border-radius: 12px;
+			overflow: hidden;
+			border: 1.5px solid #d0c8c8;
+			background: #fff;
+			box-shadow: 0 2px 8px rgba(74, 29, 29, 0.08);
+		}
+
+		.toggle-btn {
+			padding: 10px 20px;
+			border: none;
+			background: transparent;
+			font-size: 0.9rem;
+			font-weight: 600;
+			cursor: pointer;
+			color: #555;
+			transition: all 0.2s ease;
+			white-space: nowrap;
+			text-decoration: none;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+
+		.toggle-btn:first-child {
+			border-right: 1.5px solid #d0c8c8;
+		}
+
+		.toggle-btn.active {
+			background: var(--brand);
+			color: #fff;
+		}
+
+		.toggle-btn:not(.active):hover {
+			color: var(--brand);
+			background: #f9f9f9;
+		}
+
+		.records-card {
+			background: #ffffff;
+			border: 1px solid var(--border);
+			border-radius: 16px;
+			padding: 18px;
+		}
+
+		.tab-strip {
+			display: flex;
+			gap: 12px;
+			margin: 18px 0 22px;
+			flex-wrap: wrap;
+		}
+
+		.tab-btn {
+			padding: 12px 18px;
+			border: 1.5px solid #d0c8c8;
+			border-radius: 14px;
+			background: #fff;
+			color: #555;
+			font-weight: 700;
+			cursor: pointer;
+			transition: all 0.2s ease;
+		}
+
+		.tab-btn.active {
+			background: var(--brand);
+			border-color: var(--brand);
+			color: white;
+			box-shadow: none;
+		}
+
+		.tab-panel {
+			display: none;
+			animation: fadeIn 0.25s ease;
+		}
+
+		.tab-panel.active {
+			display: block;
+		}
+
+		.stats-grid {
+			display: grid;
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+			gap: 14px;
+			margin-bottom: 18px;
+		}
+
+		.stat-card {
+			background: #fff;
+			border: 1px solid var(--border);
+			border-radius: 20px;
+			padding: 18px;
+		}
+
+		.stat-card span {
+			display: block;
+			color: var(--muted);
+			font-size: 12px;
+			text-transform: uppercase;
+			letter-spacing: 0.05em;
+			margin-bottom: 10px;
+		}
+
+		.stat-card strong {
+			font-size: 28px;
+			letter-spacing: -0.04em;
+		}
+
+		.table-wrap {
+			overflow-x: auto;
+			border-radius: 25px;
+			border: 1px solid #dcdcdc;
+			background: #fff;
+		}
+
+		table {
+			width: 100%;
+			border-collapse: collapse;
+			min-width: 900px;
+		}
+
+		thead th {
+			text-align: left;
+			padding: 14px 15px;
+			background: #333;
+			color: #f8f9fa;
+			font-size: 13px;
+			font-weight: 500;
+			letter-spacing: 0.5px;
+		}
+
+		tbody td {
+			padding: 12px 15px;
+			border: 1px solid #eee;
+			vertical-align: top;
+			font-size: 14px;
+			min-width: 110px;
+		}
+
+		.muted {
+			color: var(--muted);
+		}
+
+		.status-badge {
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+			padding: 8px 12px;
+			border-radius: 999px;
+			font-size: 12px;
+			font-weight: 700;
+			letter-spacing: 0.04em;
+			text-transform: uppercase;
+		}
+
+		.status-pending {
+			background: rgba(180, 83, 9, 0.12);
+			color: var(--warning);
+		}
+
+		.status-approved {
+			background: rgba(15, 118, 110, 0.12);
+			color: var(--success);
+		}
+
+		.status-rejected {
+			background: rgba(185, 28, 28, 0.12);
+			color: #b91c1c;
+		}
+
+		.empty-state {
+			padding: 40px 24px;
+			text-align: center;
+			color: var(--muted);
+		}
+
+		.empty-state i {
+			display: inline-grid;
+			place-items: center;
+			width: 58px;
+			height: 58px;
+			margin-bottom: 12px;
+			border-radius: 18px;
+			background: rgba(74, 29, 29, 0.06);
+			color: var(--brand);
+			font-size: 22px;
+		}
+
+		.record-note {
+			margin-top: 14px;
+			color: var(--muted);
+			font-size: 12px;
+			line-height: 1.5;
+		}
+
+		@keyframes fadeIn {
+			from {
+				opacity: 0;
+				transform: translateY(6px);
+			}
+			to {
+				opacity: 1;
+				transform: translateY(0);
+			}
+		}
+
+		@media (max-width: 900px) {
+			.form-card-header {
+				flex-direction: column;
+			}
+
+			.stats-grid {
+				grid-template-columns: 1fr;
+			}
+		}
+
+		@media (max-width: 640px) {
+			.records-card {
+				padding: 18px;
+				border-radius: 22px;
+			}
+		}
+	</style>
+</head>
+<body>
+	<div class="background"></div>
+
+	<div class="sidebar" id="sidebar">
+		<div class="top-section">
+			<div class="logo-wrapper" id="logoToggle">
+				<img src="../../static/img/general/uph.png" class="logo" alt="UPHSD Logo">
+				<div class="open-icon"><i class="fas fa-chevron-right"></i></div>
+			</div>
+			<button class="close-btn" id="closeBtn"><i class="fas fa-chevron-left"></i></button>
+		</div>
+
+		<ul class="menu">
+			<li><a href="../dashboards/emp_dash.html" class="menu-item"><i class="fas fa-border-all"></i> <span>Dashboard</span></a></li>
+			<li><a href="../accounts/emp_profile_view.html" class="menu-item"><i class="fas fa-user"></i> <span>Profile</span></a></li>
+			<hr>
+			<li><a href="../employee/emp_position_change_request.html" class="menu-item"><i class="fas fa-user-edit"></i><span>Position Change Request</span></a></li>
+			<li><a href="#" class="menu-item"><i class="fas fa-calendar-check"></i><span>Attendance</span></a></li>
+			<li><a href="#" class="menu-item"><i class="fas fa-plane-departure"></i><span>Leave Request</span></a></li>
+			<li><a href="#" class="menu-item"><i class="fas fa-star"></i><span>Performance Evaluation</span></a></li>
+			<li><a href="#" class="menu-item"><i class="fas fa-chalkboard-teacher"></i><span>Trainings</span></a></li>
+		</ul>
+
+		<div class="bottom-section">
+			<a href="../login/login.html" class="menu-item logout"><i class="fas fa-sign-out-alt"></i> <span>Log Out</span></a>
+		</div>
+	</div>
+
+	<div class="dashboard-viewport">
+		<main class="main-content">
+			<div class="form-card records-main-container">
+				<div class="form-card-header">
+					<div>
+						<h2 id="recordsTitle">Position Change Records</h2>
+						<p id="recordsSubtitle">Review submitted requests and the current pending queue.</p>
+						<div class="employee-chip" id="employeeChip">
+							<i class="fas fa-user"></i>
+							<span>All Employees</span>
+						</div>
+					</div>
+					<div class="view-toggle-header">
+						<a href="../employee/emp_position_change_request.html" class="toggle-btn" id="tab-new-request">New Request</a>
+						<a href="../history/timeline.html" class="toggle-btn active" id="tab-records">Records</a>
+					</div>
+				</div>
+
+				<main class="records-card">
+
+					<section class="stats-grid" aria-label="Request Summary">
+						<div class="stat-card">
+							<span>Total Requests</span>
+							<strong id="totalCount">0</strong>
+						</div>
+						<div class="stat-card">
+							<span>Pending Requests</span>
+							<strong id="pendingCount">0</strong>
+						</div>
+						<div class="stat-card">
+							<span>Latest Submission</span>
+							<strong id="latestCount">-</strong>
+						</div>
+					</section>
+
+					<div class="tab-strip" role="tablist" aria-label="Request views">
+						<button class="tab-btn active" id="pendingTab" data-tab="pending" type="button">Pending Requests</button>
+						<button class="tab-btn" id="historyTab" data-tab="history" type="button">Request History</button>
+					</div>
+
+					<section class="tab-panel active" id="pendingPanel" aria-labelledby="pendingTab">
+						<div class="table-wrap">
+							<table>
+								<thead>
+									<tr>
+										<th>Employee</th>
+										<th>Current Position</th>
+										<th>Requested Position</th>
+										<th>Effective Date</th>
+										<th>Submitted</th>
+										<th>Status</th>
+									</tr>
+								</thead>
+								<tbody id="pendingBody"></tbody>
+							</table>
+						</div>
+					</section>
+
+					<section class="tab-panel" id="historyPanel" aria-labelledby="historyTab">
+						<div class="table-wrap">
+							<table>
+								<thead>
+									<tr>
+										<th>Employee</th>
+										<th>Current Department</th>
+										<th>Requested Position</th>
+										<th>Reason</th>
+										<th>Submitted</th>
+										<th>Status</th>
+									</tr>
+								</thead>
+								<tbody id="historyBody"></tbody>
+							</table>
+						</div>
+					</section>
+
+					<p class="record-note">
+						This page reads locally stored requests on the current browser. In a production build, the same layout can be backed by the database instead.
+					</p>
+				</main>
+			</div>
+		</main>
+	</div>
+
+	<script>
+		const sidebar = document.getElementById('sidebar');
+		const logoToggle = document.getElementById('logoToggle');
+		const closeBtn = document.getElementById('closeBtn');
+		const menuItems = document.querySelectorAll('.menu-item');
+
+		menuItems.forEach(item => {
+			const span = item.querySelector('span');
+			if (span) {
+				item.setAttribute('data-text', span.innerText);
+			}
+		});
+
+		if (closeBtn) {
+			closeBtn.onclick = () => sidebar.classList.add('collapsed');
+		}
+
+		if (logoToggle) {
+			logoToggle.onclick = () => sidebar.classList.toggle('collapsed');
+		}
+
+		const storageKey = 'positionChangeRequests';
+		const employeeParam = new URLSearchParams(window.location.search).get('employee') || '';
+		const pendingBody = document.getElementById('pendingBody');
+		const historyBody = document.getElementById('historyBody');
+		const employeeChip = document.getElementById('employeeChip');
+		const totalCount = document.getElementById('totalCount');
+		const pendingCount = document.getElementById('pendingCount');
+		const latestCount = document.getElementById('latestCount');
+		const recordsTitle = document.getElementById('recordsTitle');
+		const recordsSubtitle = document.getElementById('recordsSubtitle');
+		const tabButtons = document.querySelectorAll('.tab-btn');
+		const tabPanels = {
+			pending: document.getElementById('pendingPanel'),
+			history: document.getElementById('historyPanel')
+		};
+
+		function safeParseRecords() {
+			try {
+				const parsed = JSON.parse(localStorage.getItem(storageKey) || '[]');
+				return Array.isArray(parsed) ? parsed : [];
+			} catch (error) {
+				return [];
+			}
+		}
+
+		function formatDateTime(value) {
+			if (!value) {
+				return '---';
+			}
+
+			const date = new Date(value);
+			if (Number.isNaN(date.getTime())) {
+				return value;
+			}
+
+			return date.toLocaleString([], {
+				year: 'numeric',
+				month: 'short',
+				day: '2-digit',
+				hour: '2-digit',
+				minute: '2-digit'
+			});
+		}
+
+		function formatStatus(status) {
+			const normalized = (status || 'Pending').toLowerCase();
+			const label = normalized.charAt(0).toUpperCase() + normalized.slice(1);
+			return { label, className: `status-${normalized}` };
+		}
+
+		function matchEmployee(record) {
+			if (!employeeParam) {
+				return true;
+			}
+
+			return (record.employeeName || '').toLowerCase() === employeeParam.toLowerCase();
+		}
+
+		function renderEmptyRow(tbody, message) {
+			tbody.innerHTML = `
+				<tr>
+					<td colspan="6">
+						<div class="empty-state">
+							<i class="fas fa-inbox"></i>
+							<div>${message}</div>
+						</div>
+					</td>
+				</tr>
+			`;
+		}
+
+		function renderRows(records, tbody, mode) {
+			if (!records.length) {
+				renderEmptyRow(tbody, mode === 'pending' ? 'No pending requests yet.' : 'No request history yet.');
+				return;
+			}
+
+			tbody.innerHTML = records.map(record => {
+				const statusInfo = formatStatus(record.status);
+				const reason = record.reason ? record.reason : '---';
+
+				if (mode === 'pending') {
+					return `
+						<tr>
+							<td>${record.employeeName || '---'}</td>
+							<td>${record.currentPosition || '---'}</td>
+							<td>${record.requestedPosition || '---'}</td>
+							<td>${record.effectiveDate || '---'}</td>
+							<td>${formatDateTime(record.submittedAt)}</td>
+							<td><span class="status-badge ${statusInfo.className}">${statusInfo.label}</span></td>
+						</tr>
+					`;
+				}
+
+				return `
+					<tr>
+						<td>${record.employeeName || '---'}</td>
+						<td>${record.currentDepartment || '---'}</td>
+						<td>${record.requestedPosition || '---'}</td>
+						<td>${reason}</td>
+						<td>${formatDateTime(record.submittedAt)}</td>
+						<td><span class="status-badge ${statusInfo.className}">${statusInfo.label}</span></td>
+					</tr>
+				`;
+			}).join('');
+		}
+
+		function updateEmployeeChip() {
+			const label = employeeParam ? employeeParam : 'All Employees';
+			employeeChip.querySelector('span').textContent = label;
+			recordsTitle.textContent = employeeParam ? `${label} Records` : 'Employee Records';
+			recordsSubtitle.textContent = employeeParam
+				? `Review submitted requests and the current pending queue for ${label}.`
+				: 'Review submitted requests and the current pending queue.';
+		}
+
+		function renderTabs(records) {
+			const pendingRecords = records.filter(record => (record.status || 'Pending').toLowerCase() === 'pending');
+
+			totalCount.textContent = records.length.toString();
+			pendingCount.textContent = pendingRecords.length.toString();
+			latestCount.textContent = records.length ? formatDateTime(records[0].submittedAt) : '-';
+
+			renderRows(pendingRecords, pendingBody, 'pending');
+			renderRows(records, historyBody, 'history');
+		}
+
+		tabButtons.forEach(button => {
+			button.addEventListener('click', () => {
+				tabButtons.forEach(tab => tab.classList.remove('active'));
+				Object.values(tabPanels).forEach(panel => panel.classList.remove('active'));
+
+				button.classList.add('active');
+				tabPanels[button.dataset.tab].classList.add('active');
+			});
+		});
+
+		const allRecords = safeParseRecords().filter(matchEmployee);
+		updateEmployeeChip();
+		renderTabs(allRecords);
+	</script>
+</body>
+</html>

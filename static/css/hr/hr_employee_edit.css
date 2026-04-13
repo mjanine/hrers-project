@@ -1,0 +1,262 @@
+/* Master Layout Locks */
+body, html {
+    height: 100%;
+    margin: 0;
+    overflow: hidden; 
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.background {
+    position: fixed;
+    inset: 0;
+    background: url('../../img/general/bg.jpeg') no-repeat center/cover;
+    filter: blur(10px);
+    transform: scale(1.1); 
+    z-index: -1;
+}
+
+/* THE CONTAINER THAT ENABLES GLIDING */
+.dashboard-viewport {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+    padding: 20px;
+    box-sizing: border-box;
+    gap: 20px; 
+}
+
+/* --- SIDEBAR --- */
+.sidebar {
+    width: 300px; 
+    min-width: 300px;
+    height: 100%;
+    padding: 25px;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    transition: all 0.35s ease-in-out; /* Speed of the glide */
+    z-index: 1000;
+}
+
+/* SIDEBAR CLOSED STATE */
+.sidebar.close {
+    width: 90px;
+    min-width: 90px;
+    padding: 25px 20px;
+}
+
+/* --- SIDEBAR MENU FIX (EXACT ALIGNMENT) --- */
+.menu {
+    list-style: none !important;
+    padding: 0 !important;
+    margin: 30px 0 0 0;
+    flex: 1;
+}
+
+.menu li {
+    list-style: none !important;
+    padding: 0;
+    margin: 0;
+}
+
+.menu-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: 48px;
+    color: white;
+    cursor: pointer;
+    border-radius: 12px;
+    transition: background 0.3s;
+}
+
+/* THE ICON: Fixed size and centered in its lane */
+.menu-item i {
+    width: 50px;
+    text-align: center;
+}
+
+/* THE TEXT: Fixed distance from the left edge */
+.menu-item span {
+    position: absolute;
+    left: 60px;
+    white-space: nowrap;
+    transition: opacity 0.2s ease;
+}
+
+/* SIDEBAR CLOSED STATE */
+.sidebar.close .menu-item i {
+    width: 100%; /* Centers the icon in the 90px width */
+}
+
+.sidebar.close span, 
+.sidebar.close .close-btn, 
+.sidebar.close hr {
+    display: none !important;
+    opacity: 0;
+}
+
+/* THE HOVER LABEL (TOOLTIP) */
+.sidebar.close .menu-item:hover::after {
+    content: attr(data-text); 
+    position: absolute;
+    left: 80px;
+    background: rgba(20, 20, 20, 0.95);
+    color: white;
+    padding: 8px 14px;
+    border-radius: 8px;
+    white-space: nowrap;
+    font-size: 14px;
+    z-index: 2000;
+}
+
+.menu-item:hover { background: rgba(255,255,255,0.15); }
+.menu-item.active { background: rgba(255,255,255,0.25); }
+
+.main-content {
+    flex: 1;
+    min-width: 0; /* Add this line */
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: all 0.35s ease-in-out;
+}
+
+/* NO CHANGES TO YOUR CONTENT CARD STYLES */
+.content-card {
+    background: #ffffff;
+    border-radius: 25px;
+    padding: 30px 45px;
+    width: 100%;
+    height: 100%;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
+
+.content-card h1 { font-size: 32px; margin: 0 0 25px 0; color: #1a1a1a; font-weight: 700; }
+.form-body { flex: 1; overflow-y: auto; padding-right: 15px; }
+.form-body::-webkit-scrollbar { width: 6px; }
+.form-body::-webkit-scrollbar-thumb { background: #e0e0e0; border-radius: 10px; }
+.form-grid { 
+    display: grid; 
+    /* Replace your old grid-template-columns with this: */
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); 
+    gap: 20px; 
+}
+.form-section-box { border: 1px solid #e0e0e0; border-radius: 18px; overflow: hidden; background: #fff; height: fit-content; }
+.section-header { background: #f8f8f8; padding: 15px 20px; font-weight: bold; border-bottom: 1px solid #eee; font-size: 14px; }
+.section-body { padding: 20px; }
+.photo-container { text-align: center; margin-bottom: 20px; }
+.photo-circle { width: 80px; height: 80px; background: #4a1d1d; border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.photo-circle img { width: 100%; height: 100%; object-fit: cover; }
+.inputs-row { 
+    display: grid; 
+    /* Replace 1fr 1fr with this: */
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); 
+    gap: 15px; 
+}
+.input-item, .full-width-item { margin-bottom: 12px; }
+label { display: block; margin-bottom: 6px; font-weight: 600; color: #555; font-size: 13px; }
+input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 13px; }
+input[readonly] { background-color: #f0f0f0; cursor: not-allowed; color: #888; }
+.sub-header { margin: 20px 0 10px 0; font-weight: bold; border-top: 1px solid #eee; padding-top: 15px; }
+.form-footer { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    padding-top: 20px; 
+    border-top: 1px solid #eee; 
+    margin-top: 10px; 
+}
+.btn { padding: 12px 35px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; font-size: 13px; transition: 0.3s; }
+.btn-cancel { background: #eee; color: #333; }
+.btn-save { background: #4a1d1d; color: white; }
+.btn-save:hover { background: #7b3f3f; }
+
+/* SHARED UI HELPERS */
+.top-section { display: flex; align-items: center; justify-content: space-between; }
+.logo-wrapper { width: 45px; height: 45px; position: relative; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.logo { width: 100%; border-radius: 50%; }
+.open-icon { position: absolute; opacity: 0; color: white; transition: 0.3s; }
+.sidebar.close .logo-wrapper:hover .logo { opacity: 0; }
+.sidebar.close .logo-wrapper:hover .open-icon { opacity: 1; }
+.close-btn { background: none; border: none; color: white; font-size: 18px; cursor: pointer; }
+hr { border: 0.5px solid rgba(255,255,255,0.2); margin: 10px 0; }
+.bottom-section { margin-top: auto; }
+
+/* Custom sizes for SweetAlert notifications */
+.small-swal-title {
+    font-size: 18px !important; /* Smaller Header */
+    font-weight: 600;
+    color: #4a1d1d;
+}
+
+.small-swal-text {
+    font-size: 14px !important; /* Smaller Body Text */
+    color: #666;
+}
+
+/* Optional: Make the icons slightly smaller too */
+.swal2-icon {
+    transform: scale(0.8);
+}
+/* Styling for the Rectangle Notification */
+.swal2-toast {
+    border: 1px solid #4a1d1d;
+    border-radius: 8px !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+}
+
+/* Slimmer Text for Toast */
+.swal2-title {
+    font-size: 16px !important;
+    margin: 0 10px !important;
+}
+
+.swal2-html-container {
+    font-size: 13px !important;
+}
+
+/* Adjusting the Header of the Discard Modal */
+.small-swal-title {
+    font-size: 18px !important;
+    color: #4a1d1d;
+}
+
+.small-swal-text {
+    font-size: 14px !important;
+}
+.right-buttons {
+    display: flex;
+    gap: 15px;
+}
+
+/* Unique Class for Delete Button */
+.btn-maroon-action {
+    background-color: #800000; /* Maroon */
+    color: white;
+    padding: 12px 25px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 13px;
+    transition: 0.3s ease;
+}
+
+.btn-maroon-action:hover {
+    background-color: #600000;
+}

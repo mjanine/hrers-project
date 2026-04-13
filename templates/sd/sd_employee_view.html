@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Profile | SD</title>
+    <link rel="shortcut icon" href="../../../static/img/general/uph.png">
+    <link rel="stylesheet" href="../../../static/css/sd/sd_employee_view.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+</head>
+
+<body>
+
+<div class="background"></div>
+
+<div class="dashboard-viewport">
+
+    <div class="sidebar" id="sidebar">
+        <div class="top-section">
+            <div class="logo-wrapper" id="logoToggle">
+                <img src="../../../static/img/general/uph.png" class="logo">
+                <div class="open-icon"><i class="fas fa-chevron-right"></i></div>
+            </div>
+            <button class="close-btn" id="closeBtn"><i class="fas fa-chevron-left"></i></button>
+        </div>
+
+        <ul class="menu">
+            <li><a href="../sd_dash.html" class="menu-item"><i class="fas fa-border-all"></i><span>Dashboard</span></a></li>
+            <li><a href="../sd_profile_view.html" class="menu-item"><i class="fas fa-user"></i><span>Profile</span></a></li>
+            <hr>
+            <li><a href="../sd_appmanagement.html" class="menu-item"><i class="fas fa-file"></i><span>Application Management</span></a></li>
+            <li><a href="../sd_employeelist.html" class="menu-item active"><i class="fas fa-database"></i><span>Employee Records</span></a></li>
+            <li><a href="../sd_attendancemonitoring.html" class="menu-item"><i class="fas fa-calendar"></i><span>Attendance Monitoring</span></a></li>
+            <li><a href="../sd_leaveselect.html" class="menu-item"><i class="fas fa-briefcase"></i><span>Leave Management</span></a></li>
+            <li><a href="#" class="menu-item"><i class="fas fa-star"></i><span>Performance Evaluation</span></a></li>
+            <li><a href="../sd_reports.html" class="menu-item"><i class="fas fa-chart-line"></i><span>Reports / Analytics</span></a></li>
+        </ul>
+                <a href="#" class="menu-item">
+                    <i class="fas fa-star"></i>
+                    <span>Performance Evaluation</span>
+                </a>
+            </li>
+            <li>
+                <a href="sd_reports.html" class="menu-item">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Reports / Analytics</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="bottom-section">
+            <a href="../../login/login.html" class="menu-item logout"><i class="fas fa-sign-out-alt"></i> <span>Log Out</span></a>
+        </div>
+    </div>
+
+    <main class="main-content">
+        <div class="profile-page-container">
+
+            <div class="profile-card">
+                <div class="profile-left">
+                    <img src="../../../static/img/sample-profile-pic.jfif" class="profile-img">
+                    <div class="profile-info">
+                        <h2>John Smith</h2>
+                        <p class="role">School Head</p>
+                        <p class="employee-id">Employee ID: HEAD-001</p>
+
+                        <div class="employment-details">
+                            <p><strong>Status</strong> <span class="status-dot" style="background:#8ddf9b"></span> Active</p>
+                            <p><strong>Position</strong> School Head</p>
+                            <p><strong>Department</strong> Administration</p>
+                            <p><strong>Employment Type</strong> Full-time</p>
+                            <p><strong>Date Hired</strong> 2015-06-01</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-right">
+                    <div class="contact-info">
+                        <h4>Contact Information</h4>
+                        <p><i class="fas fa-envelope"></i> john.head@school.edu.ph</p>
+                        <p><i class="fas fa-phone"></i> +63 912 345 6789</p>
+                        <p><i class="fas fa-location-dot"></i> Manila, Philippines</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tabs">
+                <button class="tab active" data-tab="dept">Department</button>
+                <button class="tab" data-tab="docs">Documents</button>
+                <button class="tab" data-tab="history">History</button>
+            </div>
+
+            <div class="tab-content">
+
+                <div class="tab-content-item active" id="dept">
+                    <div class="info-card">
+                        <h4>Department Information</h4>
+                        <div class="info-row"><span>Department</span><span>Administration</span></div>
+                        <div class="info-row"><span>Code</span><span>ADM-001</span></div>
+                        <div class="info-row"><span>Location</span><span>2nd Floor, Admin Building</span></div>
+                        <div class="info-row"><span>Email</span><span>admin@school.edu.ph</span></div>
+                        <div class="info-row"><span>Contact</span><span>(02) 123-4567</span></div>
+                    </div>
+                </div>
+
+                <div class="tab-content-item" id="docs">
+                    <div class="doc-header"><span>2 of 3 uploaded</span></div>
+                    <table class="doc-table">
+                        <thead>
+                            <tr>
+                                <th>Document</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th>Date Uploaded</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Transcript of Records</td>
+                                <td>PDF</td>
+                                <td class="status-cell" style="color: #28a745; font-weight: bold;">Valid</td>
+                                <td class="date-cell">March 1, 2025</td>
+                                <td class="action-cell">
+                                    <a href="../../../static/docs/tor_sample.pdf" target="_blank" title="View Document">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="#" download title="Download Document"><i class="fas fa-download"></i></a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Licenses / Certification</td>
+                                <td>PDF</td>
+                                <td class="status-cell" style="color: #ffc107; font-weight: bold;">Needs Update</td>
+                                <td class="date-cell">February 10, 2025</td>
+                                <td class="action-cell">
+                                    <a href="#" target="_blank" title="View Document">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="#" download title="Download Document"><i class="fas fa-download"></i></a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>NBI Clearance</td>
+                                <td>JPG</td>
+                                <td class="status-cell" style="color: #dc3545; font-weight: bold;">Missing</td>
+                                <td class="date-cell">------</td>
+                                <td class="action-cell">
+                                    <span>---</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="tab-content-item" id="history">
+                    <div class="history-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h4>Employment History</h4>
+                        </div>
+
+                    <div class="timeline" id="timelineContainer">
+                        <div class="timeline-item">
+                            <div class="timeline-date">2015</div>
+                            <div class="timeline-content">
+                                <h4>Hired</h4>
+                                <p>Joined as School Head</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+
+</div>
+
+<div id="historyModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Add New History Event</h3>
+            <span class="close-modal" id="closeHistoryModal">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>Date (Year)</label>
+                <input type="text" id="eventDate" placeholder="e.g. 2024">
+            </div>
+            <div class="form-group">
+                <label>Title</label>
+                <input type="text" id="eventTitle" placeholder="e.g. Major Promotion">
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea id="eventDesc" rows="3" placeholder="Describe the event..."></textarea>
+            </div>
+            <button id="saveEventBtn" class="save-btn">Save Event</button>
+        </div>
+    </div>
+</div>
+
+<script src="../../../static/js/sd/sd_employee_view.js"></script>
+</body>
+</html>

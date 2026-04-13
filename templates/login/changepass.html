@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>UPHSD Forgot Password</title>
+    <link rel="shortcut icon" type="image/png" href="../../static/img/general/uph.png">
+    <link rel="stylesheet" href="../../static/css/login/changepass.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <div class="glass-container">
+    
+        <img src="../../static/img/general/uph.png" alt="Logo" class="logo">
+
+        <div class="content">
+            <h2>CHANGE PASSWORD</h2>
+
+            <form id="passwordForm">
+                <input type="password" id="oldPassword" placeholder="Old Password" required>
+                <input type="password" id="newPassword" placeholder="New Password" required>
+
+                <div class="requirements">
+                    <p id="length" class="invalid">8+ characters</p>
+                    <p id="upper" class="invalid">Uppercase, lowercase, number</p>
+                    <p id="special" class="invalid">Special character</p>
+                    <p id="match" class="invalid">Not same as old password</p>
+                </div>
+
+                <button type="submit">Enter</button>
+            </form>
+
+            <p class="note">
+                For security purposes, first-time users must change their password before accessing their account.
+            </p>
+        </div>
+
+    </div>
+
+    
+    <script src='../../static/js/login/changepass.js'></script>
+</body>
+</html>

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Applications Management | Department Head</title>
+    <link rel="shortcut icon" type="image/png" href="../../static/img/general/uph.png">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../static/css/head/head_appmanagement.css">
+</head>
+<body>
+
+<div class="background"></div>
+
+<div id="toast-container"></div>
+
+<!-- ================= SIDEBAR (outside viewport) ================= -->
+<div class="sidebar" id="sidebar">
+    <div class="top-section">
+        <div class="logo-wrapper" id="logoToggle">
+            <img src="../../static/img/general/uph.png" class="logo" alt="UPHSD Logo">
+            <div class="open-icon"><i class="fas fa-chevron-right"></i></div>
+        </div>
+        <button class="close-btn" id="closeBtn"><i class="fas fa-chevron-left"></i></button>
+    </div>
+    <ul class="menu">
+        <li><a href="head_dash.html" class="menu-item"><i class="fas fa-border-all"></i><span>Dashboard</span></a></li>
+        <li><a href="head_profile_view.html" class="menu-item"><i class="fas fa-user"></i><span>Profile</span></a></li>
+        <hr>
+        <li><a href="head_appmanagement.html" class="menu-item active"><i class="fas fa-file"></i><span>Application Management</span></a></li>
+        <li><a href="head_employeelist.html" class="menu-item"><i class="fas fa-database"></i><span>Employee Records</span></a></li>
+        <li><a href="head_attendancemonitoring.html" class="menu-item"><i class="fas fa-calendar"></i><span>Attendance Monitoring</span></a></li>
+        <li><a href="head_leaveselect.html" class="menu-item"><i class="fas fa-briefcase"></i><span>Leave Management</span></a></li>
+        <li><a href="#" class="menu-item"><i class="fas fa-star"></i><span>Performance Evaluation</span></a></li>
+        <li><a href="head_training.html" class="menu-item"><i class="fas fa-chalkboard-teacher"></i><span>Trainings</span></a></li>
+    </ul>
+    <div class="bottom-section">
+        <a href="../login/login.html" class="menu-item logout"><i class="fas fa-sign-out-alt"></i><span>Log Out</span></a>
+    </div>
+</div>
+
+<!-- ================= VIEWPORT (sibling of sidebar) ================= -->
+<div class="dashboard-viewport">
+    <main class="main-content">
+        <div class="content-card">
+
+            <!-- HEADER -->
+            <div class="header">
+                <div class="header-top">
+                    <h1>Applications Management</h1>
+                    <div class="tab-group">
+                        <button class="tab-btn active" id="tab-new">New Employee Applications</button>
+                    </div>
+                </div>
+                <div class="header-controls">
+                    <div class="search-filter-row">
+                        <input type="text" id="tableSearch" placeholder="Search by Name / ID / Dept">
+                        <div class="filter-controls">
+                            <div class="filter-dropdown">
+                                <button type="button" class="filter-btn" id="filterBtn">
+                                    <i class="fas fa-sliders"></i>
+                                    <span>Filter</span>
+                                </button>
+                                <div class="filter-menu" id="filterMenu" aria-hidden="true">
+                                    <button type="button" class="filter-option" data-filter-value="pending-hr">Status: Pending - HR Evaluator</button>
+                                    <button type="button" class="filter-option" data-filter-value="pending-head">Status: Pending - Dept. Head</button>
+                                    <button type="button" class="filter-option" data-filter-value="pending-hrhead">Status: Pending - HR Head</button>
+                                    <button type="button" class="filter-option" data-filter-value="pending-sd">Status: Pending - SD</button>
+                                    <button type="button" class="filter-option" data-filter-value="approved">Status: Approved</button>
+                                    <button type="button" class="filter-option" data-filter-value="rejected">Status: Rejected</button>
+                                    <button type="button" class="filter-option clear-option" data-filter-clear="true">Clear Filter</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="header-bottom-row">
+                        <div class="active-filter-row" id="activeFilterRow" hidden>
+                            <span class="active-filter-pill">
+                                <span id="activeFilterLabel"></span>
+                                <button type="button" class="active-filter-clear" id="clearFilterBtn" aria-label="Remove filter">
+                                    <i class="fas fa-xmark"></i>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TABLE -->
+            <div class="form-body">
+                <table id="applicationTable">
+                    <thead>
+                        <tr>
+                            <th id="hdr-col-id">Application ID</th>
+                            <th id="hdr-col-name">Full Name</th>
+                            <th id="hdr-col-dept">Department</th>
+                            <th id="hdr-col-position">Position</th>
+                            <th id="hdr-col-submitted">Submitted</th>
+                            <th id="hdr-col-progress">Progress</th>
+                            <th id="hdr-col-status">Status</th>
+                            <th id="hdr-col-actions">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="applicationTableBody"></tbody>
+                </table>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<!-- ================= VIEW MODAL ================= -->
+<div id="viewModal" class="modal-overlay">
+    <div class="view-modal-content">
+        <div class="modal-header">
+            <h3 id="modalApplicantName">Application Detail</h3>
+            <button type="button" class="modal-close-icon" id="modalCloseBtn" aria-label="Close view">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-grid">
+            <div class="doc-preview">
+                <div class="doc-viewer">
+                    <div class="doc-viewer-header">
+                        <div class="doc-page-name" id="docPageName">Page 1 - Application Details</div>
+                        <div class="doc-page-nav">
+                            <button type="button" class="doc-nav-btn" id="docPrevBtn" aria-label="Previous page">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <button type="button" class="doc-nav-btn" id="docNextBtn" aria-label="Next page">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="doc-viewer-body">
+                        <div class="doc-page doc-page-details" id="modalDocPage1">
+                            <div class="doc-detail-list">
+                                <div class="doc-detail-item">
+                                    <span class="doc-detail-label" id="modalDetailLabel1">Application ID</span>
+                                    <span class="doc-detail-value" id="modalApplicationId">---</span>
+                                </div>
+                                <div class="doc-detail-item">
+                                    <span class="doc-detail-label" id="modalDetailLabel2">Email</span>
+                                    <span class="doc-detail-value" id="modalApplicantEmail">---</span>
+                                </div>
+                                <div class="doc-detail-item">
+                                    <span class="doc-detail-label" id="modalDetailLabel3">Phone Number</span>
+                                    <span class="doc-detail-value" id="modalApplicantPhone">---</span>
+                                </div>
+                                <div class="doc-detail-item">
+                                    <span class="doc-detail-label" id="modalDetailLabel4">Department Applying To</span>
+                                    <span class="doc-detail-value" id="modalApplyingDepartment">---</span>
+                                </div>
+                                <div class="doc-detail-item">
+                                    <span class="doc-detail-label" id="modalDetailLabel5">Position Applying For</span>
+                                    <span class="doc-detail-value" id="modalApplyingPosition">---</span>
+                                </div>
+                                <div class="doc-detail-item" id="modalDetailItem6">
+                                    <span class="doc-detail-label" id="modalDetailLabel6">Remarks from Head</span>
+                                    <span class="doc-detail-value doc-detail-remarks" id="modalHeadRemarks">---</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="doc-page doc-page-pdf" id="modalDocPage2" hidden>
+                            <div class="doc-header" id="modalFileName">Document.pdf</div>
+                            <div class="pdf-placeholder" id="pdfPlaceholder">
+                                <i class="fas fa-file-pdf"></i>
+                                <p>Document Preview Mode</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="doc-remarks-card">
+                    <div class="doc-remarks-header">Add Remarks</div>
+                    <textarea id="modalAddRemarks" class="doc-remarks-input" placeholder="Add remarks here..."></textarea>
+                </div>
+            </div>
+            <div class="info-panel">
+                <div class="info-item">
+                    <label>Application Status</label>
+                    <div id="modalStatusContainer"></div>
+                </div>
+                <div class="info-item status-history-item">
+                    <label>Status History</label>
+                    <div id="modalStatusHistory" class="status-history-list"></div>
+                </div>
+                <div class="info-item">
+                    <label>Submission Date</label>
+                    <p id="modalSubmitDate">---</p>
+                </div>
+                <div class="info-item">
+                    <label>Department</label>
+                    <p id="modalDepartment">---</p>
+                </div>
+                <div class="info-item">
+                    <label>Position Applied For</label>
+                    <p id="modalPosition">---</p>
+                </div>
+                <div class="info-item">
+                    <label>Progress</label>
+                    <p id="modalProgress">---</p>
+                </div>
+                <div class="info-item">
+                    <label>Review Remarks</label>
+                    <p id="modalRemarks" class="modal-text-unified">Awaiting review.</p>
+                </div>
+                <div class="modal-footer" id="modalActions">
+                    <button class="btn-approve" id="modalApproveBtn">Approve Application</button>
+                    <button class="btn-reject" id="modalRejectBtn">Reject Application</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ================= ROW TEMPLATE ================= -->
+<template id="appRowTemplate">
+    <tr>
+        <td class="col-id"></td>
+        <td class="col-name"></td>
+        <td class="col-dept"></td>
+        <td class="col-position"></td>
+        <td class="col-submitted"></td>
+        <td class="col-progress"></td>
+        <td class="col-status"></td>
+        <td class="col-actions"></td>
+    </tr>
+</template>
+
+<script src="../../static/js/head/head_appmanagement.js"></script>
+
+</body>
+</html>

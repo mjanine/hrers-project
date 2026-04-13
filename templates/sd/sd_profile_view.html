@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile | School Director System</title>
+    <link rel="shortcut icon" href="../../static/img/general/uph.png">
+    <link rel="stylesheet" href="../../static/css/sd/sd_profile_view.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+</head>
+
+<body>
+
+<div class="background"></div>
+
+<div class="dashboard-viewport">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar" id="sidebar">
+        <div class="top-section">
+            <div class="logo-wrapper" id="logoToggle">
+                <img src="../../static/img/general/uph.png" class="logo">
+                <div class="open-icon">
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+            </div>
+            <button class="close-btn" id="closeBtn">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+        </div>
+
+        <ul class="menu">
+            <li><a href="sd_dash.html" class="menu-item"><i class="fas fa-border-all"></i><span>Dashboard</span></a></li>
+            <li><a href="sd_profile_view.html" class="menu-item active"><i class="fas fa-user"></i><span>Profile</span></a></li>
+            <hr>
+            <li><a href="sd_appmanagement.html" class="menu-item"><i class="fas fa-file"></i><span>Application Management</span></a></li>
+            <li><a href="sd_employeelist.html" class="menu-item"><i class="fas fa-database"></i><span>Employee Records</span></a></li>
+            <li><a href="sd_attendancemonitoring.html" class="menu-item"><i class="fas fa-calendar"></i><span>Attendance Monitoring</span></a></li>
+            <li><a href="sd_leaveselect.html" class="menu-item"><i class="fas fa-briefcase"></i><span>Leave Management</span></a></li>
+            <li><a href="#" class="menu-item"><i class="fas fa-star"></i><span>Performance Evaluation</span></a></li>
+            <li><a href="sd_reports.html" class="menu-item"><i class="fas fa-chart-line"></i><span>Reports / Analytics</span></a></li>
+        </ul>
+                
+        </ul>
+
+        <div class="bottom-section">
+            <a href="../login/login.html" class="menu-item logout">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Log Out</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- MAIN -->
+    <main class="main-content">
+        <div class="profile-page-container">
+
+            <!-- PROFILE -->
+            <div class="profile-card">
+                <div class="profile-left">
+                    <img src="../../static/img/sample-profile-pic.jfif" class="profile-img">
+
+                    <div class="profile-info">
+                        <h2>Maria Santos</h2>
+                        <p class="role">School Director</p>
+                        <p class="employee-id">Employee ID: SD001</p>
+
+                        <div class="employment-details">
+                            <p><strong>Status</strong> <span class="status-dot" style="background:#8ddf9b"></span> Active</p>
+                            <p><strong>Position</strong> School Director</p>
+                            <p><strong>Department</strong> Administration</p>
+                            <p><strong>Employment Type</strong> Full-time</p>
+                            <p><strong>Date Hired</strong> 2022-01-15</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-right">
+                    <a href="sd_profile_edit.html">
+                        <button class="edit-btn">Edit Profile</button>
+                    </a>
+
+                    <div class="contact-info">
+                        <h4>Contact Information</h4>
+                        <p><i class="fas fa-envelope"></i> maria.santos@email.com</p>
+                        <p><i class="fas fa-phone"></i> +63 912 345 6789</p>
+                        <p><i class="fas fa-location-dot"></i> Manila, Philippines</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TABS -->
+            <div class="tabs">
+                <button class="tab active" data-tab="dept">Department</button>
+                <button class="tab" data-tab="docs">Documents</button>
+                <button class="tab" data-tab="history">Employment History</button>
+            </div>
+
+            <!-- TAB CONTENT -->
+            <div class="tab-content">
+
+                <!-- DEPARTMENT -->
+                <div class="tab-content-item active" id="dept">
+                    <div class="info-card">
+                        <h4>Department Information</h4>
+                        <div class="info-row"><span>Department</span><span>Administration</span></div>
+                        <div class="info-row"><span>Code</span><span>ADM-101</span></div>
+                        <div class="info-row"><span>Location</span><span>Main Building 1st Floor</span></div>
+                        <div class="info-row"><span>Email</span><span>admin@school.com</span></div>
+                        <div class="info-row"><span>Contact</span><span>+63 912 333 4444</span></div>
+                    </div>
+                </div>
+
+                <!-- DOCUMENTS -->
+                <div class="tab-content-item" id="docs">
+
+                    <div class="doc-header">
+                        <span>2 of 3 uploaded</span>
+                    </div>
+
+                    <table class="doc-table">
+                        <thead>
+                            <tr>
+                                <th>Document</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th>Date Uploaded</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+    <tr>
+        <td>Transcript of Records</td>
+        <td>PDF</td>
+        <td class="valid">Valid</td>
+        <td>March 1, 2025</td>
+        <td class="actions">
+            <a href="../../docs/tor.pdf" target="_blank">
+                <i class="fas fa-eye action-icon"></i>
+            </a>
+            <a href="../../docs/tor.pdf" download>
+                <i class="fas fa-download action-icon"></i>
+            </a>
+        </td>
+    </tr>
+
+    <tr>
+        <td>Licenses / Certification</td>
+        <td>PDF</td>
+        <td class="update">Needs Update</td>
+        <td>February 10, 2025</td>
+        <td class="actions">
+            <a href="../../docs/license.pdf" target="_blank">
+                <i class="fas fa-eye action-icon"></i>
+            </a>
+            <a href="../../docs/license.pdf" download>
+                <i class="fas fa-download action-icon"></i>
+            </a>
+        </td>
+    </tr>
+
+    <tr>
+        <td>NBI Clearance</td>
+        <td>JPG</td>
+        <td class="missing">Missing</td>
+        <td>---</td>
+        <td class="actions">---</td>
+    </tr>
+</tbody>
+                    </table>
+
+                </div>
+
+                <!-- HISTORY -->
+                <div class="tab-content-item" id="history">
+
+                    <div class="timeline">
+
+                        <div class="timeline-item">
+                            <div class="timeline-date">2025</div>
+                            <div class="timeline-content">
+                                <h4>Promotion</h4>
+                                <p>School Director Asst. → School Director</p>
+                            </div>
+                        </div>
+
+                        <div class="timeline-item">
+                            <div class="timeline-date">2022</div>
+                            <div class="timeline-content">
+                                <h4>Hired</h4>
+                                <p>Joined Director Office Department</p>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<script src="../../static/js/sd/sd_profile_view.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Training Management | HR System</title>
+    <link rel="shortcut icon" type="image/png" href="../../static/img/general/uph.png">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../static/css/hr/hr_appmanagement.css">
+    <link rel="stylesheet" href="../../static/css/hr/hr_training.css">
+</head>
+<body>
+
+<div class="background"></div>
+
+<div id="toast-container"></div>
+
+<div class="sidebar" id="sidebar">
+    <div class="top-section">
+        <div class="logo-wrapper" id="logoToggle">
+            <img src="../../static/img/general/uph.png" class="logo" alt="UPHSD Logo">
+            <div class="open-icon"><i class="fas fa-chevron-right"></i></div>
+        </div>
+        <button class="close-btn" id="closeBtn"><i class="fas fa-chevron-left"></i></button>
+    </div>
+        <ul class="menu">
+        <li><a href="hr_dash.html" class="menu-item"><i class="fas fa-border-all"></i><span>Dashboard</span></a></li>
+        <li><a href="hr_profile_view.html" class="menu-item"><i class="fas fa-user"></i><span>Profile</span></a></li>
+        <hr>
+        <li><a href="hr_appmanagement.html" class="menu-item"><i class="fas fa-file"></i><span>Application Management</span></a></li>
+        <li><a href="hr_employeelist.html" class="menu-item"><i class="fas fa-database"></i><span>Employee Records</span></a></li>
+        <li><a href="hr_attendancemonitoring.html" class="menu-item"><i class="fas fa-calendar"></i><span>Attendance Monitoring</span></a></li>
+        <li><a href="hr_leaveselect.html" class="menu-item"><i class="fas fa-briefcase"></i><span>Leave Management</span></a></li>
+        <li><a href="#" class="menu-item"><i class="fas fa-star"></i><span>Performance Evaluation</span></a></li>
+        <li><a href="hr_training.html" class="menu-item active"><i class="fas fa-chalkboard-teacher"></i><span>Trainings</span></a></li>
+        <li><a href="hr_reports.html" class="menu-item"><i class="fas fa-chart-line"></i><span>Reports / Analytics</span></a></li>
+    </ul>
+        <div class="bottom-section">
+        <a href="../login/login.html" class="menu-item logout"><i class="fas fa-sign-out-alt"></i><span>Log Out</span></a>
+    </div>
+</div>
+
+<div class="dashboard-viewport">
+    <main class="main-content">
+        <div class="content-card">
+
+            <div class="header">
+                <h1>Training Management</h1>
+                <div class="search-add">
+                    <div class="search-input-wrap">
+                        <i class="fas fa-search" aria-hidden="true"></i>
+                        <input type="text" id="tableSearch" placeholder="Search by Name / ID / Category">
+                    </div>
+                    <button type="button" class="add-training-btn" id="openAddTrainingModal">
+                        <i class="fas fa-plus"></i>
+                        Add Training
+                    </button>
+                </div>
+            </div>
+
+            <div class="section-heading">Scheduled Trainings</div>
+
+            <div class="form-body">
+                <table id="trainingTable">
+                    <thead>
+                        <tr>
+                            <th>Training ID</th>
+                            <th>Training Name</th>
+                            <th>Category</th>
+                            <th>Date</th>
+                            <th>Mode</th>
+                            <th>Slots</th>
+                            <th>Progress</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="trainingTableBody"></tbody>
+                </table>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<div id="viewModal" class="modal-overlay">
+    <div class="view-modal-content">
+        <div class="modal-header">
+            <h3>Training Detail</h3>
+        </div>
+        <div class="modal-grid">
+            <div class="doc-preview">
+                <div class="doc-tab-label">Training overview</div>
+                <div class="doc-box">
+                    <div class="doc-header" id="modalTrainingTitle">â€”</div>
+                    <div class="pdf-placeholder" id="trainingPlaceholder">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                        <p>Training session overview</p>
+                    </div>
+                </div>
+            </div>
+            <div class="info-panel">
+                <div class="info-item">
+                    <label>Status</label>
+                    <div id="modalStatusContainer"></div>
+                    <p id="modalCoordinatorText"><small>Coordinator: HR Training</small></p>
+                </div>
+                <div class="info-item">
+                    <label>Date</label>
+                    <p id="modalDate">â€”</p>
+                </div>
+                <div class="info-item">
+                    <label>Category</label>
+                    <p id="modalCategory">â€”</p>
+                </div>
+                <div class="info-item">
+                    <label>Mode</label>
+                    <p id="modalMode">â€”</p>
+                </div>
+                <div class="info-item">
+                    <label>Slots</label>
+                    <p id="modalSlots">â€”</p>
+                </div>
+                <div class="info-item">
+                    <label>Progress</label>
+                    <p id="modalProgress">â€”</p>
+                </div>
+                <div class="info-item">
+                    <label>Notes</label>
+                    <p id="modalRemarks" class="modal-text-unified">â€”</p>
+                </div>
+                <div class="modal-footer" id="modalActions">
+                    <button class="btn-approve" id="modalCompleteBtn">Mark Completed</button>
+                    <button class="btn-reject" id="modalCancelBtn">Cancel Training</button>
+                </div>
+                <button class="modal-close-btn" id="modalCloseBtn">Close View</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="addTrainingModal" class="modal-overlay">
+    <div class="view-modal-content modal-sm">
+        <div class="modal-header">
+            <h3>Add New Training</h3>
+        </div>
+        <div class="modal-body-form">
+            <div class="log-request-grid">
+                <div class="form-group full-width">
+                    <label>Training Name</label>
+                    <input type="text" id="tName" placeholder="e.g. Faculty Development Workshop">
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="tCategory">
+                        <option disabled selected value="">Select category...</option>
+                        <option>Teaching</option>
+                        <option>Research</option>
+                        <option>Development</option>
+                        <option>Safety</option>
+                        <option>Administrative</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Mode</label>
+                    <select id="tMode">
+                        <option disabled selected value="">Select mode...</option>
+                        <option>Onsite</option>
+                        <option>Online</option>
+                        <option>Hybrid</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Date</label>
+                    <input type="date" id="tDate">
+                </div>
+                <div class="form-group">
+                    <label>Total Slots</label>
+                    <input type="number" id="tTotalSlots" placeholder="e.g. 30" min="1">
+                </div>
+                <div class="form-group">
+                    <label>Venue / Platform</label>
+                    <input type="text" id="tVenue" placeholder="Room or link">
+                </div>
+                <div class="form-group full-width">
+                    <label>Trainer / Provider</label>
+                    <input type="text" id="tTrainer" placeholder="Name or organization">
+                </div>
+                <div class="form-group full-width">
+                    <label>Description / Remarks</label>
+                    <textarea id="tRemarks" rows="4" placeholder="Training details..."></textarea>
+                </div>
+                <div class="action-btns full-width">
+                    <button type="button" id="cancelAddTraining">Cancel</button>
+                    <button type="button" class="btn-save" id="saveTraining">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<template id="trainingRowTemplate">
+    <tr>
+        <td class="col-id"></td>
+        <td class="col-tname"></td>
+        <td class="col-category"></td>
+        <td class="col-date"></td>
+        <td class="col-mode"></td>
+        <td class="col-slots"></td>
+        <td class="col-progress"></td>
+        <td class="col-status"></td>
+        <td class="col-actions"></td>
+    </tr>
+</template>
+
+<script src="../../static/js/training_management/hr_training.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Position Change Request | Employee System</title>
+    <link rel="shortcut icon" type="image/png" href="../../static/img/general/uph.png">
+    <link rel="stylesheet" href="../../static/css/employee/position_change_request.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+</head>
+<body>
+    <div class="background"></div>
+    
+    <div class="sidebar" id="sidebar">
+        <div class="top-section">
+            <div class="logo-wrapper" id="logoToggle">
+                <img src="../../static/img/general/uph.png" class="logo">
+                <div class="open-icon"><i class="fas fa-chevron-right"></i></div>
+            </div>
+            <button class="close-btn" id="closeBtn"><i class="fas fa-chevron-left"></i></button>
+        </div>
+
+        <ul class="menu">
+            <li><a href="emp_dash.html" class="menu-item"><i class="fas fa-border-all"></i> <span>Dashboard</span></a></li>
+            <li><a href="emp_profile_view.html" class="menu-item"><i class="fas fa-user"></i> <span>Profile</span></a></li>
+            <hr>
+            <li><a href="emp_position_change_request.html" class="menu-item active"><i class="fas fa-user-edit"></i><span>Position Change Request</span></a></li>
+            <li><a href="emp_attendance.html" class="menu-item"><i class="fas fa-calendar-check"></i><span>Attendance</span></a></li>
+            <li><a href="emp_leaveselect.html" class="menu-item"><i class="fas fa-plane-departure"></i><span>Leave Request</span></a></li>
+            <li><a href="#" class="menu-item"><i class="fas fa-star"></i><span>Performance Evaluation</span></a></li>
+            <li><a href="emp_training.html" class="menu-item"><i class="fas fa-chalkboard-teacher"></i><span>Trainings</span></a></li>
+        </ul>
+
+        <div class="bottom-section">
+            <a href="../login/login.html" class="menu-item logout"><i class="fas fa-sign-out-alt"></i> <span>Log Out</span></a>
+        </div>
+    </div>
+
+    <div class="dashboard-viewport">
+        <main class="main-content">
+            <div class="form-card">
+                <div class="form-card-header">
+                    <div>
+                        <h2>Position Change Request</h2>
+                        <p>Submit a position change request and track it in your records.</p>
+                    </div>
+                    <div class="view-toggle-header">
+                        <button type="button" class="toggle-btn active" id="tabNewRequest">New Request</button>
+                        <button type="button" class="toggle-btn" id="recordsBtn">Records</button>
+                    </div>
+                </div>
+                
+                <form class="position-form" id="positionForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="empName">EMPLOYEE NAME</label>
+                            <input type="text" id="empName" placeholder="e.g. Dela Cruz, Juan" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="empId">EMPLOYEE ID</label>
+                            <input type="text" id="empId" placeholder="Auto-filled" disabled>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="currentPos">CURRENT POSITION</label>
+                            <input type="text" id="currentPos" placeholder="Auto-filled" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="currentDept">DEPARTMENT</label>
+                            <input type="text" id="currentDept" placeholder="Auto-filled" disabled>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label for="requestedPos">REQUESTED POSITION</label>
+                            <select id="requestedPos" required>
+                                <option value="">Select position...</option>
+                                <option>Dean</option>
+                                <option>Department Head</option>
+                                <option>Senior Instructor</option>
+                                <option>Instructor</option>
+                                <option>Professor</option>
+                                <option>Assistant Professor</option>
+                                <option>Registrar</option>
+                                <option>Clinical Instructor</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label for="effectiveDate">EFFECTIVE DATE</label>
+                            <input type="date" id="effectiveDate" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label for="reason">REASON</label>
+                            <textarea id="reason" placeholder="Input reason for position change..." rows="6" required></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn-cancel" id="cancelBtn">Cancel</button>
+                        <button type="submit" class="btn-save" id="submitBtn">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <!-- ── Cancel Confirmation Modal ── -->
+    <div id="cancelModal">
+        <div class="modal-content">
+            <div class="modal-icon-circle">
+                <span>!</span>
+            </div>
+            <h2>Cancel Progress?</h2>
+            <p>Are you sure you want to cancel? All unsaved progress will be lost.</p>
+            <div class="modal-footer">
+                <button class="btn-yes-cancel" id="confirmCancelBtn">YES, CANCEL</button>
+                <button class="btn-no-stay"    id="stayBtn">NO, STAY</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../static/js/employee/position_change_request.js"></script>
+</body>
+</html>

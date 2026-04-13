@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit My Profile | Employee System</title>
+    <link rel="shortcut icon" type="image/png" href="../../static/img/general/uph.png">
+    <link rel="stylesheet" href="../../static/css/employee/emp_profile_edit.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+
+    <div class="background"></div>
+
+    <div class="dashboard-viewport">
+        <div class="sidebar" id="sidebar">
+            <div class="top-section">
+                <div class="logo-wrapper" id="logoToggle">
+                    <img src="../../static/img/general/uph.png" class="logo">
+                    <div class="open-icon"><i class="fas fa-chevron-right"></i></div>
+                </div>
+                <button class="close-btn" id="closeBtn"><i class="fas fa-chevron-left"></i></button>
+            </div>
+
+            <ul class="menu">
+    <li>
+        <a href="emp_dash.html"
+           class="menu-item"
+           data-text="Dashboard">
+            <i class="fas fa-border-all"></i>
+            <span>Dashboard</span>
+        </a>
+    </li>
+
+    <li>
+        <a href="emp_profile_edit.html"
+           class="menu-item active"
+           data-text="Profile">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+        </a>
+    </li>
+
+    <hr>
+
+    <li>
+        <a href="emp_position_change_request.html"
+           class="menu-item"
+           data-text="Position Change Request">
+            <i class="fas fa-user-edit"></i>
+            <span>Position Change Request</span>
+        </a>
+    </li>
+
+    <li>
+        <a href="emp_attendance.html"
+           class="menu-item"
+           data-text="Attendance">
+            <i class="fas fa-calendar-check"></i>
+            <span>Attendance</span>
+        </a>
+    </li>
+
+    <li>
+        <a href="../leave/emp_leaveselect.html"
+           class="menu-item"
+           data-text="Leave Request">
+            <i class="fas fa-plane-departure"></i>
+            <span>Leave Request</span>
+        </a>
+    </li>
+
+    <li>
+        <a href="#"
+           class="menu-item"
+           data-text="Performance Evaluation">
+            <i class="fas fa-star"></i>
+            <span>Performance Evaluation</span>
+        </a>
+    </li>
+    <li>
+        <a href="#"
+           class="menu-item"
+           data-text="Trainings">
+            <i class="fas fa-chalkboard-teacher"></i>
+            <span>Trainings</span>
+        </a>
+    </li>
+</ul>
+
+            <div class="bottom-section">
+    <a href="../login/login.html"
+       class="menu-item logout"
+       data-text="Log Out">
+        <i class="fas fa-sign-out-alt"></i>
+        <span>Log Out</span>
+    </a>
+</div>
+
+        </div>
+
+        <main class="main-content">
+            <div class="content-card">
+                <h1>Edit My Profile</h1>
+                
+                <div class="form-body">
+                    <form class="form-grid" id="editEmployeeForm">
+                        <section class="form-section-box">
+                            <div class="section-header">Basic Information</div>
+                            <div class="section-body">
+                                <div class="photo-container">
+                                    <div class="photo-circle">
+                                        <img id="displayPhoto" src="../../static/img/sample-profile-pic.jfif">
+                                    </div>
+                                    <span class="photo-label">Contact HR to update photo</span>
+                                </div>
+
+                                <div class="inputs-row">
+                                    <div class="input-item"><label>First Name</label><input type="text" id="firstName" value="John" readonly></div>
+                                    <div class="input-item"><label>Last Name</label><input type="text" id="lastName" value="Doe" readonly></div>
+                                    <div class="input-item"><label>Employment I.D</label><input type="text" id="empID" value="EMP-2024-001" readonly></div>
+                                    <div class="input-item"><label>Employment Status</label><input type="text" id="empStatus" value="Active" readonly></div>
+                                    <div class="input-item"><label>Employment Type</label><input type="text" id="empType" value="Full-Time" readonly></div>
+                                    <div class="input-item"><label>Department / Office</label><input type="text" id="dept" value="College of Computer Studies" readonly></div>
+                                    <div class="input-item"><label>Position/Rank</label><input type="text" id="pos" value="Instructor I" readonly></div>
+                                    <div class="input-item"><label>Date Hired</label><input type="text" id="dateHired" value="August 15, 2022" readonly></div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="form-section-box">
+                            <div class="section-header">Personal Information</div>
+                            <div class="section-body">
+                                <div class="full-width-item"><label>Email Address</label><input type="email" id="email" value="john.doe@email.com"></div>
+                                <div class="full-width-item"><label>Contact Number</label><input type="text" id="contact" value="+63 912 345 6789"></div>
+                                <div class="full-width-item"><label>Address</label><input type="text" id="address" value="123 Maligaya St., Las Piñas City, Metro Manila"></div>
+                                
+                                <h4 class="sub-header">Emergency Contact</h4>
+                                <div class="inputs-row">
+                                    <div class="input-item"><label>Contact Name</label><input type="text" id="emergencyName" value="Jane Smith Doe"></div>
+                                    <div class="input-item"><label>Contact Number</label><input type="text" id="emergencyPhone" value="+63 998 765 4321"></div>
+                                </div>
+                            </div>
+                        </section>
+                    </form>
+                </div>
+
+                <div class="form-footer">
+    <button type="button" class="btn btn-cancel" onclick="cancelEEdit()">Cancel</button>
+    
+    <button type="button" class="btn btn-save" onclick="updateEProfile()">Update Changes</button>
+</div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../../static/js/employee/emp_profile_edit.js"></script>
+</body>
+</html>

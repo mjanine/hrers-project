@@ -1,0 +1,444 @@
+/* ============================================
+   SUCCESS PAGE STYLES
+   Modern, Minimalist Design
+   Color Palette: Maroon (#4d0505), Yellow (#FFC107), White (#FFFFFF)
+   ============================================ */
+
+/* Color Variables */
+:root {
+    --maroon: #4d0505;
+    --maroon-light: #A52A2A;
+    --yellow: #FFC107;
+    --yellow-dark: #FFB300;
+    --white: #FFFFFF;
+    --text-light: #f0f0f0;
+}
+
+/* Reset and Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background-color: #f5f5f5;
+}
+
+body {
+    overflow-x: hidden;
+}
+
+/* Success Container - Main Wrapper */
+.success-container {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+/* Background Image with Overlay */
+.background-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+}
+
+.background-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('../../../static/img/login/building3.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+}
+
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.80) 0%, rgba(0, 0, 0, 0.80) 100%);
+    z-index: 1;
+}
+
+/* Success Content - Main Content Area */
+.success-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    padding: 40px 20px;
+    max-width: 600px;
+    width: 100%;
+    animation: fadeInUp 0.8s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Logo Section */
+.logo-section {
+    margin-bottom: 40px;
+    animation: slideDown 0.8s ease-out 0.1s both;
+    filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.4));
+}
+
+.logo {
+    width: 180px;
+    height: 180px;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+    transition: transform 0.3s ease;
+}
+
+.logo:hover {
+    transform: scale(1.05);
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Success Icon */
+.success-icon {
+    font-size: 80px;
+    color: var(--yellow);
+    margin-top: -50px;
+    margin-bottom: 30px;
+    animation: scaleIn 0.6s ease-out 0.2s both;
+    filter: drop-shadow(0 0 10px rgba(255, 193, 7, 0.3));
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.5);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Main Heading */
+.main-heading {
+    font-size: clamp(2rem, 8vw, 3rem);
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 15px;
+    letter-spacing: 0.5px;
+    animation: fadeInUp 0.8s ease-out 0.3s both;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Subtitle */
+.subtitle {
+    font-size: clamp(0.95rem, 3vw, 1.2rem);
+    color: var(--text-light);
+    line-height: 1.6;
+    margin-bottom: 40px;
+    font-weight: 300;
+    animation: fadeInUp 0.8s ease-out 0.4s both;
+}
+
+/* CTA Container */
+.cta-container {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    align-items: center;
+    animation: fadeInUp 0.8s ease-out 0.5s both;
+    margin: 0 auto;
+    width: 100%;
+    max-width: 700px;
+}
+
+/* Button Styles - Matching Welcome Page */
+.cta-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 40px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: 2px solid transparent;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+
+.primary-btn {
+    background: var(--maroon);
+    color: var(--white);
+    box-shadow: 0 4px 12px rgba(77, 5, 5, 0.3);
+}
+
+.primary-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(165, 42, 42, 0.3);
+    background: var(--maroon-light);
+}
+
+.primary-btn:active {
+    transform: translateY(-1px);
+}
+
+.secondary-btn {
+    background: transparent;
+    color: var(--white);
+    border: 2px solid var(--yellow);
+}
+
+.secondary-btn:hover {
+    background: var(--yellow);
+    color: var(--maroon);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(255, 193, 7, 0.3);
+}
+
+.btn-text {
+    letter-spacing: 0.5px;
+}
+
+.cta-button i {
+    font-size: 1rem;
+    transition: transform 0.3s ease;
+}
+
+.cta-button:hover i {
+    transform: translateX(4px);
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+/* Tablets */
+@media (max-width: 768px) {
+    .success-content {
+        padding: 30px 20px;
+        max-width: 100%;
+    }
+
+    .main-heading {
+        font-size: clamp(1.5rem, 6vw, 2rem);
+    }
+
+    .subtitle {
+        font-size: clamp(0.9rem, 2.5vw, 1rem);
+        margin-bottom: 30px;
+    }
+
+    .success-icon {
+        font-size: 60px;
+        margin-bottom: 20px;
+    }
+
+    .logo {
+        width: 140px;
+        height: 140px;
+    }
+
+    .logo-section {
+        margin-bottom: 30px;
+    }
+
+    .cta-container {
+        gap: 15px;
+        max-width: 600px;
+    }
+
+    .cta-button {
+        padding: 14px 30px;
+        font-size: 1rem;
+    }
+}
+
+/* Small Tablets/Large Mobile */
+@media (max-width: 600px) {
+    .cta-container {
+        gap: 12px;
+        max-width: 500px;
+    }
+
+    .cta-button {
+        padding: 13px 24px;
+        font-size: 0.95rem;
+    }
+
+    .cta-button i {
+        font-size: 0.9rem;
+    }
+}
+
+/* Mobile Devices */
+@media (max-width: 480px) {
+    .success-container {
+        height: 100%;
+        min-height: 100vh;
+        padding: 20px 0;
+    }
+
+    .success-content {
+        padding: 20px 15px;
+    }
+
+    .logo-section {
+        margin-bottom: 25px;
+    }
+
+    .logo {
+        width: 100px;
+        height: 100px;
+    }
+
+    .main-heading {
+        font-size: clamp(1.3rem, 5vw, 1.8rem);
+        margin-bottom: 10px;
+    }
+
+    .subtitle {
+        font-size: clamp(0.85rem, 2.2vw, 1rem);
+        margin-bottom: 30px;
+    }
+
+    .success-icon {
+        font-size: 50px;
+        margin-bottom: 20px;
+    }
+
+    .cta-container {
+        gap: 10px;
+        flex-direction: row;
+    }
+
+    .cta-button {
+        padding: 12px 18px;
+        font-size: 0.85rem;
+        flex: 1;
+        min-width: 120px;
+        justify-content: center;
+    }
+
+    .cta-button i {
+        font-size: 0.8rem;
+    }
+}
+
+/* Extra small devices */
+@media (max-width: 360px) {
+    .main-heading {
+        font-size: 1.2rem;
+    }
+
+    .subtitle {
+        font-size: 0.8rem;
+        margin-bottom: 25px;
+    }
+
+    .success-icon {
+        font-size: 45px;
+        margin-bottom: 15px;
+    }
+
+    .logo {
+        width: 90px;
+        height: 90px;
+    }
+
+    .cta-container {
+        flex-direction: column;
+        gap: 10px;
+        max-width: 100%;
+    }
+
+    .cta-button {
+        width: 100%;
+        padding: 12px 16px;
+        font-size: 0.8rem;
+    }
+
+    .btn-text {
+        font-size: 0.8rem;
+    }
+
+    .cta-button i {
+        font-size: 0.75rem;
+    }
+}
+
+/* ============================================
+   ACCESSIBILITY & PRINT STYLES
+   ============================================ */
+
+/* High contrast for accessibility */
+@media (prefers-contrast: more) {
+    .overlay {
+        opacity: 1;
+        background: linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.95) 100%);
+    }
+
+    .cta-button {
+        border-width: 2px;
+    }
+
+    .secondary-btn {
+        border-width: 3px;
+    }
+}
+
+/* Reduced motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Print styles */
+@media print {
+    .background-wrapper {
+        display: none;
+    }
+
+    .success-content {
+        background: white;
+        color: #333;
+    }
+
+    .cta-button {
+        display: none;
+    }
+}

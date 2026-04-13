@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audit Trails | Employee Portal</title>
+    <link rel="shortcut icon" type="image/png" href="../../static/img/general/uph.png">
+    <link rel="stylesheet" href="../../static/css/application/application_info.css">
+    <link rel="stylesheet" href="../../static/css/admin/admin_dash.css">
+    <link rel="stylesheet" href="../../static/css/admin/admin.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <style>
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            background: transparent;
+        }
+
+        .sidebar {
+            z-index: 1000;
+        }
+
+        .dashboard-viewport {
+            display: flex;
+            height: 100vh;
+            width: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+            gap: 20px;
+        }
+
+        .main-content.audit-main {
+            flex: 1;
+            height: 100%;
+            margin-left: 320px;
+            display: flex;
+            min-width: 0;
+            transition: margin-left 0.35s ease;
+        }
+
+        .sidebar.collapsed ~ .dashboard-viewport .main-content.audit-main {
+            margin-left: 110px;
+        }
+
+        .leave-card.audit-card {
+            background: #ffffff;
+            border-radius: 25px;
+            padding: 25px 32px;
+            width: 100%;
+            height: 100%;
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box;
+        }
+
+        .form-body.audit-body {
+            flex: 1;
+            overflow: auto;
+            padding-right: 0.5rem;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .form-body.audit-body::-webkit-scrollbar {
+            display: none;
+        }
+
+        .admin-section {
+            padding: 0;
+            background: transparent;
+            min-height: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .header h1 {
+            margin: 0;
+            color: var(--admin-text);
+            font-size: 1.9rem;
+            font-weight: 700;
+        }
+
+        .search-add {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .quick-filters {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+            width: 100%;
+            align-items: end;
+        }
+
+        .quick-filters .search-box {
+            min-width: 320px;
+            margin: 0;
+        }
+
+        .quick-filters .date-range {
+            min-width: 145px;
+        }
+
+        .quick-filters .btn {
+            white-space: nowrap;
+        }
+
+        .logs-section {
+            margin-bottom: 2rem;
+        }
+
+        .logs-section .section-title {
+            display: block;
+            width: 100%;
+            max-width: none;
+            margin: 0 0 1rem 0;
+            padding-bottom: 0.75rem;
+            border-bottom: none;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        .logs-section .section-title::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 2px;
+            background: var(--admin-border);
+        }
+
+        .log-details-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+        }
+
+        .detail-group {
+            background: var(--admin-light);
+            border: 1px solid var(--admin-border);
+            border-radius: 0.5rem;
+            padding: 0.875rem;
+        }
+
+        .detail-group label {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--admin-text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            margin-bottom: 0.4rem;
+            font-weight: 600;
+        }
+
+        .detail-group p {
+            margin: 0;
+            color: var(--admin-text);
+            word-break: break-word;
+        }
+
+        .format-options {
+            display: grid;
+            gap: 0.5rem;
+        }
+
+        .format-options label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 0;
+        }
+
+        #loginLogsBody td:last-child,
+        #loginLogsBody th:last-child,
+        .logs-section .data-table th:last-child,
+        .logs-section .data-table td:last-child {
+            text-align: center;
+        }
+
+        #loginLogsBody td:last-child .btn-icon {
+            margin: 0 auto;
+        }
+
+        .btn-icon {
+            padding: 4px 6px;
+            font-size: 0.75rem;
+            min-width: auto;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--admin-border);
+            border-radius: 0.5rem;
+            background: var(--admin-light);
+            cursor: pointer;
+        }
+
+        @media (max-width: 1100px) {
+            .main-content.audit-main {
+                margin-left: 110px;
+            }
+
+            .search-add {
+                justify-content: flex-start;
+            }
+
+            .quick-filters .search-box {
+                min-width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-viewport {
+                padding: 12px;
+                gap: 12px;
+            }
+
+            .main-content.audit-main {
+                margin-left: 0;
+            }
+
+            .leave-card.audit-card {
+                padding: 18px;
+                border-radius: 18px;
+            }
+
+            .header h1 {
+                font-size: 1.4rem;
+            }
+
+            .quick-filters {
+                justify-content: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="background"></div>
+
+    <div class="sidebar" id="sidebar">
+        <div class="top-section">
+            <div class="logo-wrapper" id="logoToggle">
+                <img src="../../static/img/general/uph.png" class="logo" alt="Logo">
+                <div class="open-icon"><i class="fas fa-chevron-right"></i></div>
+            </div>
+            <button class="close-btn" id="closeBtn"><i class="fas fa-chevron-left"></i></button>
+        </div>
+
+        <ul class="menu">
+            <li><a href="dashboard.html" class="menu-item"><i class="fas fa-home"></i> <span>Dashboard</span></a></li>
+            <li><a href="user_management.html" class="menu-item"><i class="fas fa-users"></i> <span>User Management</span></a></li>
+            <li><a href="department_management.html" class="menu-item"><i class="fas fa-sitemap"></i> <span>Department Management</span></a></li>
+            <li><a href="audit_trails.html" class="menu-item active"><i class="fas fa-history"></i> <span>Audit Trails</span></a></li>
+        </ul>
+
+        <div class="bottom-section">
+            <a href="../login/login.html" class="menu-item logout"><i class="fas fa-sign-out-alt"></i> <span>Log Out</span></a>
+        </div>
+    </div>
+
+    <div class="dashboard-viewport">
+        <main class="main-content audit-main">
+            <div class="leave-card audit-card">
+                <div class="form-body audit-body">
+                <div class="admin-section">
+                    <div class="header">
+                        <h1>Audit Trails</h1>
+                        <div class="search-add">
+                            <button class="btn btn-secondary" id="exportBtn">
+                                <i class="fas fa-download"></i> Export Logs
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="filters-container">
+                        <div class="quick-filters">
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="auditSearch" placeholder="Search by username, email, or IP...">
+                        </div>
+                        <div class="date-range">
+                            <label>From Date</label>
+                            <input type="date" id="fromDate">
+                        </div>
+
+                        <div class="date-range">
+                            <label>To Date</label>
+                            <input type="date" id="toDate">
+                        </div>
+
+                        <select id="activityFilter" class="filter-select">
+                            <option value="">All Activities</option>
+                            <option value="login">Login</option>
+                            <option value="logout">Logout</option>
+                            <option value="user_created">User Created</option>
+                            <option value="user_edited">User Edited</option>
+                            <option value="user_deleted">User Deleted</option>
+                            <option value="role_changed">Role Changed</option>
+                            <option value="password_changed">Password Changed</option>
+                            <option value="account_activated">Account Activated</option>
+                            <option value="account_deactivated">Account Deactivated</option>
+                            <option value="failed_login">Failed Login</option>
+                        </select>
+
+                        <select id="statusFilter" class="filter-select">
+                            <option value="">All Status</option>
+                            <option value="success">Success</option>
+                            <option value="failed">Failed</option>
+                            <option value="warning">Warning</option>
+                        </select>
+
+                        <button class="btn btn-secondary" id="filterBtn">
+                            <i class="fas fa-filter"></i> Apply Filters
+                        </button>
+                        <button class="btn btn-secondary" id="clearFilterBtn">
+                            <i class="fas fa-times"></i> Clear
+                        </button>
+                        </div>
+                    </div>
+
+                    <div class="logs-section">
+                        <h2 class="section-title">Login &amp; Access Logs</h2>
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Username</th>
+                                        <th>Email</th>
+                                        <th>Login Time</th>
+                                        <th>Logout Time</th>
+                                        <th>IP Address</th>
+                                        <th>Device / Browser</th>
+                                        <th>Status</th>
+                                        <th>Details</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="loginLogsBody">
+                                    <tr class="log-row" data-log-id="1">
+                                        <td><strong>john.doe</strong></td>
+                                        <td>john.doe@company.com</td>
+                                        <td><span class="timestamp">Mar 16, 2024 09:30</span></td>
+                                        <td><span class="timestamp">Mar 16, 2024 17:45</span></td>
+                                        <td><code class="ip-address">192.168.1.102</code></td>
+                                        <td><span class="device-info">Chrome on Windows</span></td>
+                                        <td><span class="status-badge success">Success</span></td>
+                                        <td>
+                                            <button class="btn-icon view-details" data-log-id="1" title="View Details">
+                                                <i class="fas fa-circle-info"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr class="log-row" data-log-id="2">
+                                        <td><strong>sarah.smith</strong></td>
+                                        <td>sarah.smith@company.com</td>
+                                        <td><span class="timestamp">Mar 16, 2024 08:15</span></td>
+                                        <td><span class="timestamp">Mar 16, 2024 16:30</span></td>
+                                        <td><code class="ip-address">192.168.1.105</code></td>
+                                        <td><span class="device-info">Firefox on macOS</span></td>
+                                        <td><span class="status-badge success">Success</span></td>
+                                        <td>
+                                            <button class="btn-icon view-details" data-log-id="2" title="View Details">
+                                                <i class="fas fa-circle-info"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr class="log-row" data-log-id="3">
+                                        <td><strong>mike.johnson</strong></td>
+                                        <td>mike.johnson@company.com</td>
+                                        <td><span class="timestamp">Mar 15, 2024 10:20</span></td>
+                                        <td><span class="timestamp">Mar 15, 2024 18:05</span></td>
+                                        <td><code class="ip-address">192.168.1.127</code></td>
+                                        <td><span class="device-info">Edge on Windows</span></td>
+                                        <td><span class="status-badge warning">Warning</span></td>
+                                        <td>
+                                            <button class="btn-icon view-details" data-log-id="3" title="View Details">
+                                                <i class="fas fa-circle-info"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="logs-section">
+                        <h2 class="section-title">Activity Logs</h2>
+                        <div class="activity-logs-list">
+                            <div class="activity-log-item">
+                                <div class="log-icon"><i class="fas fa-sign-in-alt"></i></div>
+                                <div class="log-content">
+                                    <div class="log-header">
+                                        <p class="log-activity">User Login: John Doe</p>
+                                        <span class="log-time">Mar 16, 2024 09:30:15</span>
+                                    </div>
+                                    <div class="log-details">
+                                        <p class="log-user"><strong>User:</strong> John Doe (john.doe@company.com)</p>
+                                        <p class="log-ip"><strong>IP Address:</strong> <code>192.168.1.102</code></p>
+                                        <p class="log-description"><strong>Details:</strong> Successful login from Chrome on Windows</p>
+                                    </div>
+                                </div>
+                                <div class="log-status"><span class="status-badge success">Success</span></div>
+                            </div>
+
+                            <div class="activity-log-item">
+                                <div class="log-icon"><i class="fas fa-user-plus"></i></div>
+                                <div class="log-content">
+                                    <div class="log-header">
+                                        <p class="log-activity">New User Created: Sarah Johnson</p>
+                                        <span class="log-time">Mar 15, 2024 14:22:45</span>
+                                    </div>
+                                    <div class="log-details">
+                                        <p class="log-user"><strong>User:</strong> Admin User (admin@company.com)</p>
+                                        <p class="log-ip"><strong>IP Address:</strong> <code>192.168.1.50</code></p>
+                                        <p class="log-description"><strong>Details:</strong> New employee account created with HR role</p>
+                                    </div>
+                                </div>
+                                <div class="log-status"><span class="status-badge success">Success</span></div>
+                            </div>
+
+                            <div class="activity-log-item">
+                                <div class="log-icon"><i class="fas fa-user-tie"></i></div>
+                                <div class="log-content">
+                                    <div class="log-header">
+                                        <p class="log-activity">Role Changed: Mike Johnson</p>
+                                        <span class="log-time">Mar 15, 2024 11:10:20</span>
+                                    </div>
+                                    <div class="log-details">
+                                        <p class="log-user"><strong>User:</strong> Admin User (admin@company.com)</p>
+                                        <p class="log-ip"><strong>IP Address:</strong> <code>192.168.1.50</code></p>
+                                        <p class="log-description"><strong>Details:</strong> Role changed from Employee to Department Head (Finance)</p>
+                                    </div>
+                                </div>
+                                <div class="log-status"><span class="status-badge success">Success</span></div>
+                            </div>
+
+                            <div class="activity-log-item">
+                                <div class="log-icon"><i class="fas fa-user-slash"></i></div>
+                                <div class="log-content">
+                                    <div class="log-header">
+                                        <p class="log-activity">User Deactivated: Robert Smith</p>
+                                        <span class="log-time">Mar 14, 2024 16:45:30</span>
+                                    </div>
+                                    <div class="log-details">
+                                        <p class="log-user"><strong>User:</strong> Admin User (admin@company.com)</p>
+                                        <p class="log-ip"><strong>IP Address:</strong> <code>192.168.1.50</code></p>
+                                        <p class="log-description"><strong>Details:</strong> User account deactivated - Employee separation</p>
+                                    </div>
+                                </div>
+                                <div class="log-status"><span class="status-badge warning">Warning</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pagination-container">
+                        <div class="pagination">
+                            <a href="#" class="pagination-btn">&laquo; First</a>
+                            <a href="#" class="pagination-btn">Previous</a>
+                            <span class="page-numbers">Page 1 of 3</span>
+                            <a href="#" class="pagination-btn">Next</a>
+                            <a href="#" class="pagination-btn">Last &raquo;</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="logDetailsModal" class="modal">
+        <div class="modal-content modal-large">
+            <span class="close">&times;</span>
+            <h2>Log Details</h2>
+
+            <div class="log-details-content">
+                <div class="detail-group">
+                    <label>Username</label>
+                    <p id="detailUsername"></p>
+                </div>
+                <div class="detail-group">
+                    <label>Email</label>
+                    <p id="detailEmail"></p>
+                </div>
+                <div class="detail-group">
+                    <label>Login Time</label>
+                    <p id="detailLoginTime"></p>
+                </div>
+                <div class="detail-group">
+                    <label>Logout Time</label>
+                    <p id="detailLogoutTime"></p>
+                </div>
+                <div class="detail-group">
+                    <label>IP Address</label>
+                    <p id="detailIp"></p>
+                </div>
+                <div class="detail-group">
+                    <label>User Agent / Browser</label>
+                    <p id="detailUserAgent"></p>
+                </div>
+                <div class="detail-group">
+                    <label>Status</label>
+                    <p id="detailStatus"></p>
+                </div>
+                <div class="detail-group">
+                    <label>Session Duration</label>
+                    <p id="detailDuration"></p>
+                </div>
+                <div class="detail-group">
+                    <label>Additional Notes</label>
+                    <p id="detailNotes">No additional notes available.</p>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button class="btn btn-secondary" onclick="closeLogDetailsModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="exportModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Export Logs</h2>
+
+            <form id="exportForm">
+                <div class="form-group">
+                    <label>Select Format *</label>
+                    <div class="format-options">
+                        <label>
+                            <input type="radio" name="format" value="csv" checked>
+                            CSV File
+                        </label>
+                        <label>
+                            <input type="radio" name="format" value="pdf">
+                            PDF Document
+                        </label>
+                        <label>
+                            <input type="radio" name="format" value="excel">
+                            Excel Spreadsheet
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Time Range</label>
+                    <select id="exportFromDate">
+                        <option value="1w">Last 1 Week</option>
+                        <option value="1m" selected>Last 1 Month</option>
+                        <option value="3m">Last 3 Months</option>
+                        <option value="6m">Last 6 Months</option>
+                        <option value="1y">Last 1 Year</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Include Log Types</label>
+                    <div class="checkbox-group">
+                        <label>
+                            <input type="checkbox" name="log_types" value="login" checked>
+                            Login Logs
+                        </label>
+                        <label>
+                            <input type="checkbox" name="log_types" value="activity" checked>
+                            Activity Logs
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Export</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeExportModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="../../static/js/admin/sidebar.js"></script>
+    <script src="../../static/js/admin/audit_trails.js"></script>
+</body>
+</html>
