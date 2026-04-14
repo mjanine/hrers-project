@@ -2,12 +2,12 @@ document.addEventListener("DOMContentLoaded", function () {
     const loginForm = document.getElementById("loginForm");
     const loginMessage = document.getElementById("loginMessage");
     const roleRedirectMap = {
-        admin: "/dashboard/admin",
-        school_director: "/dashboard/school-director",
-        hr_evaluator: "/dashboard/hr",
-        hr_head: "/dashboard/hr",
-        department_head: "/dashboard/department-head",
-        employee: "/dashboard/employee",
+        admin: "/templates/admin/dashboard.html",
+        school_director: "/templates/sd/sd_dash.html",
+        hr_evaluator: "/templates/hr/hr_dash.html",
+        hr_head: "/templates/hr/hr_dash.html",
+        department_head: "/templates/head/head_dash.html",
+        employee: "/templates/employee/emp_dash.html",
     };
 
     if (!loginForm || !loginMessage) {

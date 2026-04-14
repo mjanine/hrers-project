@@ -1,7 +1,7 @@
 import os
 from datetime import datetime, timedelta, timezone
 
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from passlib.context import CryptContext
@@ -35,17 +35,37 @@ def create_access_token(subject: str, role: str, expires_delta: timedelta | None
 
 def authenticate_user(db: Session, login: str, password: str) -> User | None:
     user = db.query(User).filter((User.username == login) | (User.email == login)).first()
-    if not user or not verify_password(password, user.hashed_password):
+    if not user:
+        return None
+
+    hashed_password = str(user.hashed_password)
+    if not verify_password(password, hashed_password):
         return None
     return user
 
 
-def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)) -> User:
+def _extract_token(request: Request) -> str | None:
+    auth_header = request.headers.get("Authorization", "")
+    if auth_header.startswith("Bearer "):
+        return auth_header.split(" ", 1)[1].strip()
+
+    cookie_token = request.cookies.get("access_token")
+    if cookie_token:
+        return cookie_token
+
+    return None
+
+
+def get_current_user(request: Request, db: Session = Depends(get_db)) -> User:
     credentials_error = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
+
+    token = _extract_token(request)
+    if not token:
+        raise credentials_error
 
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
@@ -56,7 +76,7 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
         raise credentials_error from exc
 
     user = db.query(User).filter(User.username == subject).first()
-    if user is None or not user.is_active:
+    if user is None or not bool(user.is_active):
         raise credentials_error
     return user
 
