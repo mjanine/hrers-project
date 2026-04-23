@@ -209,7 +209,7 @@ hr {
 
 .content-card h1 { 
     font-size: 32px; 
-    margin: 0 0 25px 0; 
+    margin: 0 0 28px 0; 
     color: #1a1a1a; 
 }
 
@@ -217,7 +217,7 @@ hr {
     flex: 1; 
     overflow-y: auto; 
     padding-right: 15px; 
-    margin-bottom: 10px; 
+    margin-bottom: 14px; 
 }
 
 .form-body::-webkit-scrollbar { width: 6px; }
@@ -227,7 +227,8 @@ hr {
 .form-grid {
     display: grid;
     grid-template-columns: 1.1fr 0.9fr;
-    gap: 20px;
+    gap: 24px;
+    align-items: start;
 }
 
 .form-section-box {
@@ -240,15 +241,20 @@ hr {
 
 .section-header {
     background: #f8f8f8;
-    padding: 15px 20px;
+    padding: 16px 22px;
     font-weight: bold;
     border-bottom: 1px solid #eee;
     font-size: 14px;
 }
 
-.section-body { padding: 20px; }
+.section-body {
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
 
-.photo-container { text-align: center; margin-bottom: 20px; }
+.photo-container { text-align: center; margin-bottom: 6px; }
 .photo-circle {
     width: 80px; height: 80px;
     background: #4a1d1d;
@@ -259,20 +265,47 @@ hr {
 .photo-circle svg { width: 40px; height: 40px; fill: white; }
 .photo-label { color: #888; font-size: 11px; }
 
-.inputs-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-.input-item { margin-bottom: 12px; }
-.input-item label, .full-width-item label { 
-    display: block; margin-bottom: 6px; font-weight: 600; color: #555;
-}
-.input-item input, .input-item select, .full-width-item input {
-    width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 13px;
+.inputs-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 16px;
+    row-gap: 14px;
 }
 
-.sub-header { margin: 20px 0 10px 0; font-weight: bold; border-top: 1px solid #eee; padding-top: 15px; }
+.input-item,
+.full-width-item {
+    margin-bottom: 0;
+}
+
+.input-item label, .full-width-item label { 
+    display: block;
+    margin-bottom: 7px;
+    font-weight: 600;
+    color: #555;
+    line-height: 1.2;
+}
+
+.input-item input, .input-item select, .full-width-item input {
+    width: 100%;
+    padding: 11px 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 13px;
+    min-height: 42px;
+}
+
+.sub-header {
+    margin: 6px 0 0 0;
+    font-weight: bold;
+    border-top: 1px solid #eee;
+    padding-top: 16px;
+}
 
 .form-footer {
     display: flex; justify-content: flex-end; gap: 15px;
-    padding-top: 20px; border-top: 1px solid #eee;
+    margin-top: 24px;
+    padding-top: 18px;
+    border-top: 1px solid #eee;
 }
 
 .btn { padding: 12px 35px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; }

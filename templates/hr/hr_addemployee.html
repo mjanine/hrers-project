@@ -1,12 +1,11 @@
-{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Employee | HR System</title>
-    <link rel="shortcut icon" type="image/png" href="{% static 'img/general/uph.png' %}">
-    <link rel="stylesheet" href="{% static 'css/hr/hr_addemployee.css' %}">
+    <link rel="shortcut icon" type="image/png" href="../../static/img/general/uph.png">
+    <link rel="stylesheet" href="../../static/css/hr/hr_addemployee.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 </head>
@@ -16,7 +15,7 @@
         <div class="sidebar" id="sidebar">
             <div class="top-section">
                 <div class="logo-wrapper" id="logoToggle">
-                    <img src="{% static 'img/general/uph.png' %}" class="logo">
+                    <img src="../../static/img/general/uph.png" class="logo">
                 </div>
             </div>
                 <ul class="menu">
@@ -39,7 +38,6 @@
                 
                 <div class="form-body">
                     <form class="form-grid" id="addEmployeeForm" method="POST" enctype="multipart/form-data">
-                        {% csrf_token %}
                         
                         <section class="form-section-box">
                             <div class="section-header">Basic Information</div>
@@ -55,27 +53,33 @@
                                 <div class="inputs-row">
                                     <div class="input-item">
                                         <label>Username</label>
-                                        {{ form.username }}
+                                        <input type="text" name="username" class="form-control" required>
                                     </div>
                                     <div class="input-item">
                                         <label>First Name</label>
-                                        {{ form.first_name }}
+                                        <input type="text" name="first_name" class="form-control" required>
                                     </div>
                                     <div class="input-item">
                                         <label>Last Name</label>
-                                        {{ form.last_name }}
+                                        <input type="text" name="last_name" class="form-control" required>
                                     </div>
                                     <div class="input-item">
                                         <label>Employment I.D</label>
-                                        {{ form.employee_id }}
+                                        <input type="text" name="employee_id" class="form-control" required>
                                     </div>
                                     <div class="input-item">
                                         <label>Employment Type</label>
-                                        {{ form.employment_type }}
+                                        <select name="employment_type" class="form-control" required>
+                                            <option value="">Select type</option>
+                                            <option value="Full-time">Full-time</option>
+                                            <option value="Part-time">Part-time</option>
+                                            <option value="Contractual">Contractual</option>
+                                            <option value="Probationary">Probationary</option>
+                                        </select>
                                     </div>
                                     <div class="input-item">
                                         <label>Date Hired</label>
-                                        <input type="date" name="date_hired" class="form-control" value="{% now 'Y-m-d' %}">
+                                        <input type="date" name="date_hired" class="form-control">
                                     </div>
                                 </div>
                             </div>
@@ -86,26 +90,26 @@
                             <div class="section-body">
                                 <div class="full-width-item">
                                     <label>Email Address</label>
-                                    {{ form.email }}
+                                    <input type="email" name="email" class="form-control" required>
                                 </div>
                                 <div class="full-width-item">
                                     <label>Contact Number</label>
-                                    {{ form.contact_number }}
+                                    <input type="text" name="contact_number" class="form-control">
                                 </div>
                                 <div class="full-width-item">
                                     <label>Home Address</label>
-                                    {{ form.address }}
+                                    <input type="text" name="address" class="form-control">
                                 </div>
 
                                 <h4 class="sub-header">Emergency Contact</h4>
                                 <div class="inputs-row">
                                     <div class="input-item">
                                         <label>Contact Name</label>
-                                        {{ form.emergency_contact_name }}
+                                        <input type="text" name="emergency_contact_name" class="form-control">
                                     </div>
                                     <div class="input-item">
                                         <label>Contact Number</label>
-                                        {{ form.emergency_contact_num }}
+                                        <input type="text" name="emergency_contact_num" class="form-control">
                                     </div>
                                 </div>
                             </div>

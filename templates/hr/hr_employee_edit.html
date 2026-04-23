@@ -1,12 +1,11 @@
-{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Profile | {{ employee.get_full_name }}</title>
-    <link rel="shortcut icon" type="image/png" href="{% static 'img/general/uph.png' %}">
-    <link rel="stylesheet" href="{% static 'css/hr/hr_employee_edit.css' %}">
+    <title>Edit Employee Profile</title>
+    <link rel="shortcut icon" type="image/png" href="../../static/img/general/uph.png">
+    <link rel="stylesheet" href="../../static/css/hr/hr_employee_edit.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
@@ -18,7 +17,7 @@
         <div class="sidebar" id="sidebar">
             <div class="top-section">
                 <div class="logo-wrapper" id="logoToggle">
-                    <img src="{% static 'img/general/uph.png' %}" class="logo">
+                    <img src="../../static/img/general/uph.png" class="logo">
                     <div class="open-icon"><i class="fas fa-chevron-right"></i></div>
                 </div>
                 <button class="close-btn" id="closeBtn"><i class="fas fa-chevron-left"></i></button>
@@ -44,54 +43,36 @@
 
         <main class="main-content">
             <div class="content-card">
-                <h1>Edit Employee Profile: {{ employee.get_full_name }}</h1>
-
-                {% if form.errors %}
-                    <div style="background: #fee2e2; border: 1px solid #ef4444; color: #b91c1c; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-                        <strong>Please fix the following errors:</strong>
-                        <ul style="margin-top: 10px;">
-                            {% for field, errors in form.errors.items %}
-                                {% for error in errors %}
-                                    <li>{{ field|title }}: {{ error }}</li>
-                                {% endfor %}
-                            {% endfor %}
-                        </ul>
-                    </div>
-                {% endif %}
+                <h1>Edit Employee Profile</h1>
                 
                 <div class="form-body">
                     <form class="form-grid" id="editEmployeeForm" method="POST" enctype="multipart/form-data">
-                        {% csrf_token %}
                         <section class="form-section-box">
                             <div class="section-header">Basic Information</div>
                             <div class="section-body">
                                 <div class="photo-container">
                                     <div class="photo-circle">
-                                        {% if employee.profile_pic %}
-                                            <img id="displayPhoto" src="{{ employee.profile_pic.url }}">
-                                        {% else %}
-                                            <img id="displayPhoto" src="{% static 'img/sample-profile-pic.jfif' %}">
-                                        {% endif %}
+                                        <img id="displayPhoto" src="../../static/img/sample-profile-pic.jfif">
                                     </div>
                                     <span class="photo-label">Contact IT/Admin to update photo</span>
                                 </div>
 
                                 <div class="inputs-row">
-                                    <div class="input-item"><label>First Name</label><input type="text" name="first_name" value="{{ employee.first_name }}"></div>
-                                    <div class="input-item"><label>Last Name</label><input type="text" name="last_name" value="{{ employee.last_name }}"></div>
-                                    <div class="input-item"><label>Username</label><input type="text" name="username" value="{{ employee.username }}"></div>
-                                    <div class="input-item"><label>Employment I.D</label><input type="text" name="employee_id" value="{{ employee.profile.employee_id }}"></div>
+                                    <div class="input-item"><label>First Name</label><input type="text" name="first_name" value=""></div>
+                                    <div class="input-item"><label>Last Name</label><input type="text" name="last_name" value=""></div>
+                                    <div class="input-item"><label>Username</label><input type="text" name="username" value=""></div>
+                                    <div class="input-item"><label>Employment I.D</label><input type="text" name="employee_id" value=""></div>
                                     <div class="input-item"><label>Employment Type</label>
                                         <select name="employment_type">
-                                            <option value="Regular" {% if employee.profile.employment_type == 'Regular' %}selected{% endif %}>Regular</option>
-                                            <option value="Probationary" {% if employee.profile.employment_type == 'Probationary' %}selected{% endif %}>Probationary</option>
-                                            <option value="Contractual" {% if employee.profile.employment_type == 'Contractual' %}selected{% endif %}>Contractual</option>
+                                            <option value="Regular" selected>Regular</option>
+                                            <option value="Probationary">Probationary</option>
+                                            <option value="Contractual">Contractual</option>
                                         </select>
                                     </div>
                                     <div class="input-item"><label>Department</label>
-                                        <input type="text" value="{{ employee.department.name|default:'Unassigned' }}" readonly style="background: #f0f0f0;">
+                                        <input type="text" value="Unassigned" readonly style="background: #f0f0f0;">
                                     </div>
-                                    <div class="input-item"><label>Date Hired</label><input type="text" value="{{ employee.date_joined|date:'F d, Y' }}" readonly style="background: #f0f0f0;"></div>
+                                    <div class="input-item"><label>Date Hired</label><input type="text" value="" readonly style="background: #f0f0f0;"></div>
                                 </div>
                             </div>
                         </section>
@@ -99,19 +80,19 @@
                         <section class="form-section-box">
                             <div class="section-header">Personal Information</div>
                             <div class="section-body">
-                                <div class="full-width-item"><label>Email Address</label><input type="email" name="email" value="{{ employee.email }}"></div>
-                                <div class="full-width-item"><label>Contact Number</label><input type="text" name="contact_number" value="{{ employee.profile.contact_number }}"></div>
-                                <div class="full-width-item"><label>Address</label><input type="text" name="address" value="{{ employee.profile.address }}"></div>
+                                <div class="full-width-item"><label>Email Address</label><input type="email" name="email" value=""></div>
+                                <div class="full-width-item"><label>Contact Number</label><input type="text" name="contact_number" value=""></div>
+                                <div class="full-width-item"><label>Address</label><input type="text" name="address" value=""></div>
                                 
                                 <h4 class="sub-header">Emergency Contact</h4>
                                 <div class="inputs-row">
                                     <div class="input-item">
                                         <label>Contact Name</label>
-                                        <input type="text" name="emergency_contact_name" value="{{ employee.profile.emergency_contact_name }}">
+                                        <input type="text" name="emergency_contact_name" value="">
                                     </div>
                                     <div class="input-item">
                                         <label>Contact Number</label>
-                                        <input type="text" name="emergency_contact_num" value="{{ employee.profile.emergency_contact_num }}">
+                                        <input type="text" name="emergency_contact_num" value="">
                                     </div>
                                 </div>
                             </div>
@@ -120,14 +101,10 @@
                 </div>
 
                 <div class="form-footer">
-                    <form action="{% url 'delete_employee' employee.id %}" method="POST" id="hiddenDeleteForm" style="display:none;">
-                        {% csrf_token %}
-                    </form>
-                    
                     <button type="button" class="btn-maroon-action" id="deleteUserBtn">Delete User</button>
                     
                     <div class="right-buttons">
-                        <a href="{% url 'employee_list' %}" class="btn btn-cancel" style="text-decoration: none; display: flex; align-items: center; justify-content: center;">Cancel</a>
+                        <a href="hr_employeelist.html" class="btn btn-cancel" style="text-decoration: none; display: flex; align-items: center; justify-content: center;">Cancel</a>
                         <button type="submit" form="editEmployeeForm" class="btn btn-save">Update Profile</button>
                     </div>
                 </div>
@@ -135,7 +112,7 @@
         </main>
     </div>
 
-    <script src="{% static 'js/hr/hr_employee_edit.js' %}?v={% now 'U' %}"></script>
+    <script src="../../static/js/hr/hr_employee_edit.js"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -148,15 +125,18 @@
                 newDeleteBtn.addEventListener('click', function() {
                     Swal.fire({
                         title: 'Are you sure?',
-                        text: "This will permanently delete {{ employee.get_full_name }}.",
+                        text: "This will permanently delete this user.",
                         icon: 'warning',
                         showCancelButton: true,
                         confirmButtonColor: '#800000',
                         confirmButtonText: 'Yes, delete user'
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            // Directly submit the Django form (No JS redirect needed!)
-                            document.getElementById('hiddenDeleteForm').submit();
+                            Swal.fire({
+                                icon: 'info',
+                                title: 'Delete action',
+                                text: 'Hook this button to your FastAPI delete endpoint.'
+                            });
                         }
                     });
                 });
