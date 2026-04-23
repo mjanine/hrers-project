@@ -177,12 +177,32 @@ def build_profile_payload(current_user: User, db: Session) -> dict[str, str | bo
         "department": department_name,
         "position": position_name,
         "isActive": bool(current_user.is_active),
-        "employmentType": "Full-time",
+        "employmentType": "",
         "dateHired": current_user.created_at.strftime("%B %d, %Y") if current_user.created_at else "",
         "contactNumber": "",
         "address": "",
         "emergencyName": "",
         "emergencyPhone": "",
+    }
+
+
+def get_sick_leave_credits(db: Session, user_id: int, total_credits: int = 15) -> dict[str, int]:
+    approved_sick_days = (
+        db.query(LeaveRequest)
+        .filter(
+            LeaveRequest.requester_user_id == int(user_id),
+            LeaveRequest.status == LeaveStatus.approved,
+            LeaveRequest.leave_type.ilike("%sick%"),
+        )
+        .all()
+    )
+
+    used_days = sum(int(item.num_days or 0) for item in approved_sick_days)
+    remaining = max(0, int(total_credits) - int(used_days))
+    return {
+        "total": int(total_credits),
+        "used": int(used_days),
+        "remaining": int(remaining),
     }
 
 
@@ -760,6 +780,14 @@ def list_leave_requests(
 
     items = query.order_by(LeaveRequest.created_at.desc()).all()
     return {"items": [leave_to_payload(item) for item in items]}
+
+
+@app.get("/api/leave-credits")
+def read_leave_credits(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    return get_sick_leave_credits(db, int(current_user.id))
 
 
 @app.get("/api/leave-requests/{leave_id}")

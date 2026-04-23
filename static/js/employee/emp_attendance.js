@@ -478,161 +478,8 @@ updateHeader();
 
 
 
-/**
-
- * Weekly records. Key = offset from current week (0 = latest).
-
- * Extend with real API data as needed.
-
- */
-
-const weeklyData = {
-
-    0: {
-
-        label: "February 4 – 10, 2026",
-
-        rows: [
-
-            { date: "February 4, 2026",  day: "Tuesday",   timeIn: "8:03 AM", timeOut: "5:02 PM", hours: "8h 59m", status: "present" },
-
-            { date: "February 5, 2026",  day: "Wednesday", timeIn: "8:15 AM", timeOut: "5:10 PM", hours: "8h 55m", status: "present" },
-
-            { date: "February 6, 2026",  day: "Thursday",  timeIn: "8:00 AM", timeOut: "5:00 PM", hours: "9h 00m", status: "present" },
-
-            { date: "February 7, 2026",  day: "Friday",    timeIn: "8:45 AM", timeOut: "5:00 PM", hours: "8h 15m", status: "late"    },
-
-            { date: "February 8, 2026",  day: "Saturday",  timeIn: "--",      timeOut: "--",       hours: "--",     status: "leave"   },
-
-            { date: "February 9, 2026",  day: "Sunday",    timeIn: "--",      timeOut: "--",       hours: "--",     status: "holiday" },
-
-            { date: "February 10, 2026", day: "Monday",    timeIn: "8:03 AM", timeOut: "5:02 PM", hours: "8h 59m", status: "present" },
-
-        ],
-
-        total: "42h 15m"
-
-    },
-
-    1: {
-
-        label: "January 28 – February 3, 2026",
-
-        rows: [
-
-            { date: "January 28, 2026", day: "Wednesday", timeIn: "8:10 AM", timeOut: "5:05 PM", hours: "8h 55m", status: "present" },
-
-            { date: "January 29, 2026", day: "Thursday",  timeIn: "8:00 AM", timeOut: "5:00 PM", hours: "9h 00m", status: "present" },
-
-            { date: "January 30, 2026", day: "Friday",    timeIn: "--",      timeOut: "--",       hours: "--",     status: "absent"  },
-
-            { date: "January 31, 2026", day: "Saturday",  timeIn: "--",      timeOut: "--",       hours: "--",     status: "holiday" },
-
-            { date: "February 1, 2026", day: "Sunday",    timeIn: "--",      timeOut: "--",       hours: "--",     status: "holiday" },
-
-            { date: "February 2, 2026", day: "Monday",    timeIn: "8:03 AM", timeOut: "5:02 PM", hours: "8h 59m", status: "present" },
-
-            { date: "February 3, 2026", day: "Tuesday",   timeIn: "8:20 AM", timeOut: "5:15 PM", hours: "8h 55m", status: "present" },
-
-        ],
-
-        total: "35h 49m"
-
-    }
-
-};
-
-
-
-/**
-
- * Monthly records. Key = offset from current month (0 = latest).
-
- */
-
-const monthlyData = {
-
-    0: {
-
-        label: "February 2026",
-
-        firstDayOfWeek: 0,   // Feb 1, 2026 = Sunday
-
-        daysInMonth: 28,
-
-        attendance: {
-
-            3:  { status: "present", hours: "8h 59m" },
-
-            4:  { status: "present", hours: "8h 55m" },
-
-            5:  { status: "present", hours: "9h 00m" },
-
-            6:  { status: "late",    hours: "8h 15m" },
-
-            7:  { status: "leave",   hours: "--"      },
-
-            8:  { status: "holiday", hours: "--"      },
-
-            9:  { status: "absent",  hours: "--"      },
-
-            10: { status: "present", hours: "8h 59m" },
-
-            11: { status: "present", hours: "9h 00m" },
-
-            12: { status: "present", hours: "8h 45m" },
-
-            13: { status: "present", hours: "8h 59m" },
-
-            14: { status: "present", hours: "9h 00m" },
-
-            15: { status: "leave",   hours: "--"      },
-
-            16: { status: "holiday", hours: "--"      },
-
-        },
-
-        total: "152h 30m"
-
-    },
-
-    1: {
-
-        label: "January 2026",
-
-        firstDayOfWeek: 4,   // Jan 1, 2026 = Thursday
-
-        daysInMonth: 31,
-
-        attendance: {
-
-            5:  { status: "present", hours: "9h 00m" },
-
-            6:  { status: "present", hours: "8h 55m" },
-
-            7:  { status: "present", hours: "8h 40m" },
-
-            8:  { status: "present", hours: "9h 00m" },
-
-            9:  { status: "present", hours: "8h 59m" },
-
-            12: { status: "present", hours: "9h 00m" },
-
-            13: { status: "present", hours: "8h 50m" },
-
-            14: { status: "late",    hours: "8h 20m" },
-
-            15: { status: "present", hours: "8h 59m" },
-
-            16: { status: "present", hours: "9h 00m" },
-
-        },
-
-        total: "148h 02m"
-
-    }
-
-};
+const weeklyData = {};
+const monthlyData = {};
 
 
 
@@ -667,8 +514,13 @@ async function loadAttendanceSummary(view, offset) {
 
 
 function renderWeekly() {
-
-    const data = weeklySummaryData ?? weeklyData[weekOffset] ?? weeklyData[0];
+    const data = weeklySummaryData;
+    if (!data) {
+        historyDateRange.textContent = "No data";
+        totalHoursCount.textContent = "0h 00m";
+        weeklyTableBody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 1rem;">No attendance records found for this period.</td></tr>';
+        return;
+    }
 
     historyDateRange.textContent = data.label;
 
@@ -725,8 +577,13 @@ function renderWeekly() {
 
 
 function renderMonthly() {
-
-    const data = monthlySummaryData ?? monthlyData[monthOffset] ?? monthlyData[0];
+    const data = monthlySummaryData;
+    if (!data) {
+        historyDateRange.textContent = "No data";
+        totalHoursCount.textContent = "0h 00m";
+        monthlyGrid.innerHTML = '<div class="month-day-cell empty">No records found for this period.</div>';
+        return;
+    }
 
     historyDateRange.textContent = data.label;
 
@@ -879,7 +736,7 @@ prevPeriodBtn.addEventListener("click", () => {
 nextPeriodBtn.addEventListener("click", () => {
 
     if (currentView === "weekly") {
-
+        if (weekOffset === 0) return;
         weekOffset--;
 
         loadAttendanceSummary('weekly', weekOffset).then(function (data) {
@@ -888,7 +745,7 @@ nextPeriodBtn.addEventListener("click", () => {
         });
 
     } else {
-
+        if (monthOffset === 0) return;
         monthOffset--;
 
         loadAttendanceSummary('monthly', monthOffset).then(function (data) {
@@ -953,7 +810,28 @@ function capitalize(str) {
 
 
 // Boot the modal in weekly view
+function loadEmployeeDetails() {
+    fetch('/api/profile/me')
+        .then((response) => (response.ok ? response.json() : null))
+        .then((profile) => {
+            if (!profile) return;
+            const employeeTab = document.querySelector('.employee-tab');
+            const detailItems = document.querySelectorAll('.details-rows .detail-item');
+
+            if (employeeTab) {
+                employeeTab.textContent = profile.fullName || 'Employee';
+            }
+
+            if (detailItems[0]) detailItems[0].querySelector('span').textContent = profile.employeeNo || profile.id || '--';
+            if (detailItems[1]) detailItems[1].querySelector('span').textContent = profile.position || profile.roleLabel || '--';
+            if (detailItems[2]) detailItems[2].querySelector('span').textContent = profile.department || '--';
+            if (detailItems[3]) detailItems[3].querySelector('span').textContent = profile.employmentType || '--';
+        })
+        .catch(() => {
+        });
+}
 
 refreshAttendanceState().then(() => switchView("weekly"));
+loadEmployeeDetails();
 
 

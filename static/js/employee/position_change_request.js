@@ -17,30 +17,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const confirmCancelBtn = document.getElementById('confirmCancelBtn');
     const stayBtn          = document.getElementById('stayBtn');
 
-    async function autoFillEmployeeDetails(nameValue) {
-        const key = nameValue.trim().toLowerCase();
+    async function autoFillEmployeeDetails() {
         const empIdEl = document.getElementById('empId');
         const currentPosEl = document.getElementById('currentPos');
         const currentDeptEl = document.getElementById('currentDept');
 
-        if (!key) {
-            empIdEl.value = '';
-            currentPosEl.value = '';
-            currentDeptEl.value = '';
-            return;
-        }
-
         try {
-            const response = await fetch(`/api/employees/search?q=${encodeURIComponent(nameValue)}&limit=1`);
+            const response = await fetch('/api/profile/me');
             if (response.ok) {
                 const payload = await response.json();
-                const first = (payload.items || [])[0];
-                if (first) {
-                    empIdEl.value = first.employeeNo || '';
-                    currentPosEl.value = first.currentPosition || '';
-                    currentDeptEl.value = first.currentDepartment || '';
-                    return;
-                }
+                empNameInput.value = payload.fullName || '';
+                empIdEl.value = payload.employeeNo || payload.id || '';
+                currentPosEl.value = payload.position || payload.roleLabel || '';
+                currentDeptEl.value = payload.department || '';
+                return;
             }
         } catch (error) {
         }
@@ -60,10 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (closeBtn)   closeBtn.onclick   = () => sidebar.classList.add('collapsed');
     if (logoToggle) logoToggle.onclick = () => sidebar.classList.toggle('collapsed');
 
-    // Auto-fill employee details on blur
-    empNameInput.addEventListener('blur', () => {
-        autoFillEmployeeDetails(empNameInput.value);
-    });
+    autoFillEmployeeDetails();
 
     // ── Cancel button → show static modal ──
     if (cancelBtn) {

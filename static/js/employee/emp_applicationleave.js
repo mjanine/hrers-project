@@ -43,7 +43,6 @@ document.addEventListener('DOMContentLoaded', () => {
         leaveForm.onsubmit = async (e) => {
             e.preventDefault();
 
-            const TOTAL_SICK_CREDITS = 15;
             let finalMessage = "Leave request submitted successfully";
             
             // Get active button text
@@ -88,16 +87,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            if (leaveTypeText.includes("Sick Leave") && startDateInput.value && endDateInput.value) {
-                const start = new Date(startDateInput.value);
-                const end = new Date(endDateInput.value);
-                
-                // Calculate days inclusive
-                const diffTime = Math.abs(end - start);
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-
-                const remaining = TOTAL_SICK_CREDITS - diffDays;
-                finalMessage = `Success! You have ${remaining} sick leave credits remaining.`;
+            if (leaveTypeText.includes("Sick Leave")) {
+                try {
+                    const creditsResponse = await fetch('/api/leave-credits');
+                    if (creditsResponse.ok) {
+                        const credits = await creditsResponse.json();
+                        finalMessage = `Success! You have ${Number(credits.remaining || 0)} sick leave credits remaining.`;
+                    }
+                } catch (error) {
+                }
             }
 
             // Notification

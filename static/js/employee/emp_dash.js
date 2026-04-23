@@ -2,39 +2,20 @@
    Employee Dashboard JavaScript
    ================================= */
 
-// Daily Quotes Array
-const inspirationalQuotes = [
-    "Success is the sum of small efforts repeated day in and day out.",
-    "The only way to do great work is to love what you do.",
-    "Your work is going to fill a large part of your life.",
-    "Great things never come from comfort zones.",
-    "Don't watch the clock; do what it does. Keep going.",
-    "The future depends on what you do today.",
-    "Success doesn't just find you. You have to go out and get it.",
-    "Opportunities don't happen. You create them.",
-    "Believe you can and you're halfway there.",
-    "Excellence is not a skill, it's an attitude."
-];
-
-// Initialize Dashboard on DOM Load
 document.addEventListener('DOMContentLoaded', function() {
     initializeDashboard();
     setupEventListeners();
-    loadDailyQuote();
 });
 
 let attendanceChartInstance = null;
 
 async function initializeDashboard() {
-    // Initialize charts
+    await Promise.all([
+        loadProfileSummary(),
+        loadDashboardNotifications(),
+        loadDashboardData(),
+    ]);
     await initializeAttendanceChart();
-    
-    // Load dynamic data
-    await loadDashboardData();
-    await loadDashboardNotifications();
-    
-    // Setup quote rotation
-    setDailyQuote();
 }
 
 /* =================================
@@ -128,9 +109,14 @@ async function loadDashboardNotifications() {
     const notificationsList = document.querySelector('.notifications-list');
     if (!notificationsList) return;
 
+    notificationsList.innerHTML = '';
+
     try {
         const response = await fetch('/api/dashboard/notifications');
-        if (!response.ok) return;
+        if (!response.ok) {
+            clearAllNotifications();
+            return;
+        }
 
         const payload = await response.json();
         const items = payload.items || [];
@@ -156,6 +142,7 @@ async function loadDashboardNotifications() {
             notificationsList.appendChild(node);
         });
     } catch (error) {
+        clearAllNotifications();
     }
 }
 
@@ -168,7 +155,7 @@ async function initializeAttendanceChart() {
     if (!ctx) return;
     
     const labels = getLast7Days();
-    const workedHours = await loadAttendanceHours(labels);
+    const workedHours = await loadAttendanceHours();
 
     const data = {
         labels: labels,
@@ -218,12 +205,7 @@ async function initializeAttendanceChart() {
                     ticks: {
                         callback: function(value) {
                             return value + 'h';
-                        }
-                    },
-                    grid: {
-                        color: 'rgba(0, 0, 0, 0.05)'
-                    },
-                    ticks: {
+                        },
                         color: '#64748b',
                         font: { size: 12 }
                     }
@@ -239,7 +221,7 @@ async function initializeAttendanceChart() {
     });
 }
 
-async function loadAttendanceHours(labels) {
+async function loadAttendanceHours() {
     try {
         const response = await fetch('/api/attendance/history');
         if (!response.ok) return [0, 0, 0, 0, 0, 0, 0];
@@ -268,7 +250,7 @@ async function loadAttendanceHours(labels) {
 }
 
 /* =================================
-   DATE & QUOTE UTILITIES
+    DATE UTILITIES
    ================================= */
 
 function getLast7Days() {
@@ -287,40 +269,40 @@ function getLast7Days() {
     return days;
 }
 
-function setDailyQuote() {
-    const quoteElement = document.getElementById('dailyQuote');
-    if (quoteElement) {
-        // Get quote based on day of year for consistency
-        const today = new Date();
-        const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 86400000);
-        const quoteIndex = dayOfYear % inspirationalQuotes.length;
-        
-        quoteElement.textContent = inspirationalQuotes[quoteIndex];
-    }
-}
-
-function loadDailyQuote() {
-    setDailyQuote();
-    
-    // Refresh quote at midnight
-    const now = new Date();
-    const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
-    const timeUntilMidnight = tomorrow - now;
-    
-    setTimeout(() => {
-        setDailyQuote();
-        // Then refresh every 24 hours
-        setInterval(setDailyQuote, 24 * 60 * 60 * 1000);
-    }, timeUntilMidnight);
-}
-
 /* =================================
    DASHBOARD DATA
    ================================= */
 
 async function loadDashboardData() {
-    await loadEmployeeSummary();
-    await loadEvaluationData();
+    await Promise.all([
+        loadEmployeeSummary(),
+        loadEvaluationData(),
+    ]);
+}
+
+async function loadProfileSummary() {
+    try {
+        const response = await fetch('/api/profile/me');
+        if (!response.ok) return;
+
+        const profile = await response.json();
+        const welcomeHeading = document.querySelector('.welcome-section h1');
+        const roleDepartmentRow = document.querySelector('.welcome-section p');
+        const quoteEl = document.getElementById('dailyQuote');
+
+        if (welcomeHeading) {
+            welcomeHeading.textContent = `Welcome back, ${profile.firstName || profile.fullName || 'Employee'}!`;
+        }
+
+        if (roleDepartmentRow) {
+            roleDepartmentRow.innerHTML = `<strong>Role:</strong> ${profile.roleLabel || '--'} | <strong>Department:</strong> ${profile.department || '--'}`;
+        }
+
+        if (quoteEl) {
+            quoteEl.textContent = `Current position: ${profile.position || profile.roleLabel || '--'}`;
+        }
+    } catch (error) {
+    }
 }
 
 async function loadEvaluationData() {
@@ -375,7 +357,7 @@ async function loadEmployeeSummary() {
     const leaveCreditsEl = document.getElementById('leaveCredits');
 
     let latestTimeInText = 'No recent login';
-    let remainingCredits = 15;
+    let remainingCredits = 0;
 
     try {
         const todayResponse = await fetch('/api/attendance/today');
@@ -389,15 +371,10 @@ async function loadEmployeeSummary() {
     }
 
     try {
-        const leaveResponse = await fetch('/api/leave-requests?mode=history');
+        const leaveResponse = await fetch('/api/leave-credits');
         if (leaveResponse.ok) {
             const leavePayload = await leaveResponse.json();
-            const approvedSickDays = (leavePayload.items || []).reduce(function (acc, item) {
-                const isApproved = String(item.status || '').toLowerCase() === 'approved';
-                const isSick = String(item.leaveType || '').toLowerCase().includes('sick');
-                return acc + (isApproved && isSick ? Number(item.numDays || 0) : 0);
-            }, 0);
-            remainingCredits = Math.max(0, 15 - approvedSickDays);
+            remainingCredits = Number(leavePayload.remaining || 0);
         }
     } catch (error) {
     }
