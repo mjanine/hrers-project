@@ -138,7 +138,7 @@
                     <input id="sampleDateInput" type="date" class="head-hidden-date" aria-hidden="true" tabindex="-1">
                     <div class="pagination">
                         <i class="fas fa-chevron-left"></i>
-                        <span>Week 5</span>
+                        <span>Current Week</span>
                         <i class="fas fa-chevron-right"></i>
                     </div>
                 </div>
@@ -159,63 +159,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>
-                                <div class="user-cell">
-                                    <div class="avatar"><i class="fas fa-user"></i></div>
-                                    <div class="user-info">
-                                        <span class="name">Juan Dela Cruz</span>
-                                        <span class="title">Instructor</span>
-                                        <span class="dept-badge">CCS</span>
-                                    </div>
-                                </div>
-                            </td>
-                            <td><span class="day-num">2</span></td>
-                            <td><span class="day-num">3</span><div class="pill pill-green"><i class="far fa-check-circle"></i> 8 hours</div></td>
-                            <td><span class="day-num">4</span><div class="pill pill-tan"><i class="far fa-clock"></i> 4h 36m</div></td>
-                            <td><span class="day-num">5</span><div class="pill pill-purple"><i class="far fa-smile"></i> Leave</div></td>
-                            <td><span class="day-num">6</span><div class="pill pill-green"><i class="far fa-check-circle"></i> 8h 39m</div></td>
-                            <td><span class="day-num">7</span><div class="pill pill-green">Active</div></td>
-                            <td><span class="day-num">8</span></td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div class="user-cell">
-                                    <div class="avatar"><i class="fas fa-user-tie"></i></div>
-                                    <div class="user-info">
-                                        <span class="name">Staff Member</span>
-                                        <span class="title">Admin Staff</span>
-                                        <span class="dept-badge">HR</span>
-                                    </div>
-                                </div>
-                            </td>
-                            <td><span class="day-num">2</span></td>
-                            <td><span class="day-num">3</span><div class="pill pill-green"><i class="far fa-check-circle"></i> 9 hours</div></td>
-                            <td><span class="day-num">4</span><div class="pill pill-green"><i class="far fa-check-circle"></i> 8 hours</div></td>
-                            <td><span class="day-num">5</span><div class="pill pill-red"><i class="fas fa-times-circle"></i> Absent</div></td>
-                            <td><span class="day-num">6</span><div class="pill pill-green"><i class="far fa-check-circle"></i> 8 hours</div></td>
-                            <td><span class="day-num">7</span><div class="pill pill-green">Active</div></td>
-                            <td><span class="day-num">8</span></td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div class="user-cell">
-                                    <div class="avatar"><i class="fas fa-user-graduate"></i></div>
-                                    <div class="user-info">
-                                        <span class="name">Yang Jungwon</span>
-                                        <span class="title">Assistant Professor</span>
-                                        <span class="dept-badge">CBA</span>
-                                    </div>
-                                </div>
-                            </td>
-                            <td><span class="day-num">2</span></td>
-                            <td><span class="day-num">3</span><div class="pill pill-tan"><i class="far fa-clock"></i> 6h 15m</div></td>
-                            <td><span class="day-num">4</span><div class="pill pill-green"><i class="far fa-check-circle"></i> 8 hours</div></td>
-                            <td><span class="day-num">5</span><div class="pill pill-green"><i class="far fa-check-circle"></i> 8 hours</div></td>
-                            <td><span class="day-num">6</span><div class="pill pill-green"><i class="far fa-check-circle"></i> 8 hours</div></td>
-                            <td><span class="day-num">7</span><div class="pill pill-green">Active</div></td>
-                            <td><span class="day-num">8</span></td>
-                        </tr>
+                        <tr><td colspan="8" style="text-align:center; padding:2rem;">Loading attendance records...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -260,29 +204,14 @@
                     <div class="modal-sidebar">
                         <h3>Employee Details</h3>
                         <div class="detail-avatar"><i class="fas fa-user"></i></div>
-                        <div class="info-group">
-                            <label>Employee ID</label>
-                            <span id="detID">001</span>
-                        </div>
-                        <div class="info-group name-group">
-                            <label>Employee Name</label>
-                            <span id="modalEmployeeName">Employee Name</span>
-                        </div>
-                        <div class="info-group">
-                            <label>Position</label>
-                            <span id="detPos">Instructor</span>
-                        </div>
-                        <div class="info-group">
-                            <label>Department</label>
-                            <span id="detDept">College of Computer Studies</span>
-                        </div>
-                        <div class="info-group">
-                            <label>Employment Type</label>
-                            <span>Full-Time</span>
-                        </div>
+                            <div class="info-group"><label>Employee ID</label><span id="detID">--</span></div>
+                            <div class="info-group name-group"><label>Employee Name</label><span id="modalEmployeeName">--</span></div>
+                            <div class="info-group"><label>Position</label><span id="detPos">--</span></div>
+                            <div class="info-group"><label>Department</label><span id="detDept">--</span></div>
+                            <div class="info-group"><label>Employment Type</label><span>--</span></div>
                     </div>
                     <div class="total-hours-footer">
-                        Total Hours This <span id="periodText">Week</span>: <span id="totalHoursValue">XX</span>
+                        Total Hours This <span id="periodText">Week</span>: <span id="totalHoursValue">0h 00m</span>
                     </div>
                 </div>
             </div>

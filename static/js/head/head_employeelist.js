@@ -20,32 +20,68 @@ document.addEventListener('DOMContentLoaded', function () {
         logoToggle.onclick = () => sidebar.classList.toggle("collapsed");
     }
 
-    // 3. Search and Filter Logic (Existing)
+    // 3. Directory data from backend
     const searchInput = document.getElementById('searchInput');
     const filterPosition = document.getElementById('filterPosition');
     const filterStatus = document.getElementById('filterStatus');
     const tableBody = document.getElementById('employeeTableBody');
+    let employees = [];
 
-    function filterTable() {
+    function renderTable() {
         const searchTerm = searchInput.value.toLowerCase();
         const selectedPosition = filterPosition.value;
         const selectedStatus = filterStatus.value;
 
-        Array.from(tableBody.rows).forEach(row => {
-            const cells = row.cells;
-            const rowText = row.textContent.toLowerCase();
-            const rowPosition = cells[3].textContent.trim();
-            const rowStatus = cells[4].textContent.trim();
+        const filtered = employees.filter(function (employee) {
+            const haystack = [employee.employeeNo, employee.fullName, employee.department, employee.position, employee.roleLabel].join(' ').toLowerCase();
+            if (searchTerm && haystack.indexOf(searchTerm) === -1) return false;
+            if (selectedPosition && employee.position !== selectedPosition && employee.roleLabel !== selectedPosition) return false;
+            if (selectedStatus && ((employee.isActive ? 'Active' : 'Inactive') !== selectedStatus)) return false;
+            return true;
+        });
 
-            const matchesSearch = rowText.includes(searchTerm);
-            const matchesPosition = selectedPosition === "" || rowPosition === selectedPosition;
-            const matchesStatus = selectedStatus === "" || rowStatus === selectedStatus;
+        tableBody.innerHTML = '';
 
-            row.style.display = (matchesSearch && matchesPosition && matchesStatus) ? "" : "none";
+        if (!filtered.length) {
+            tableBody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:2rem;">No employee records found.</td></tr>';
+            return;
+        }
+
+        filtered.forEach(function (employee) {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${employee.employeeNo || '--'}</td>
+                <td>${employee.fullName || '--'}</td>
+                <td>${employee.department || '--'}</td>
+                <td>${employee.position || '--'}</td>
+                <td>${employee.isActive ? 'Active' : 'Inactive'}</td>
+                <td class="action-cell">
+                    <a href="head_employee_view.html?employee_id=${employee.id}" class="action-link" title="View"><i class="fas fa-eye"></i></a>
+                </td>
+            `;
+            tableBody.appendChild(row);
         });
     }
 
-    searchInput.addEventListener('input', filterTable);
-    filterPosition.addEventListener('change', filterTable);
-    filterStatus.addEventListener('change', filterTable);
+    async function loadEmployees() {
+        try {
+            const response = await fetch('/api/employees');
+            if (!response.ok) {
+                tableBody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:2rem;">Failed to load employee records.</td></tr>';
+                return;
+            }
+
+            const payload = await response.json();
+            employees = payload.items || [];
+            renderTable();
+        } catch (error) {
+            tableBody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:2rem;">Failed to load employee records.</td></tr>';
+        }
+    }
+
+    searchInput.addEventListener('input', renderTable);
+    filterPosition.addEventListener('change', renderTable);
+    filterStatus.addEventListener('change', renderTable);
+
+    loadEmployees();
 });

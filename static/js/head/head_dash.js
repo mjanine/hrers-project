@@ -2,39 +2,22 @@
    HEAD Dashboard JavaScript
    ================================= */
 
-// Daily Quotes Array
-const inspirationalQuotes = [
-    "Success is the sum of small efforts repeated day in and day out.",
-    "The only way to do great work is to love what you do.",
-    "Your work is going to fill a large part of your life.",
-    "Great things never come from comfort zones.",
-    "Don't watch the clock; do what it does. Keep going.",
-    "The future depends on what you do today.",
-    "Success doesn't just find you. You have to go out and get it.",
-    "Opportunities don't happen. You create them.",
-    "Believe you can and you're halfway there.",
-    "Excellence is not a skill, it's an attitude."
-];
-
 // Initialize Dashboard on DOM Load
 document.addEventListener('DOMContentLoaded', function() {
     initializeDashboard();
     setupEventListeners();
-    loadDailyQuote();
 });
 
 let attendanceChartInstance = null;
 
 function initializeDashboard() {
-    // Initialize charts
-    initializeAttendanceChart();
-    
-    // Load dynamic data
-    loadDashboardData();
-    loadDashboardNotifications();
-    
-    // Setup quote rotation
-    setDailyQuote();
+    Promise.all([
+        loadProfileSummary(),
+        loadDashboardNotifications(),
+        loadDashboardData(),
+    ]).then(function () {
+        initializeAttendanceChart();
+    });
 }
 
 /* =================================
@@ -134,6 +117,26 @@ function clearAllNotifications() {
         emptyMessage.style.cssText = 'padding: 2rem 1.5rem; text-align: center; color: var(--hr-text-light); font-size: 0.9rem;';
         emptyMessage.innerText = 'No notifications';
         notificationsList.appendChild(emptyMessage);
+    }
+}
+
+async function loadProfileSummary() {
+    try {
+        const response = await fetch('/api/profile/me');
+        if (!response.ok) return;
+
+        const profile = await response.json();
+        const userNameEl = document.getElementById('userName');
+        const quoteEl = document.getElementById('dailyQuote');
+
+        if (userNameEl) {
+            userNameEl.textContent = profile.firstName || profile.fullName || 'User';
+        }
+
+        if (quoteEl) {
+            quoteEl.textContent = `${profile.roleLabel || 'Head'} | ${profile.department || 'Department'}`;
+        }
+    } catch (error) {
     }
 }
 
@@ -239,8 +242,8 @@ function initializeAttendanceChart() {
 }
 
 /* =================================
-   DATE & QUOTE UTILITIES
-   ================================= */
+    DATE UTILITIES
+    ================================= */
 
 function getLast7Days() {
     const days = [];
@@ -256,33 +259,6 @@ function getLast7Days() {
     }
     
     return days;
-}
-
-function setDailyQuote() {
-    const quoteElement = document.getElementById('dailyQuote');
-    if (quoteElement) {
-        // Get quote based on day of year for consistency
-        const today = new Date();
-        const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 86400000);
-        const quoteIndex = dayOfYear % inspirationalQuotes.length;
-        
-        quoteElement.textContent = inspirationalQuotes[quoteIndex];
-    }
-}
-
-function loadDailyQuote() {
-    setDailyQuote();
-    
-    // Refresh quote at midnight
-    const now = new Date();
-    const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
-    const timeUntilMidnight = tomorrow - now;
-    
-    setTimeout(() => {
-        setDailyQuote();
-        // Then refresh every 24 hours
-        setInterval(setDailyQuote, 24 * 60 * 60 * 1000);
-    }, timeUntilMidnight);
 }
 
 /* =================================

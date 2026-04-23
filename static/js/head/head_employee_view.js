@@ -34,8 +34,61 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // 4. Action Cell Logic (View & Download)
-    const actionCells = document.querySelectorAll('.action-cell');
+    const params = new URLSearchParams(window.location.search);
+    const employeeId = params.get('employee_id') || params.get('id');
+
+    async function loadEmployeeDetail() {
+        if (!employeeId) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/employees/${encodeURIComponent(employeeId)}`);
+            if (!response.ok) return;
+
+            const profile = await response.json();
+            const nameEl = document.querySelector('.profile-info h2');
+            const roleEl = document.querySelector('.profile-info .role');
+            const employeeIdEl = document.querySelector('.profile-info .employee-id');
+
+            if (nameEl) nameEl.textContent = profile.fullName || '--';
+            if (roleEl) roleEl.textContent = profile.position || profile.roleLabel || '--';
+            if (employeeIdEl) employeeIdEl.textContent = `Employee ID: ${profile.employeeNo || profile.id || '--'}`;
+
+            const details = document.querySelectorAll('.employment-details p');
+            if (details[0]) details[0].innerHTML = `<strong>Status</strong> <span class="status-dot" style="background:${profile.isActive ? '#8ddf9b' : '#f08d8d'}"></span> ${profile.isActive ? 'Active' : 'Inactive'}`;
+            if (details[1]) details[1].innerHTML = `<strong>Position</strong> ${profile.position || '--'}`;
+            if (details[2]) details[2].innerHTML = `<strong>Department</strong> ${profile.department || '--'}`;
+            if (details[3]) details[3].innerHTML = `<strong>Employment Type</strong> ${profile.employmentType || '--'}`;
+            if (details[4]) details[4].innerHTML = `<strong>Date Hired</strong> ${profile.dateHired || '--'}`;
+
+            const contactLines = document.querySelectorAll('.contact-info p');
+            if (contactLines[0]) contactLines[0].innerHTML = `<i class="fas fa-envelope"></i> ${profile.email || '--'}`;
+            if (contactLines[1]) contactLines[1].innerHTML = `<i class="fas fa-phone"></i> ${profile.contactNumber || '--'}`;
+            if (contactLines[2]) contactLines[2].innerHTML = `<i class="fas fa-location-dot"></i> ${profile.address || '--'}`;
+
+            const departmentRows = document.querySelectorAll('.info-row');
+            if (departmentRows[0]) departmentRows[0].querySelectorAll('span')[1].textContent = profile.department || '--';
+            if (departmentRows[1]) departmentRows[1].querySelectorAll('span')[1].textContent = '--';
+            if (departmentRows[2]) departmentRows[2].querySelectorAll('span')[1].textContent = '--';
+            if (departmentRows[3]) departmentRows[3].querySelectorAll('span')[1].textContent = '--';
+            if (departmentRows[4]) departmentRows[4].querySelectorAll('span')[1].textContent = '--';
+
+            const timeline = document.getElementById('timelineContainer');
+            if (timeline) {
+                timeline.innerHTML = '<div class="timeline-item"><div class="timeline-date">--</div><div class="timeline-content"><h4>No history available</h4><p>Employment history has not been recorded yet.</p></div></div>';
+            }
+
+            const docTable = document.querySelector('.doc-table tbody');
+            if (docTable) {
+                docTable.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:2rem;">No document records in database.</td></tr>';
+            }
+
+            const profileImg = document.querySelector('.profile-img');
+            if (profileImg) profileImg.alt = profile.fullName || 'Employee photo';
+        } catch (error) {
+        }
+    }
 
     function isPlaceholderHref(hrefValue) {
         if (!hrefValue) return true;
@@ -71,6 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 2200);
     }
 
+    const actionCells = document.querySelectorAll('.action-cell');
     actionCells.forEach(cell => {
         const links = cell.querySelectorAll('a');
         
@@ -101,4 +155,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
     });
+
+    loadEmployeeDetail();
 });

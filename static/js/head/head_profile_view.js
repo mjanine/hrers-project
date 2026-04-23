@@ -62,6 +62,16 @@ function applyProfileToView(profile) {
     setInfoRowValue('Department', profile.department || '--');
     setInfoRowValue('Email', profile.email || '--');
     setInfoRowValue('Contact', profile.contactNumber || '--');
+
+    const docBody = document.querySelector('.doc-table tbody');
+    if (docBody) {
+        docBody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:2rem;">No document records in database.</td></tr>';
+    }
+
+    const timeline = document.querySelector('.timeline');
+    if (timeline) {
+        timeline.innerHTML = '<div class="timeline-item"><div class="timeline-date">--</div><div class="timeline-content"><h4>No history available</h4><p>Employment history has not been recorded yet.</p></div></div>';
+    }
 }
 
 async function loadProfileViewData() {

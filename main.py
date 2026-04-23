@@ -186,6 +186,80 @@ def build_profile_payload(current_user: User, db: Session) -> dict[str, str | bo
     }
 
 
+def build_employee_directory_payload(user: User, db: Session) -> dict:
+    latest_position = (
+        db.query(PositionChangeRequest)
+        .filter(PositionChangeRequest.requester_user_id == int(user.id))
+        .order_by(PositionChangeRequest.created_at.desc(), PositionChangeRequest.id.desc())
+        .first()
+    )
+
+    department_name = "General"
+    position_name = str(user.role.value).replace("_", " ").title()
+
+    if user.role == UserRole.department_head:
+        head_department = db.query(Department).filter(Department.head_user_id == int(user.id), Department.is_active == True).first()
+        if head_department:
+            department_name = str(head_department.name)
+    elif latest_position:
+        department_name = str(latest_position.current_department or department_name)
+        position_name = str(latest_position.current_position or position_name)
+
+    return {
+        "id": int(user.id),
+        "employeeNo": str(user.employee_no or f"EMP-{int(user.id):04d}"),
+        "fullName": str(user.full_name),
+        "department": department_name,
+        "position": position_name,
+        "isActive": bool(user.is_active),
+        "employmentType": "Full-time",
+        "dateHired": user.created_at.strftime("%B %d, %Y") if user.created_at else "",
+        "email": str(user.email),
+        "contactNumber": "",
+        "address": "",
+        "roleLabel": str(user.role.value).replace("_", " ").title(),
+        "documents": [],
+        "history": [],
+    }
+
+
+def build_employee_detail_payload(user: User, db: Session) -> dict[str, str | bool | int | None]:
+    latest_position = (
+        db.query(PositionChangeRequest)
+        .filter(PositionChangeRequest.requester_user_id == int(user.id))
+        .order_by(PositionChangeRequest.created_at.desc(), PositionChangeRequest.id.desc())
+        .first()
+    )
+
+    if user.role == UserRole.department_head:
+        head_department = db.query(Department).filter(Department.head_user_id == int(user.id), Department.is_active == True).first()
+        department_name = str(head_department.name) if head_department else "General"
+    else:
+        department_name = str((latest_position.current_department if latest_position else None) or "General")
+
+    position_name = str((latest_position.current_position if latest_position and latest_position.current_position else None) or str(user.role.value).replace("_", " ").title())
+
+    return {
+        "id": int(user.id),
+        "employeeNo": str(user.employee_no or f"EMP-{int(user.id):03d}"),
+        "fullName": str(user.full_name),
+        "firstName": split_name(str(user.full_name))[0],
+        "lastName": split_name(str(user.full_name))[1],
+        "email": str(user.email),
+        "role": str(user.role.value),
+        "roleLabel": str(user.role.value).replace("_", " ").title(),
+        "department": department_name,
+        "position": position_name,
+        "isActive": bool(user.is_active),
+        "employmentType": "Full-time",
+        "dateHired": user.created_at.strftime("%B %d, %Y") if user.created_at else "",
+        "contactNumber": "",
+        "address": "",
+        "emergencyName": "",
+        "emergencyPhone": "",
+    }
+
+
 def get_sick_leave_credits(db: Session, user_id: int, total_credits: int = 15) -> dict[str, int]:
     approved_sick_days = (
         db.query(LeaveRequest)
@@ -1301,6 +1375,56 @@ def search_employees(
         )
 
     return {"items": items}
+
+
+@app.get("/api/employees")
+def list_employee_directory(
+    current_user: User = Depends(require_roles(UserRole.admin, UserRole.school_director, UserRole.hr_evaluator, UserRole.hr_head, UserRole.department_head)),
+    db: Session = Depends(get_db),
+):
+    users = (
+        db.query(User)
+        .filter(User.role == UserRole.employee)
+        .order_by(User.full_name.asc())
+        .all()
+    )
+
+    return {"items": [build_employee_directory_payload(user, db) for user in users]}
+
+
+@app.get("/api/employees/{employee_id}")
+def get_employee_directory_item(
+    employee_id: int,
+    current_user: User = Depends(require_roles(UserRole.admin, UserRole.school_director, UserRole.hr_evaluator, UserRole.hr_head, UserRole.department_head)),
+    db: Session = Depends(get_db),
+):
+    user = db.query(User).filter(User.id == employee_id, User.role == UserRole.employee).first()
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Employee not found")
+
+    return build_employee_directory_payload(user, db)
+
+
+@app.get("/api/employees")
+def list_employees(
+    current_user: User = Depends(require_roles(UserRole.admin, UserRole.school_director, UserRole.hr_evaluator, UserRole.hr_head, UserRole.department_head)),
+    db: Session = Depends(get_db),
+):
+    users = db.query(User).filter(User.role == UserRole.employee).order_by(User.full_name.asc()).all()
+    return {"items": [build_employee_detail_payload(user, db) for user in users]}
+
+
+@app.get("/api/employees/{employee_id}")
+def get_employee_detail(
+    employee_id: int,
+    current_user: User = Depends(require_roles(UserRole.admin, UserRole.school_director, UserRole.hr_evaluator, UserRole.hr_head, UserRole.department_head)),
+    db: Session = Depends(get_db),
+):
+    user = db.query(User).filter(User.id == employee_id).first()
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Employee not found")
+
+    return build_employee_detail_payload(user, db)
 
 
 @app.post("/api/position-requests")
