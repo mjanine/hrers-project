@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeBtn = document.getElementById('closeBtn');
     const logoToggle = document.getElementById('logoToggle');
     const typeButtons = document.querySelectorAll('.type-btn');
+    const leaveTypeHidden = document.getElementById('leave_type');
     const dropZone = document.getElementById('dropZone');
     const fileInput = document.getElementById('fileInput');
     const leaveForm = document.getElementById('leaveRequestForm');
@@ -22,8 +23,13 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.addEventListener('click', () => {
             typeButtons.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
+            if (leaveTypeHidden) leaveTypeHidden.value = btn.innerText.trim();
         });
     });
+
+    // ensure hidden input reflects initial active button
+    const initialActive = document.querySelector('.type-btn.active');
+    if (leaveTypeHidden && initialActive) leaveTypeHidden.value = initialActive.innerText.trim();
 
     // --- File Upload ---
     if (dropZone && fileInput) {
@@ -65,7 +71,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const formData = new FormData();
-            formData.set('leave_type', activeBtn.innerText.trim());
+            const hiddenType = document.getElementById('leave_type')?.value || activeBtn?.innerText.trim() || '';
+            formData.set('leave_type', hiddenType);
             formData.set('start_date', startDateInput.value);
             formData.set('end_date', endDateInput.value);
             formData.set('reason', reasonInput.value.trim());
