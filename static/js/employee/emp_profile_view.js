@@ -64,6 +64,121 @@ function applyProfileToView(profile) {
     setInfoRowValue('Department', profile.department || '--');
     setInfoRowValue('Email', profile.email || '--');
     setInfoRowValue('Contact', profile.contactNumber || '--');
+
+    renderDocumentAlerts(profile.documentAlerts || []);
+    renderProfileDocuments(profile.documents || []);
+    renderProfileHistory(profile.history || []);
+}
+
+function renderDocumentAlerts(alerts) {
+    const docsTab = document.getElementById('docs');
+    if (!docsTab) return;
+
+    let banner = document.getElementById('documentAlertBanner');
+    if (!banner) {
+        banner = document.createElement('div');
+        banner.id = 'documentAlertBanner';
+        banner.style.cssText = 'margin:0 0 14px 0; padding:12px 14px; border-radius:8px; background:#fff7e6; color:#8a5a00; border:1px solid #ffd28a;';
+        docsTab.insertBefore(banner, docsTab.firstChild);
+    }
+
+    if (!Array.isArray(alerts) || alerts.length === 0) {
+        banner.style.display = 'none';
+        banner.textContent = '';
+        return;
+    }
+
+    banner.style.display = 'block';
+    banner.innerHTML = `<strong>Document reminder:</strong> ${alerts[0].message || 'One or more documents need attention.'}`;
+}
+
+function renderProfileDocuments(documents) {
+    const docsTab = document.getElementById('docs');
+    if (!docsTab) return;
+
+    const headerSpan = docsTab.querySelector('.doc-header span');
+    const tbody = docsTab.querySelector('tbody');
+    if (!tbody) return;
+
+    if (!Array.isArray(documents) || documents.length === 0) {
+        if (headerSpan) headerSpan.textContent = '0 documents uploaded';
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="5" style="text-align:center; color:#666; padding:16px 0;">No uploaded documents found.</td>
+            </tr>
+        `;
+        return;
+    }
+
+    if (headerSpan) headerSpan.textContent = `${documents.length} document(s) uploaded`;
+    tbody.innerHTML = documents.map((doc) => {
+        const name = doc.name || doc.fileName || 'Document';
+        const type = doc.type || 'FILE';
+        const status = doc.status || 'Submitted';
+        const date = doc.dateUploaded || doc.uploadedAt || '--';
+        const url = doc.url || '';
+        const statusClass = status.toLowerCase() === 'approved' ? 'valid' : (status.toLowerCase() === 'rejected' ? 'missing' : 'update');
+
+        if (!url) {
+            return `
+                <tr>
+                    <td>${name}</td>
+                    <td>${type}</td>
+                    <td class="${statusClass}">${status}</td>
+                    <td>${date}</td>
+                    <td class="actions">---</td>
+                </tr>
+            `;
+        }
+
+        return `
+            <tr>
+                <td>${name}</td>
+                <td>${type}</td>
+                <td class="${statusClass}">${status}</td>
+                <td>${date}</td>
+                <td class="actions">
+                    <a href="${url}" target="_blank"><i class="fas fa-eye action-icon"></i></a>
+                    <a href="${url}" download><i class="fas fa-download action-icon"></i></a>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function renderProfileHistory(history) {
+    const historyTab = document.getElementById('history');
+    if (!historyTab) return;
+    const timeline = historyTab.querySelector('.timeline');
+    if (!timeline) return;
+
+    if (!Array.isArray(history) || history.length === 0) {
+        timeline.innerHTML = `
+            <div class="timeline-item">
+                <div class="timeline-date">--</div>
+                <div class="timeline-content">
+                    <h4>No history yet</h4>
+                    <p>No employment history records found.</p>
+                </div>
+            </div>
+        `;
+        return;
+    }
+
+    timeline.innerHTML = history.map((item) => {
+        const date = item.date || item.year || '--';
+        const title = item.title || item.event || 'History Event';
+        const desc = item.description || item.desc || '--';
+        return `
+            <div class="timeline-item">
+                <div class="timeline-date">${date}</div>
+                <div class="timeline-content">
+                    <h4>${title}</h4>
+                    <p>${desc}</p>
+                </div>
+            </div>
+        `;
+    }).join('');
 }
 
 async function loadProfileViewData() {

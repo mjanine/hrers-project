@@ -4,6 +4,8 @@ USE hrers_project;
 SET FOREIGN_KEY_CHECKS = 0;
 
 DROP TABLE IF EXISTS training_registrations;
+DROP TABLE IF EXISTS employment_history;
+DROP TABLE IF EXISTS profile_documents;
 DROP TABLE IF EXISTS attendance_records;
 DROP TABLE IF EXISTS audit_logs;
 DROP TABLE IF EXISTS leave_requests;
@@ -79,6 +81,53 @@ CREATE TABLE IF NOT EXISTS leave_requests (
     CONSTRAINT fk_leave_review_user
         FOREIGN KEY (reviewed_by_user_id) REFERENCES users(id)
         ON DELETE SET NULL
+        ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS profile_documents (
+    id INT NOT NULL AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    document_name VARCHAR(255) NOT NULL,
+    document_type VARCHAR(50) NOT NULL,
+    status VARCHAR(40) NOT NULL DEFAULT 'Submitted',
+    file_url VARCHAR(500) NULL,
+    reviewed_by_user_id INT NULL,
+    reviewed_by_name VARCHAR(150) NULL,
+    review_notes TEXT NULL,
+    reviewed_at DATETIME NULL,
+    uploaded_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    KEY idx_profile_documents_user_id (user_id),
+    KEY idx_profile_documents_reviewed_by_user_id (reviewed_by_user_id),
+    KEY idx_profile_documents_uploaded_at (uploaded_at),
+    CONSTRAINT fk_profile_documents_user
+        FOREIGN KEY (user_id) REFERENCES users(id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+        ,
+    CONSTRAINT fk_profile_documents_reviewer
+        FOREIGN KEY (reviewed_by_user_id) REFERENCES users(id)
+        ON DELETE SET NULL
+        ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS employment_history (
+    id INT NOT NULL AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    event_date DATE NOT NULL,
+    event_title VARCHAR(120) NOT NULL,
+    event_description TEXT NULL,
+    source VARCHAR(60) NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    KEY idx_employment_history_user_id (user_id),
+    KEY idx_employment_history_event_date (event_date),
+    CONSTRAINT fk_employment_history_user
+        FOREIGN KEY (user_id) REFERENCES users(id)
+        ON DELETE CASCADE
         ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

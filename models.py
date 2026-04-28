@@ -34,6 +34,20 @@ class User(Base):
     updated_at = Column(DateTime, nullable=False, server_default=func.now(), onupdate=func.now())
 
 
+class UserProfile(Base):
+    __tablename__ = "user_profiles"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, unique=True, index=True)
+    contact_number = Column(String(50), nullable=True)
+    address = Column(String(255), nullable=True)
+    emergency_name = Column(String(150), nullable=True)
+    emergency_phone = Column(String(50), nullable=True)
+    photo_url = Column(String(500), nullable=True)
+    created_at = Column(DateTime, nullable=False, server_default=func.now())
+    updated_at = Column(DateTime, nullable=False, server_default=func.now(), onupdate=func.now())
+
+
 class Department(Base):
     __tablename__ = "departments"
 
@@ -197,5 +211,36 @@ class AuditLog(Base):
     login_time = Column(DateTime, nullable=True)
     logout_time = Column(DateTime, nullable=True)
     occurred_at = Column(DateTime, nullable=False, server_default=func.now(), index=True)
+    created_at = Column(DateTime, nullable=False, server_default=func.now())
+    updated_at = Column(DateTime, nullable=False, server_default=func.now(), onupdate=func.now())
+
+
+class ProfileDocument(Base):
+    __tablename__ = "profile_documents"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    document_name = Column(String(255), nullable=False)
+    document_type = Column(String(50), nullable=False)
+    status = Column(String(40), nullable=False, default="Submitted")
+    file_url = Column(String(500), nullable=True)
+    reviewed_by_user_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True)
+    reviewed_by_name = Column(String(150), nullable=True)
+    review_notes = Column(Text, nullable=True)
+    reviewed_at = Column(DateTime, nullable=True)
+    uploaded_at = Column(DateTime, nullable=False, server_default=func.now(), index=True)
+    created_at = Column(DateTime, nullable=False, server_default=func.now())
+    updated_at = Column(DateTime, nullable=False, server_default=func.now(), onupdate=func.now())
+
+
+class EmploymentHistory(Base):
+    __tablename__ = "employment_history"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    event_date = Column(Date, nullable=False, index=True)
+    event_title = Column(String(120), nullable=False)
+    event_description = Column(Text, nullable=True)
+    source = Column(String(60), nullable=True)
     created_at = Column(DateTime, nullable=False, server_default=func.now())
     updated_at = Column(DateTime, nullable=False, server_default=func.now(), onupdate=func.now())

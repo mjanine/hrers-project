@@ -8,7 +8,7 @@ from datetime import date, datetime, timedelta
 from pathlib import Path
 from decimal import Decimal, InvalidOperation
 
-from fastapi import Depends, FastAPI, HTTPException, Request, status
+from fastapi import Depends, FastAPI, HTTPException, Request, UploadFile, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Response
 from fastapi.security import OAuth2PasswordRequestForm
@@ -25,8 +25,11 @@ from models import (
     AttendanceRecord,
     AttendanceStatus,
     Department,
+    EmploymentHistory,
     LeaveRequest,
     LeaveStatus,
+    ProfileDocument,
+    UserProfile,
     PositionChangeRequest,
     PositionChangeStatus,
     TrainingRegistration,
@@ -136,6 +139,40 @@ def split_name(full_name: str) -> tuple[str, str]:
     return parts[0], " ".join(parts[1:])
 
 
+def normalize_document_status(raw_status: str | None) -> str:
+    status_value = str(raw_status or "Submitted").strip()
+    return status_value or "Submitted"
+
+
+def document_needs_attention(status_value: str | None) -> bool:
+    lowered = str(status_value or "").strip().lower()
+    return any(
+        token in lowered
+        for token in (
+            "outdated",
+            "renew",
+            "expired",
+            "missing",
+            "request",
+            "update",
+        )
+    )
+
+
+def profile_document_to_payload(document: ProfileDocument) -> dict[str, str | None]:
+    return {
+        "id": int(document.id),
+        "name": str(document.document_name or "Document"),
+        "type": str(document.document_type or "FILE").upper(),
+        "status": normalize_document_status(document.status),
+        "dateUploaded": document.uploaded_at.strftime("%B %d, %Y") if document.uploaded_at else "--",
+        "url": str(document.file_url or ""),
+        "reviewedBy": str(document.reviewed_by_name or ""),
+        "reviewNotes": str(document.review_notes or ""),
+        "reviewedAt": document.reviewed_at.isoformat() if document.reviewed_at else None,
+    }
+
+
 def build_profile_payload(current_user: User, db: Session) -> dict[str, str | bool]:
     latest_position = (
         db.query(PositionChangeRequest)
@@ -165,6 +202,53 @@ def build_profile_payload(current_user: User, db: Session) -> dict[str, str | bo
     if not position_name:
         position_name = role_label
 
+    user_profile = db.query(UserProfile).filter(UserProfile.user_id == int(current_user.id)).first()
+
+    profile_document_rows = (
+        db.query(ProfileDocument)
+        .filter(ProfileDocument.user_id == int(current_user.id))
+        .order_by(ProfileDocument.uploaded_at.desc(), ProfileDocument.id.desc())
+        .all()
+    )
+
+    documents: list[dict[str, str | None]] = [profile_document_to_payload(item) for item in profile_document_rows]
+    document_alerts = [
+        {
+            "id": int(item.id),
+            "name": str(item.document_name or "Document"),
+            "status": normalize_document_status(item.status),
+            "message": f"{str(item.document_name or 'Document')} is {normalize_document_status(item.status).lower()} and needs your attention.",
+        }
+        for item in profile_document_rows
+        if document_needs_attention(item.status)
+    ]
+
+    history_rows = (
+        db.query(EmploymentHistory)
+        .filter(EmploymentHistory.user_id == int(current_user.id))
+        .order_by(EmploymentHistory.event_date.desc(), EmploymentHistory.id.desc())
+        .all()
+    )
+
+    history: list[dict[str, str]] = []
+    for item in history_rows:
+        history.append(
+            {
+                "date": item.event_date.strftime("%Y") if item.event_date else "--",
+                "title": str(item.event_title or "History Event"),
+                "description": str(item.event_description or "--"),
+            }
+        )
+
+    if not history and current_user.created_at:
+        history.append(
+            {
+                "date": current_user.created_at.strftime("%Y"),
+                "title": "Hired",
+                "description": f"Joined as {position_name}",
+            }
+        )
+
     return {
         "id": int(current_user.id),
         "employeeNo": str(current_user.employee_no or ""),
@@ -179,10 +263,14 @@ def build_profile_payload(current_user: User, db: Session) -> dict[str, str | bo
         "isActive": bool(current_user.is_active),
         "employmentType": "",
         "dateHired": current_user.created_at.strftime("%B %d, %Y") if current_user.created_at else "",
-        "contactNumber": "",
-        "address": "",
-        "emergencyName": "",
-        "emergencyPhone": "",
+        "contactNumber": str(user_profile.contact_number or "") if user_profile else "",
+        "address": str(user_profile.address or "") if user_profile else "",
+        "emergencyName": str(user_profile.emergency_name or "") if user_profile else "",
+        "emergencyPhone": str(user_profile.emergency_phone or "") if user_profile else "",
+        "documents": documents,
+        "history": history,
+        "documentAlerts": document_alerts,
+        "documentAlertCount": len(document_alerts),
     }
 
 
@@ -761,6 +849,10 @@ async def update_profile_me(
     first_name = str(form.get("first_name") or form.get("firstName") or "").strip()
     last_name = str(form.get("last_name") or form.get("lastName") or "").strip()
     email = str(form.get("email") or current_user.email).strip().lower()
+    contact_number = str(form.get("contact_number") or form.get("contactNumber") or "").strip()
+    address = str(form.get("address") or "").strip()
+    emergency_name = str(form.get("emergency_name") or form.get("emergencyName") or "").strip()
+    emergency_phone = str(form.get("emergency_phone") or form.get("emergencyPhone") or "").strip()
 
     if first_name or last_name:
         combined_name = f"{first_name} {last_name}".strip()
@@ -773,9 +865,86 @@ async def update_profile_me(
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already in use")
         current_user.email = email
 
+    user_profile = db.query(UserProfile).filter(UserProfile.user_id == int(current_user.id)).first()
+    if not user_profile:
+        user_profile = UserProfile(user_id=int(current_user.id))
+        db.add(user_profile)
+
+    user_profile.contact_number = contact_number or None
+    user_profile.address = address or None
+    user_profile.emergency_name = emergency_name or None
+    user_profile.emergency_phone = emergency_phone or None
+
     db.commit()
     db.refresh(current_user)
     return {"message": "Profile updated successfully.", "profile": build_profile_payload(current_user, db)}
+
+
+@app.post("/api/profile/documents")
+async def upload_profile_document(
+    request: Request,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    form = await request.form()
+    file = form.get("document_file")
+    document_name = str(form.get("document_name") or "").strip()
+    document_type = str(form.get("document_type") or "").strip()
+
+    if not getattr(file, "filename", None):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Please choose a file to upload.")
+
+    safe_original_name = Path(file.filename).name
+    document_name = document_name or Path(safe_original_name).stem.replace("_", " ").replace("-", " ").title()
+    document_type = document_type or (safe_original_name.rsplit(".", 1)[-1].upper() if "." in safe_original_name else "FILE")
+
+    upload_root = base_dir / "static" / "uploads" / "profile_documents" / str(int(current_user.id))
+    upload_root.mkdir(parents=True, exist_ok=True)
+    stored_name = f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{safe_original_name}"
+    destination = upload_root / stored_name
+
+    content = await file.read()
+    destination.write_bytes(content)
+
+    document = ProfileDocument(
+        user_id=int(current_user.id),
+        document_name=document_name,
+        document_type=document_type,
+        status="Submitted",
+        file_url=f"/static/uploads/profile_documents/{int(current_user.id)}/{stored_name}",
+    )
+    db.add(document)
+    db.commit()
+    db.refresh(document)
+
+    return {"message": "Document uploaded successfully.", "document": profile_document_to_payload(document)}
+
+
+@app.patch("/api/profile/documents/{document_id}")
+async def review_profile_document(
+    document_id: int,
+    request: Request,
+    current_user: User = Depends(require_roles(UserRole.admin, UserRole.school_director, UserRole.hr_evaluator, UserRole.hr_head)),
+    db: Session = Depends(get_db),
+):
+    document = db.query(ProfileDocument).filter(ProfileDocument.id == document_id).first()
+    if not document:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Document not found")
+
+    form = await request.form()
+    status_value = normalize_document_status(form.get("status"))
+    review_notes = str(form.get("review_notes") or "").strip()
+
+    document.status = status_value
+    document.review_notes = review_notes or None
+    document.reviewed_by_user_id = int(current_user.id)
+    document.reviewed_by_name = str(current_user.full_name)
+    document.reviewed_at = datetime.now()
+
+    db.commit()
+    db.refresh(document)
+
+    return {"message": "Document updated successfully.", "document": profile_document_to_payload(document)}
 
 
 @app.get("/roles")

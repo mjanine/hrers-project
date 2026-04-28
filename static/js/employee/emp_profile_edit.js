@@ -18,6 +18,47 @@ function setValue(id, value) {
     if (el) el.value = value || '';
 }
 
+function renderDocumentAlerts(alerts) {
+    const banner = document.getElementById('docAlertBanner');
+    if (!banner) return;
+
+    if (!Array.isArray(alerts) || alerts.length === 0) {
+        banner.style.display = 'none';
+        banner.textContent = '';
+        return;
+    }
+
+    banner.style.display = 'block';
+    banner.innerHTML = `<strong>Action needed:</strong> ${alerts[0].message || 'One or more documents need attention.'}`;
+}
+
+function renderUploadedDocuments(documents) {
+    const tbody = document.getElementById('uploadedDocsBody');
+    if (!tbody) return;
+
+    if (!Array.isArray(documents) || documents.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:16px;">No uploaded documents yet.</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = documents.map((doc) => {
+        const safeName = doc.name || 'Document';
+        const safeType = doc.type || 'FILE';
+        const safeStatus = doc.status || 'Submitted';
+        const safeDate = doc.dateUploaded || '--';
+        const safeUrl = doc.url || '';
+        return `
+            <tr>
+                <td>${safeName}</td>
+                <td>${safeType}</td>
+                <td>${safeStatus}</td>
+                <td>${safeDate}</td>
+                <td>${safeUrl ? `<a href="${safeUrl}" target="_blank">View</a>` : '---'}</td>
+            </tr>
+        `;
+    }).join('');
+}
+
 async function loadProfileEditData() {
     try {
         const response = await fetch('/api/profile/me');
@@ -37,6 +78,9 @@ async function loadProfileEditData() {
         setValue('address', profile.address || '');
         setValue('emergencyName', profile.emergencyName || '');
         setValue('emergencyPhone', profile.emergencyPhone || '');
+
+        renderDocumentAlerts(profile.documentAlerts || []);
+        renderUploadedDocuments(profile.documents || []);
     } catch (error) {
     }
 }
@@ -46,6 +90,10 @@ async function submitProfileUpdate() {
     formData.set('firstName', document.getElementById('firstName')?.value || '');
     formData.set('lastName', document.getElementById('lastName')?.value || '');
     formData.set('email', document.getElementById('email')?.value || '');
+    formData.set('contactNumber', document.getElementById('contact')?.value || '');
+    formData.set('address', document.getElementById('address')?.value || '');
+    formData.set('emergencyName', document.getElementById('emergencyName')?.value || '');
+    formData.set('emergencyPhone', document.getElementById('emergencyPhone')?.value || '');
 
     const response = await fetch('/api/profile/me', {
         method: 'POST',
@@ -89,6 +137,42 @@ function updateEProfile() {
         });
 }
 
+async function uploadDocument() {
+    const fileInput = document.getElementById('documentFile');
+    const nameInput = document.getElementById('documentName');
+    const typeInput = document.getElementById('documentType');
+
+    const file = fileInput?.files?.[0];
+    if (!file) {
+        const message = 'Please select a file to upload.';
+        if (window.Swal) {
+            return Swal.fire({ icon: 'warning', title: 'Missing file', text: message });
+        }
+        return alert(message);
+    }
+
+    const formData = new FormData();
+    formData.append('document_file', file);
+    if (nameInput?.value) formData.append('document_name', nameInput.value.trim());
+    if (typeInput?.value) formData.append('document_type', typeInput.value.trim());
+
+    const response = await fetch('/api/profile/documents', {
+        method: 'POST',
+        body: formData,
+    });
+
+    if (!response.ok) {
+        const payload = await response.json().catch(() => ({ detail: 'Unable to upload document.' }));
+        throw new Error(payload.detail || 'Unable to upload document.');
+    }
+
+    if (fileInput) fileInput.value = '';
+    if (nameInput) nameInput.value = '';
+    if (typeInput) typeInput.value = '';
+
+    await loadProfileEditData();
+}
+
 function cancelEEdit() { 
     Swal.fire({
         title: 'Discard changes?',
@@ -115,4 +199,21 @@ function cancelEEdit() {
 document.addEventListener('DOMContentLoaded', () => {
     setupProfileEditPage();
     loadProfileEditData();
+
+    const uploadBtn = document.getElementById('uploadDocumentBtn');
+    if (uploadBtn) {
+        uploadBtn.addEventListener('click', () => {
+            uploadDocument().then(() => {
+                if (window.Swal) {
+                    Swal.fire({ icon: 'success', title: 'Uploaded', text: 'Your document was uploaded successfully.' });
+                }
+            }).catch((error) => {
+                if (window.Swal) {
+                    Swal.fire({ icon: 'error', title: 'Upload failed', text: error.message || 'Unable to upload document.' });
+                } else {
+                    alert(error.message || 'Unable to upload document.');
+                }
+            });
+        });
+    }
 });

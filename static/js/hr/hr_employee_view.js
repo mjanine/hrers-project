@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            const response = await fetch(`/api/employees/${encodeURIComponent(employeeId)}`);
+            const response = await fetch(`/api/users/${encodeURIComponent(employeeId)}`);
             if (!response.ok) return;
 
             const profile = await response.json();
@@ -69,19 +69,65 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const departmentRows = document.querySelectorAll('.info-row');
             if (departmentRows[0]) departmentRows[0].querySelectorAll('span')[1].textContent = profile.department || '--';
-            if (departmentRows[1]) departmentRows[1].querySelectorAll('span')[1].textContent = '--';
-            if (departmentRows[2]) departmentRows[2].querySelectorAll('span')[1].textContent = '--';
-            if (departmentRows[3]) departmentRows[3].querySelectorAll('span')[1].textContent = '--';
-            if (departmentRows[4]) departmentRows[4].querySelectorAll('span')[1].textContent = '--';
+            if (departmentRows[1]) departmentRows[1].querySelectorAll('span')[1].textContent = profile.departmentCode || '--';
+            if (departmentRows[2]) departmentRows[2].querySelectorAll('span')[1].textContent = profile.departmentLocation || '--';
+            if (departmentRows[3]) departmentRows[3].querySelectorAll('span')[1].textContent = profile.departmentEmail || '--';
+            if (departmentRows[4]) departmentRows[4].querySelectorAll('span')[1].textContent = profile.departmentContact || '--';
 
             const timeline = document.getElementById('timelineContainer');
             if (timeline) {
-                timeline.innerHTML = '<div class="timeline-item"><div class="timeline-date">--</div><div class="timeline-content"><h4>No history available</h4><p>Employment history has not been recorded yet.</p></div></div>';
+                const history = Array.isArray(profile.history) ? profile.history : [];
+                timeline.innerHTML = history.length ? history.map((item) => `
+                    <div class="timeline-item">
+                        <div class="timeline-date">${item.date || '--'}</div>
+                        <div class="timeline-content">
+                            <h4>${item.title || 'History Event'}</h4>
+                            <p>${item.description || '--'}</p>
+                        </div>
+                    </div>
+                `).join('') : '<div class="timeline-item"><div class="timeline-date">--</div><div class="timeline-content"><h4>No history available</h4><p>Employment history has not been recorded yet.</p></div></div>';
             }
 
             const docTable = document.querySelector('.doc-table tbody');
             if (docTable) {
-                docTable.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:2rem;">No document records in database.</td></tr>';
+                const documents = Array.isArray(profile.documents) ? profile.documents : [];
+                docTable.innerHTML = documents.length ? documents.map((doc) => `
+                    <tr data-doc-id="${doc.id}">
+                        <td>${doc.name || 'Document'}</td>
+                        <td>${doc.type || 'FILE'}</td>
+                        <td>${doc.status || 'Submitted'}</td>
+                        <td>${doc.dateUploaded || '--'}</td>
+                        <td>
+                            <div style="display:flex; flex-direction:column; gap:8px; min-width:190px;">
+                                <select class="doc-status-select">
+                                    <option value="Approved" ${String(doc.status || '').toLowerCase() === 'approved' ? 'selected' : ''}>Approved</option>
+                                    <option value="Outdated" ${String(doc.status || '').toLowerCase() === 'outdated' ? 'selected' : ''}>Outdated</option>
+                                    <option value="Renew Required" ${String(doc.status || '').toLowerCase().includes('renew') ? 'selected' : ''}>Renew Required</option>
+                                    <option value="Request More Info" ${String(doc.status || '').toLowerCase().includes('request') ? 'selected' : ''}>Request More Info</option>
+                                </select>
+                                <input type="text" class="doc-review-notes" placeholder="Review notes" value="${(doc.reviewNotes || '').replace(/"/g, '&quot;')}">
+                                <button type="button" class="save-doc-status-btn">Save</button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('') : '<tr><td colspan="5" style="text-align:center; padding:2rem;">No document records in database.</td></tr>';
+
+                docTable.querySelectorAll('.save-doc-status-btn').forEach((btn) => {
+                    btn.addEventListener('click', async () => {
+                        const row = btn.closest('tr');
+                        if (!row) return;
+                        const docId = row.getAttribute('data-doc-id');
+                        const statusSelect = row.querySelector('.doc-status-select');
+                        const notesInput = row.querySelector('.doc-review-notes');
+                        const payload = new FormData();
+                        payload.set('status', statusSelect ? statusSelect.value : 'Approved');
+                        payload.set('review_notes', notesInput ? notesInput.value.trim() : '');
+                        const reviewResponse = await fetch(`/api/profile/documents/${encodeURIComponent(docId)}`, { method: 'PATCH', body: payload });
+                        if (reviewResponse.ok) {
+                            loadEmployeeDetail();
+                        }
+                    });
+                });
             }
 
             const profileImg = document.querySelector('.profile-img');

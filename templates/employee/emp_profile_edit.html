@@ -117,8 +117,8 @@
                                 </div>
 
                                 <div class="inputs-row">
-                                    <div class="input-item"><label>First Name</label><input type="text" id="firstName" value="John" readonly></div>
-                                    <div class="input-item"><label>Last Name</label><input type="text" id="lastName" value="Doe" readonly></div>
+                                    <div class="input-item"><label>First Name</label><input type="text" id="firstName" value="John"></div>
+                                    <div class="input-item"><label>Last Name</label><input type="text" id="lastName" value="Doe"></div>
                                     <div class="input-item"><label>Employment I.D</label><input type="text" id="empID" value="EMP-2024-001" readonly></div>
                                     <div class="input-item"><label>Employment Status</label><input type="text" id="empStatus" value="Active" readonly></div>
                                     <div class="input-item"><label>Employment Type</label><input type="text" id="empType" value="Full-Time" readonly></div>
@@ -140,6 +140,50 @@
                                 <div class="inputs-row">
                                     <div class="input-item"><label>Contact Name</label><input type="text" id="emergencyName" value=""></div>
                                     <div class="input-item"><label>Contact Number</label><input type="text" id="emergencyPhone" value=""></div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="form-section-box">
+                            <div class="section-header">My Documents</div>
+                            <div class="section-body">
+                                <div id="docAlertBanner" style="display:none; margin-bottom:12px; padding:12px 14px; border-radius:8px; background:#fff7e6; color:#8a5a00; border:1px solid #ffd28a;"></div>
+
+                                <div class="inputs-row">
+                                    <div class="input-item">
+                                        <label>Document Name</label>
+                                        <input type="text" id="documentName" placeholder="e.g. Transcript of Records">
+                                    </div>
+                                    <div class="input-item">
+                                        <label>Document Type</label>
+                                        <input type="text" id="documentType" placeholder="e.g. PDF">
+                                    </div>
+                                </div>
+
+                                <div class="full-width-item">
+                                    <label>Select File</label>
+                                    <input type="file" id="documentFile" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                                </div>
+
+                                <div class="full-width-item">
+                                    <button type="button" class="btn btn-save" id="uploadDocumentBtn">Upload Document</button>
+                                </div>
+
+                                <div style="margin-top:18px; overflow-x:auto;">
+                                    <table class="doc-table" style="width:100%; border-collapse:collapse;">
+                                        <thead>
+                                            <tr>
+                                                <th>Document</th>
+                                                <th>Type</th>
+                                                <th>Status</th>
+                                                <th>Date Uploaded</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="uploadedDocsBody">
+                                            <tr><td colspan="5" style="text-align:center; padding:16px;">No uploaded documents yet.</td></tr>
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </section>
