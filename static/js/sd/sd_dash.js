@@ -2,19 +2,7 @@
    School Director Dashboard JavaScript
    ================================= */
 
-// Daily Quotes Array
-const inspirationalQuotes = [
-    "Success is the sum of small efforts repeated day in and day out.",
-    "The only way to do great work is to love what you do.",
-    "Your work is going to fill a large part of your life.",
-    "Great things never come from comfort zones.",
-    "Don't watch the clock; do what it does. Keep going.",
-    "The future depends on what you do today.",
-    "Success doesn't just find you. You have to go out and get it.",
-    "Opportunities don't happen. You create them.",
-    "Believe you can and you're halfway there.",
-    "Excellence is not a skill, it's an attitude."
-];
+// Daily quote will be loaded from the server if available.
 
 // Initialize Dashboard on DOM Load
 document.addEventListener('DOMContentLoaded', function() {
@@ -261,28 +249,21 @@ function getLast7Days() {
 function setDailyQuote() {
     const quoteElement = document.getElementById('dailyQuote');
     if (quoteElement) {
-        // Get quote based on day of year for consistency
-        const today = new Date();
-        const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 86400000);
-        const quoteIndex = dayOfYear % inspirationalQuotes.length;
-        
-        quoteElement.textContent = inspirationalQuotes[quoteIndex];
+        // Try loading quote from server; fall back to empty string
+        quoteElement.textContent = '';
+        fetch('/api/reports/quote').then(r => {
+            if (!r.ok) return null;
+            return r.json();
+        }).then(payload => {
+            if (payload && payload.quote) quoteElement.textContent = payload.quote;
+        }).catch(() => {});
     }
 }
 
 function loadDailyQuote() {
     setDailyQuote();
-    
-    // Refresh quote at midnight
-    const now = new Date();
-    const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
-    const timeUntilMidnight = tomorrow - now;
-    
-    setTimeout(() => {
-        setDailyQuote();
-        // Then refresh every 24 hours
-        setInterval(setDailyQuote, 24 * 60 * 60 * 1000);
-    }, timeUntilMidnight);
+    // Refresh quote daily
+    setInterval(setDailyQuote, 24 * 60 * 60 * 1000);
 }
 
 /* =================================

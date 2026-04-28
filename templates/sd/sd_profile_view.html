@@ -58,19 +58,19 @@
             <!-- PROFILE -->
             <div class="profile-card">
                 <div class="profile-left">
-                    <img src="../../static/img/sample-profile-pic.jfif" class="profile-img">
+                    <img id="profileImg" src="../../static/img/sample-profile-pic.jfif" class="profile-img">
 
                     <div class="profile-info">
-                        <h2>School Director</h2>
-                        <p class="role">School Director</p>
-                        <p class="employee-id">Employee ID: --</p>
+                        <h2 id="employeeName">Loading name...</h2>
+                        <p id="employeeRole" class="role">-</p>
+                        <p id="employeeId" class="employee-id">Employee ID: --</p>
 
                         <div class="employment-details">
-                            <p><strong>Status</strong> <span class="status-dot" style="background:#8ddf9b"></span> Active</p>
-                            <p><strong>Position</strong> School Director</p>
-                            <p><strong>Department</strong> Administration</p>
-                            <p><strong>Employment Type</strong> Full-time</p>
-                            <p><strong>Date Hired</strong> 2022-01-15</p>
+                            <p><strong>Status</strong> <span id="statusDot" class="status-dot" style="background:#ccc"></span> <span id="employeeStatus">-</span></p>
+                            <p><strong>Position</strong> <span id="employeePosition">-</span></p>
+                            <p><strong>Department</strong> <span id="employeeDepartment">-</span></p>
+                            <p><strong>Employment Type</strong> <span id="employeeType">-</span></p>
+                            <p><strong>Date Hired</strong> <span id="employeeDateHired">-</span></p>
                         </div>
                     </div>
                 </div>
@@ -82,9 +82,9 @@
 
                     <div class="contact-info">
                         <h4>Contact Information</h4>
-                        <p><i class="fas fa-envelope"></i> --</p>
-                        <p><i class="fas fa-phone"></i> --</p>
-                        <p><i class="fas fa-location-dot"></i> --</p>
+                        <p><i class="fas fa-envelope"></i> <span id="contactEmail">--</span></p>
+                        <p><i class="fas fa-phone"></i> <span id="contactPhone">--</span></p>
+                        <p><i class="fas fa-location-dot"></i> <span id="contactLocation">--</span></p>
                     </div>
                 </div>
             </div>
@@ -103,11 +103,11 @@
                 <div class="tab-content-item active" id="dept">
                     <div class="info-card">
                         <h4>Department Information</h4>
-                        <div class="info-row"><span>Department</span><span>Administration</span></div>
-                        <div class="info-row"><span>Code</span><span>ADM-101</span></div>
-                        <div class="info-row"><span>Location</span><span>Main Building 1st Floor</span></div>
-                        <div class="info-row"><span>Email</span><span>--</span></div>
-                        <div class="info-row"><span>Contact</span><span>--</span></div>
+                        <div class="info-row"><span>Department</span><span id="deptName">-</span></div>
+                        <div class="info-row"><span>Code</span><span id="deptCode">-</span></div>
+                        <div class="info-row"><span>Location</span><span id="deptLocation">-</span></div>
+                        <div class="info-row"><span>Email</span><span id="deptEmail">-</span></div>
+                        <div class="info-row"><span>Contact</span><span id="deptContact">-</span></div>
                     </div>
                 </div>
 
@@ -115,7 +115,7 @@
                 <div class="tab-content-item" id="docs">
 
                     <div class="doc-header">
-                        <span>2 of 3 uploaded</span>
+                        <span id="docsCount">Loading documents...</span>
                     </div>
 
                     <table class="doc-table">
@@ -128,72 +128,41 @@
                                 <th>Action</th>
                             </tr>
                         </thead>
-
-                        <tbody>
-    <tr>
-        <td>Transcript of Records</td>
-        <td>PDF</td>
-        <td class="valid">Valid</td>
-        <td>March 1, 2025</td>
-        <td class="actions">
-            <a href="../../docs/tor.pdf" target="_blank">
-                <i class="fas fa-eye action-icon"></i>
-            </a>
-            <a href="../../docs/tor.pdf" download>
-                <i class="fas fa-download action-icon"></i>
-            </a>
-        </td>
-    </tr>
-
-    <tr>
-        <td>Licenses / Certification</td>
-        <td>PDF</td>
-        <td class="update">Needs Update</td>
-        <td>February 10, 2025</td>
-        <td class="actions">
-            <a href="../../docs/license.pdf" target="_blank">
-                <i class="fas fa-eye action-icon"></i>
-            </a>
-            <a href="../../docs/license.pdf" download>
-                <i class="fas fa-download action-icon"></i>
-            </a>
-        </td>
-    </tr>
-
-    <tr>
-        <td>NBI Clearance</td>
-        <td>JPG</td>
-        <td class="missing">Missing</td>
-        <td>---</td>
-        <td class="actions">---</td>
-    </tr>
-</tbody>
+                        <tbody id="docsTableBody">
+                            <tr>
+                                <td colspan="5" style="text-align:center; padding:20px 0; color:#666;">No documents available.</td>
+                            </tr>
+                        </tbody>
                     </table>
+
+                    <template id="docRowTemplate">
+                        <tr>
+                            <td class="doc-name"></td>
+                            <td class="doc-type"></td>
+                            <td class="doc-status"></td>
+                            <td class="doc-date"></td>
+                            <td class="actions doc-actions"></td>
+                        </tr>
+                    </template>
 
                 </div>
 
                 <!-- HISTORY -->
                 <div class="tab-content-item" id="history">
 
-                    <div class="timeline">
-
-                        <div class="timeline-item">
-                            <div class="timeline-date">2025</div>
-                            <div class="timeline-content">
-                                <h4>Promotion</h4>
-                                <p>School Director Asst. → School Director</p>
-                            </div>
-                        </div>
-
-                        <div class="timeline-item">
-                            <div class="timeline-date">2022</div>
-                            <div class="timeline-content">
-                                <h4>Hired</h4>
-                                <p>Joined Director Office Department</p>
-                            </div>
-                        </div>
-
+                    <div class="timeline" id="timelineContainer">
+                        <div style="text-align:center; padding:20px 0; color:#666;">No history available.</div>
                     </div>
+
+                    <template id="timelineItemTemplate">
+                        <div class="timeline-item">
+                            <div class="timeline-date"></div>
+                            <div class="timeline-content">
+                                <h4 class="timeline-title"></h4>
+                                <p class="timeline-desc"></p>
+                            </div>
+                        </div>
+                    </template>
 
                 </div>
 

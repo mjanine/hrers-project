@@ -260,6 +260,14 @@ def build_employee_detail_payload(user: User, db: Session) -> dict[str, str | bo
     }
 
 
+def build_universal_user_payload(user: User, db: Session) -> dict[str, str | bool | int | None]:
+    payload = build_employee_detail_payload(user, db)
+    payload["name"] = str(user.full_name)
+    payload["full_name"] = str(user.full_name)
+    payload["employee_no"] = str(user.employee_no or payload.get("employeeNo") or "")
+    return payload
+
+
 def get_sick_leave_credits(db: Session, user_id: int, total_credits: int = 15) -> dict[str, int]:
     approved_sick_days = (
         db.query(LeaveRequest)
@@ -1426,6 +1434,27 @@ def get_employee_detail(
     return build_employee_detail_payload(user, db)
 
 
+@app.get("/api/users")
+def list_all_users_for_sd(
+    current_user: User = Depends(require_roles(UserRole.admin, UserRole.school_director, UserRole.hr_evaluator, UserRole.hr_head, UserRole.department_head)),
+    db: Session = Depends(get_db),
+):
+    users = db.query(User).order_by(User.full_name.asc(), User.id.asc()).all()
+    return {"items": [build_universal_user_payload(user, db) for user in users]}
+
+
+@app.get("/api/users/{user_id}")
+def get_universal_user_for_sd(
+    user_id: int,
+    current_user: User = Depends(require_roles(UserRole.admin, UserRole.school_director, UserRole.hr_evaluator, UserRole.hr_head, UserRole.department_head)),
+    db: Session = Depends(get_db),
+):
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    return build_universal_user_payload(user, db)
+
+
 @app.post("/api/employees")
 async def create_employee_record(
     request: Request,
@@ -1863,7 +1892,7 @@ def reports_chart_data(current_user: User = Depends(get_current_user), db: Sessi
 
 
 @app.get("/accounts/users")
-def list_users_for_admin(current_user: User = Depends(require_roles(UserRole.admin)), db: Session = Depends(get_db)):
+def list_users_for_admin(current_user: User = Depends(require_roles(UserRole.admin, UserRole.school_director)), db: Session = Depends(get_db)):
     users = db.query(User).order_by(User.created_at.desc(), User.id.desc()).all()
     departments = db.query(Department).filter(Department.is_active == True).all()
     latest_position_by_user = build_latest_position_map(db)
@@ -1907,7 +1936,7 @@ def list_users_for_admin(current_user: User = Depends(require_roles(UserRole.adm
 
 
 @app.get("/accounts/departments")
-def list_departments_for_admin(current_user: User = Depends(require_roles(UserRole.admin)), db: Session = Depends(get_db)):
+def list_departments_for_admin(current_user: User = Depends(require_roles(UserRole.admin, UserRole.school_director)), db: Session = Depends(get_db)):
     departments = db.query(Department).order_by(Department.name.asc()).all()
     employees = db.query(User).filter(User.role == UserRole.employee, User.is_active == True).all()
     latest_position_by_user = build_latest_position_map(db)
@@ -1942,7 +1971,7 @@ def list_departments_for_admin(current_user: User = Depends(require_roles(UserRo
 
 
 @app.get("/accounts/department-head-candidates")
-def list_department_head_candidates(current_user: User = Depends(require_roles(UserRole.admin)), db: Session = Depends(get_db)):
+def list_department_head_candidates(current_user: User = Depends(require_roles(UserRole.admin, UserRole.school_director)), db: Session = Depends(get_db)):
     users = (
         db.query(User)
         .filter(User.is_active == True)

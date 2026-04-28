@@ -277,34 +277,7 @@ updateHeader();
 
 /* ── 5. HISTORY MODAL – DATA ─────────────────────────────── */
 
-const weeklyData = {
-    0: {
-        label: "February 4 – 10, 2026",
-        rows: [
-            { date: "February 4, 2026",  day: "Tuesday",   timeIn: "8:03 AM", timeOut: "5:02 PM", hours: "8h 59m", status: "present" },
-            { date: "February 5, 2026",  day: "Wednesday", timeIn: "8:15 AM", timeOut: "5:10 PM", hours: "8h 55m", status: "present" },
-            { date: "February 6, 2026",  day: "Thursday",  timeIn: "8:00 AM", timeOut: "5:00 PM", hours: "9h 00m", status: "present" },
-            { date: "February 7, 2026",  day: "Friday",    timeIn: "8:45 AM", timeOut: "5:00 PM", hours: "8h 15m", status: "late"    },
-            { date: "February 8, 2026",  day: "Saturday",  timeIn: "--",      timeOut: "--",       hours: "--",     status: "leave"   },
-            { date: "February 9, 2026",  day: "Sunday",    timeIn: "--",      timeOut: "--",       hours: "--",     status: "holiday" },
-            { date: "February 10, 2026", day: "Monday",    timeIn: "8:03 AM", timeOut: "5:02 PM", hours: "8h 59m", status: "present" },
-        ],
-        total: "42h 15m"
-    }
-};
-
-const monthlyData = {
-    0: {
-        label: "February 2026",
-        firstDayOfWeek: 0,
-        daysInMonth: 28,
-        attendance: {
-            3:  { status: "present", hours: "8h 59m" },
-            4:  { status: "present", hours: "8h 55m" },
-        },
-        total: "152h 30m"
-    }
-};
+// Fallback mock data removed — rely on backend endpoints for summary payloads.
 
 let currentView = "weekly";
 let weekOffset  = 0;
@@ -323,34 +296,48 @@ async function loadAttendanceSummary(view, offset) {
 /* ── 6. HISTORY MODAL – RENDER WEEKLY ───────────────────── */
 
 function renderWeekly() {
-    const data = weeklySummaryData ?? weeklyData[weekOffset] ?? weeklyData[0];
-    historyDateRange.textContent = data.label;
-    totalHoursCount.textContent  = data.total;
+    const data = weeklySummaryData;
+    if (!data || !data.rows || !data.rows.length) {
+        historyDateRange.textContent = 'No records';
+        weeklyTableBody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#666; padding:20px 0;">No attendance records for this period.</td></tr>';
+        totalHoursCount.textContent = '0h 00m';
+        return;
+    }
+
+    historyDateRange.textContent = data.label || '';
+    totalHoursCount.textContent  = data.total || '0h 00m';
     const rows = data.rows.map(r => `
         <tr>
             <td>${r.date}</td>
             <td>${r.day}</td>
-            <td>${r.timeIn}</td>
-            <td>${r.timeOut}</td>
-            <td>${r.hours}</td>
-            <td><span class="status-badge ${r.status}">${capitalize(r.status)}</span></td>
+            <td>${r.timeIn || '--'}</td>
+            <td>${r.timeOut || '--'}</td>
+            <td>${r.hours || '--'}</td>
+            <td><span class="status-badge ${r.status || ''}">${capitalize(r.status || '')}</span></td>
         </tr>
     `).join("");
-    weeklyTableBody.innerHTML = rows + `<tr class="total-row"><td colspan="4">Total</td><td colspan="2">${data.total}</td></tr>`;
+    weeklyTableBody.innerHTML = rows + `<tr class="total-row"><td colspan="4">Total</td><td colspan="2">${data.total || '0h 00m'}</td></tr>`;
 }
 
 
 /* ── 7. HISTORY MODAL – RENDER MONTHLY ──────────────────── */
 
 function renderMonthly() {
-    const data = monthlySummaryData ?? monthlyData[monthOffset] ?? monthlyData[0];
-    historyDateRange.textContent = data.label;
-    totalHoursCount.textContent  = data.total;
+    const data = monthlySummaryData;
+    if (!data) {
+        monthlyGrid.innerHTML = '<div style="text-align:center; padding:20px 0; color:#666;">No monthly summary available.</div>';
+        historyDateRange.textContent = 'No records';
+        totalHoursCount.textContent = '0h 00m';
+        return;
+    }
+
+    historyDateRange.textContent = data.label || '';
+    totalHoursCount.textContent  = data.total || '0h 00m';
     const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     let html = dayNames.map(d => `<div class="month-day-header">${d}</div>`).join("");
-    for (let i = 0; i < data.firstDayOfWeek; i++) html += `<div class="month-day-cell empty"></div>`;
-    for (let d = 1; d <= data.daysInMonth; d++) {
-        const att = data.attendance[d];
+    for (let i = 0; i < (data.firstDayOfWeek || 0); i++) html += `<div class="month-day-cell empty"></div>`;
+    for (let d = 1; d <= (data.daysInMonth || 0); d++) {
+        const att = (data.attendance && data.attendance[d]) || null;
         html += `<div class="month-day-cell"><span class="day-num">${d}</span>${att ? `<span class="day-status ${att.status}">${capitalize(att.status)}</span>` : ""}</div>`;
     }
     monthlyGrid.innerHTML = html;

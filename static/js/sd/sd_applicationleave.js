@@ -40,12 +40,37 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
+    // Load user leave credits from profile or leave-credits endpoint
+    let TOTAL_SICK_CREDITS = null;
+    (async function loadLeaveCredits() {
+        try {
+            const resp = await fetch('/api/profile/me');
+            if (resp.ok) {
+                const p = await resp.json();
+                if (p && typeof p.sickLeaveCredits !== 'undefined') {
+                    TOTAL_SICK_CREDITS = Number(p.sickLeaveCredits || 0);
+                }
+            }
+        } catch (e) {}
+
+        if (TOTAL_SICK_CREDITS === null) {
+            try {
+                const resp2 = await fetch('/api/leave-credits');
+                if (resp2.ok) {
+                    const j = await resp2.json();
+                    TOTAL_SICK_CREDITS = Number(j.sick || j.totalSick || 0);
+                }
+            } catch (e) {}
+        }
+
+        if (TOTAL_SICK_CREDITS === null) TOTAL_SICK_CREDITS = 0;
+    })();
+
     // Form Submission
     if (leaveForm) {
         leaveForm.onsubmit = async (e) => {
             e.preventDefault();
-
-            const TOTAL_SICK_CREDITS = 15;
+            let finalMessage = "Leave request submitted to HR successfully!";
             let finalMessage = "Leave request submitted to HR successfully!";
 
             const activeBtn = document.querySelector('.type-btn.active');
@@ -97,7 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const diffTime = Math.abs(end - start);
                 const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
 
-                const remaining = TOTAL_SICK_CREDITS - diffDays;
+                const remaining = (TOTAL_SICK_CREDITS || 0) - diffDays;
                 finalMessage = `Success! You have ${remaining} sick leave credits remaining.`;
             }
 

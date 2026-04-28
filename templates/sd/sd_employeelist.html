@@ -83,18 +83,25 @@
                         </tr>
                     </thead>
                     <tbody id="employeeTableBody">
-                        <tr>
-                            <td>HEAD-001</td>
-                            <td>John Head</td>
-                            <td>Administration</td>
-                            <td>Head</td>
-                            <td>Active</td>
-                            <td class="action-cell">
-                                <a href="../sd/sd_employee_view.html" class="action-link" title="View"><i class="fas fa-eye"></i></a>
-                            </td>
+                        <tr id="employeeLoadingRow">
+                            <td colspan="6" style="text-align:center; padding: 30px 0; color:#666;">Loading employees...</td>
                         </tr>
                     </tbody>
                 </table>
+
+                <template id="employeeRowTemplate">
+                    <tr>
+                        <td class="emp-id"></td>
+                        <td class="emp-name"></td>
+                        <td class="emp-dept"></td>
+                        <td class="emp-position"></td>
+                        <td class="emp-status"></td>
+                        <td class="action-cell">
+                            <a class="action-link view-link" title="View"><i class="fas fa-eye"></i></a>
+                        </td>
+                    </tr>
+                </template>
+                
             </div>
         </div>
     </main>
