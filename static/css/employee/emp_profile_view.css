@@ -73,6 +73,21 @@ body, html {
 
 .edit-btn:hover { background: #7b3f3f; }
 
+.request-position-btn {
+    background: #ffffff;
+    color: #4a1d1d;
+    border: 1px solid #4a1d1d;
+    padding: 8px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+.request-position-btn:hover {
+    background: #f7efef;
+}
+
 .contact-info { width: 260px; text-align: right; }
 .contact-info h4 { margin-bottom: 12px; font-weight: bold; color: #333; }
 .contact-info p { margin: 6px 0; color: #555; }

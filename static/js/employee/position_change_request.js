@@ -1,7 +1,7 @@
 /* position_change_request.js */
 
 document.addEventListener('DOMContentLoaded', () => {
-    const recordsPageUrl = '../history/timeline.html';
+    const HR_EMAIL = 'hr@hrers.local';
     const sidebar        = document.getElementById('sidebar');
     const logoToggle     = document.getElementById('logoToggle');
     const closeBtn       = document.getElementById('closeBtn');
@@ -186,33 +186,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            const payload = new FormData();
-            payload.set('employee_name', empName);
-            payload.set('employee_no', empId);
-            payload.set('current_position', currentPos);
-            payload.set('current_department', currentDept);
-            payload.set('requested_position', requestedPos);
-            payload.set('effective_date', effectiveDate);
-            payload.set('reason', reason);
+            const subject = `Position Change Request - ${empName}`;
+            const bodyLines = [
+                'Good day HR Team,',
+                '',
+                'I am requesting a position change.',
+                '',
+                `Employee Name: ${empName}`,
+                `Employee ID: ${empId || '--'}`,
+                `Current Position: ${currentPos || '--'}`,
+                `Department: ${currentDept || '--'}`,
+                `Requested Position: ${requestedPos}`,
+                `Effective Date: ${effectiveDate}`,
+                '',
+                'Reason:',
+                reason,
+                '',
+                'Thank you.'
+            ];
 
-            fetch('/api/position-requests', {
-                method: 'POST',
-                body: payload,
-            })
-                .then(async (res) => {
-                    if (!res.ok) {
-                        const err = await res.json().catch(() => ({ detail: 'Submission failed.' }));
-                        throw new Error(err.detail || 'Submission failed.');
-                    }
-
-                    showSuccessNotification(`${empName}'s position change request has been successfully submitted.`);
-                    setTimeout(() => {
-                        try { showRecordsView(); } catch (e) { window.location.href = `${recordsPageUrl}?employee=${encodeURIComponent(empName)}`; }
-                    }, 1200);
-                })
-                .catch((error) => {
-                    showToast(error.message || 'Unable to submit request.');
-                });
+            showSuccessNotification('Opening your email client with a pre-filled request for HR.');
+            setTimeout(() => {
+                window.location.href = `mailto:${HR_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyLines.join('\n'))}`;
+            }, 250);
         });
     }
 

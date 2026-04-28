@@ -68,6 +68,32 @@ function applyProfileToView(profile) {
     renderDocumentAlerts(profile.documentAlerts || []);
     renderProfileDocuments(profile.documents || []);
     renderProfileHistory(profile.history || []);
+
+    var requestBtn = document.getElementById('requestPositionChangeBtn');
+    if (requestBtn) {
+        requestBtn.onclick = function () {
+            var hrEmail = 'hr@hrers.local';
+            var subject = 'Position Change Request - ' + (profile.fullName || 'Employee');
+            var bodyLines = [
+                'Good day HR Team,',
+                '',
+                'I would like to request a position change.',
+                '',
+                'Employee Name: ' + (profile.fullName || '--'),
+                'Employee ID: ' + (profile.employeeNo || profile.id || '--'),
+                'Current Position: ' + (profile.position || profile.roleLabel || '--'),
+                'Department: ' + (profile.department || '--'),
+                '',
+                'Requested Position: ',
+                'Preferred Effective Date: ',
+                'Reason: ',
+                '',
+                'Thank you.'
+            ];
+
+            window.location.href = 'mailto:' + hrEmail + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(bodyLines.join('\n'));
+        };
+    }
 }
 
 function renderDocumentAlerts(alerts) {

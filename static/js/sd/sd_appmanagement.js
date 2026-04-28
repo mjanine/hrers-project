@@ -14,6 +14,62 @@ let activeMainTab = 'new';
 let appData = [];
 let positionChangeData = [];
 
+function getEmailDecisionIntent() {
+    var params = new URLSearchParams(window.location.search);
+    var requestIdRaw = params.get('positionRequestId') || '';
+    var decisionRaw = (params.get('emailDecision') || '').toLowerCase();
+    var requestId = parseInt(requestIdRaw, 10);
+
+    if (!requestId || !Number.isFinite(requestId)) {
+        return null;
+    }
+
+    if (decisionRaw !== 'approve' && decisionRaw !== 'reject') {
+        return null;
+    }
+
+    return {
+        requestId: requestId,
+        decision: decisionRaw === 'approve' ? 'Approved' : 'Rejected'
+    };
+}
+
+async function applyEmailDecisionIntent() {
+    var intent = getEmailDecisionIntent();
+    if (!intent) {
+        return;
+    }
+
+    try {
+        var formData = new FormData();
+        formData.append('decision', intent.decision.toLowerCase());
+        formData.append('remarks', 'Decision submitted via SD email review link.');
+
+        var response = await fetch('/api/position-requests/' + intent.requestId + '/decision', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) {
+            throw new Error('Unable to process the requested action from email link.');
+        }
+
+        await refreshAppManagementData();
+        setMainTab('position');
+        renderCurrentTab();
+
+        showToast(
+            intent.decision === 'Approved' ? 'approved' : 'rejected',
+            intent.decision === 'Approved' ? 'Position Request Approved' : 'Position Request Rejected',
+            'Email review action has been recorded successfully.'
+        );
+    } catch (error) {
+        showToast('info', 'Action Not Completed', error.message || 'Unable to process the requested action.');
+    } finally {
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
+}
+
 function mapStatusForSd(status) {
     if (status === 'approved' || status === 'rejected') {
         return status;
@@ -949,5 +1005,6 @@ document.addEventListener('DOMContentLoaded', function () {
     syncFilterChip();
     refreshAppManagementData().then(function () {
         renderCurrentTab();
+        applyEmailDecisionIntent();
     });
 });
