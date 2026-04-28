@@ -3,10 +3,47 @@ USE hrers_project;
 -- =========================================================
 -- Existing database migration for profile tables
 -- Adds missing columns/tables without dropping data.
+-- Migrates file_url to file_content (BLOB storage).
 -- Run this once on your live database.
 -- =========================================================
 
 SET @db_name := DATABASE();
+
+-- ---------------------------------------------------------
+-- profile_documents: migrate to BLOB storage
+-- ---------------------------------------------------------
+
+-- Replace file_url VARCHAR with file_content LONGBLOB
+SET @sql := (
+    SELECT IF(
+        EXISTS(
+            SELECT 1
+            FROM INFORMATION_SCHEMA.COLUMNS
+            WHERE TABLE_SCHEMA = @db_name
+              AND TABLE_NAME = 'profile_documents'
+              AND COLUMN_NAME = 'file_url'
+        ),
+        'ALTER TABLE profile_documents CHANGE COLUMN file_url file_content LONGBLOB NULL',
+        'ALTER TABLE profile_documents ADD COLUMN file_content LONGBLOB NULL'
+    )
+);
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+-- Add file_size column if missing
+SET @sql := (
+    SELECT IF(
+        EXISTS(
+            SELECT 1
+            FROM INFORMATION_SCHEMA.COLUMNS
+            WHERE TABLE_SCHEMA = @db_name
+              AND TABLE_NAME = 'profile_documents'
+              AND COLUMN_NAME = 'file_size'
+        ),
+        'SELECT 1',
+        'ALTER TABLE profile_documents ADD COLUMN file_size INT NULL'
+    )
+);
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
 
 -- ---------------------------------------------------------
 -- profile_documents: add HR review metadata columns
@@ -67,21 +104,6 @@ SET @sql := (
         ),
         'SELECT 1',
         'ALTER TABLE profile_documents ADD COLUMN reviewed_at DATETIME NULL'
-    )
-);
-PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
-
-SET @sql := (
-    SELECT IF(
-        EXISTS(
-            SELECT 1
-            FROM INFORMATION_SCHEMA.COLUMNS
-            WHERE TABLE_SCHEMA = @db_name
-              AND TABLE_NAME = 'profile_documents'
-              AND COLUMN_NAME = 'file_url'
-        ),
-        'SELECT 1',
-        'ALTER TABLE profile_documents ADD COLUMN file_url VARCHAR(500) NULL'
     )
 );
 PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;

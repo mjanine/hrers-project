@@ -166,7 +166,7 @@ def profile_document_to_payload(document: ProfileDocument) -> dict[str, str | No
         "type": str(document.document_type or "FILE").upper(),
         "status": normalize_document_status(document.status),
         "dateUploaded": document.uploaded_at.strftime("%B %d, %Y") if document.uploaded_at else "--",
-        "url": str(document.file_url or ""),
+        "url": f"/api/profile/documents/{int(document.id)}/download",
         "reviewedBy": str(document.reviewed_by_name or ""),
         "reviewNotes": str(document.review_notes or ""),
         "reviewedAt": document.reviewed_at.isoformat() if document.reviewed_at else None,
@@ -898,20 +898,16 @@ async def upload_profile_document(
     document_name = document_name or Path(safe_original_name).stem.replace("_", " ").replace("-", " ").title()
     document_type = document_type or (safe_original_name.rsplit(".", 1)[-1].upper() if "." in safe_original_name else "FILE")
 
-    upload_root = base_dir / "static" / "uploads" / "profile_documents" / str(int(current_user.id))
-    upload_root.mkdir(parents=True, exist_ok=True)
-    stored_name = f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{safe_original_name}"
-    destination = upload_root / stored_name
-
     content = await file.read()
-    destination.write_bytes(content)
+    file_size = len(content)
 
     document = ProfileDocument(
         user_id=int(current_user.id),
         document_name=document_name,
         document_type=document_type,
         status="Submitted",
-        file_url=f"/static/uploads/profile_documents/{int(current_user.id)}/{stored_name}",
+        file_content=content,
+        file_size=file_size,
     )
     db.add(document)
     db.commit()
@@ -945,6 +941,43 @@ async def review_profile_document(
     db.refresh(document)
 
     return {"message": "Document updated successfully.", "document": profile_document_to_payload(document)}
+
+
+@app.get("/api/profile/documents/{document_id}/download")
+async def download_profile_document(
+    document_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    from fastapi.responses import StreamingResponse
+    
+    document = db.query(ProfileDocument).filter(ProfileDocument.id == document_id).first()
+    if not document:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Document not found")
+
+    if document.user_id != int(current_user.id) and current_user.role not in (
+        UserRole.admin,
+        UserRole.school_director,
+        UserRole.hr_evaluator,
+        UserRole.hr_head,
+    ):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You do not have access to this document")
+
+    if not document.file_content:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Document file not found")
+
+    safe_filename = document.document_name.replace('"', "").replace("\\", "").replace("/", "")
+    file_ext = document.document_type.lower() if document.document_type else "bin"
+    if file_ext in ("pdf", "jpg", "jpeg", "png", "doc", "docx"):
+        filename = f"{safe_filename}.{file_ext}"
+    else:
+        filename = safe_filename
+
+    return StreamingResponse(
+        iter([document.file_content]),
+        media_type="application/octet-stream",
+        headers={"Content-Disposition": f"attachment; filename={filename}"},
+    )
 
 
 @app.get("/roles")
