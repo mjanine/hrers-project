@@ -1575,6 +1575,24 @@ def search_employees(
         .all()
     )
 
+    # If requester is a department head, restrict search results to employees in their department
+    if current_user.role == UserRole.department_head:
+        head_department = db.query(Department).filter(Department.head_user_id == int(current_user.id), Department.is_active == True).first()
+        if head_department:
+            dept_name = str(head_department.name)
+            filtered_users = []
+            for u in users:
+                latest_position_request = (
+                    db.query(PositionChangeRequest)
+                    .filter(PositionChangeRequest.requester_user_id == int(u.id))
+                    .order_by(PositionChangeRequest.created_at.desc())
+                    .first()
+                )
+                user_dept = str((latest_position_request.current_department if latest_position_request else None) or "General")
+                if user_dept == dept_name:
+                    filtered_users.append(u)
+            users = filtered_users
+
     items: list[dict[str, str]] = []
     for user in users:
         latest_position_request = (
@@ -1608,6 +1626,15 @@ def list_employee_directory(
         .all()
     )
 
+    # Restrict listing for department heads to their own department
+    if current_user.role == UserRole.department_head:
+        head_department = db.query(Department).filter(Department.head_user_id == int(current_user.id), Department.is_active == True).first()
+        if head_department:
+            dept_name = str(head_department.name)
+            users = [u for u in users if (str((db.query(PositionChangeRequest).filter(PositionChangeRequest.requester_user_id == int(u.id)).order_by(PositionChangeRequest.created_at.desc()).first().current_department) if db.query(PositionChangeRequest).filter(PositionChangeRequest.requester_user_id == int(u.id)).order_by(PositionChangeRequest.created_at.desc()).first() else "General") == dept_name)]
+        else:
+            users = []
+
     return {"items": [build_employee_directory_payload(user, db) for user in users]}
 
 
@@ -1621,6 +1648,21 @@ def get_employee_directory_item(
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Employee not found")
 
+    # If requester is a department head, ensure the employee is in their department
+    if current_user.role == UserRole.department_head:
+        head_department = db.query(Department).filter(Department.head_user_id == int(current_user.id), Department.is_active == True).first()
+        if not head_department:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not allowed")
+        latest_position_request = (
+            db.query(PositionChangeRequest)
+            .filter(PositionChangeRequest.requester_user_id == int(user.id))
+            .order_by(PositionChangeRequest.created_at.desc())
+            .first()
+        )
+        user_dept = str((latest_position_request.current_department if latest_position_request else None) or "General")
+        if user_dept != str(head_department.name):
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not allowed")
+
     return build_employee_directory_payload(user, db)
 
 
@@ -1630,6 +1672,27 @@ def list_employees(
     db: Session = Depends(get_db),
 ):
     users = db.query(User).filter(User.role == UserRole.employee).order_by(User.full_name.asc()).all()
+
+    # Restrict listing for department heads to their own department
+    if current_user.role == UserRole.department_head:
+        head_department = db.query(Department).filter(Department.head_user_id == int(current_user.id), Department.is_active == True).first()
+        if head_department:
+            dept_name = str(head_department.name)
+            filtered = []
+            for u in users:
+                latest_position_request = (
+                    db.query(PositionChangeRequest)
+                    .filter(PositionChangeRequest.requester_user_id == int(u.id))
+                    .order_by(PositionChangeRequest.created_at.desc())
+                    .first()
+                )
+                user_dept = str((latest_position_request.current_department if latest_position_request else None) or "General")
+                if user_dept == dept_name:
+                    filtered.append(u)
+            users = filtered
+        else:
+            users = []
+
     return {"items": [build_employee_detail_payload(user, db) for user in users]}
 
 
@@ -1642,6 +1705,21 @@ def get_employee_detail(
     user = db.query(User).filter(User.id == employee_id, User.role == UserRole.employee).first()
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Employee not found")
+    # If requester is a department head, ensure the employee is in their department
+    if current_user.role == UserRole.department_head:
+        head_department = db.query(Department).filter(Department.head_user_id == int(current_user.id), Department.is_active == True).first()
+        if not head_department:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not allowed")
+        latest_position_request = (
+            db.query(PositionChangeRequest)
+            .filter(PositionChangeRequest.requester_user_id == int(user.id))
+            .order_by(PositionChangeRequest.created_at.desc())
+            .first()
+        )
+        user_dept = str((latest_position_request.current_department if latest_position_request else None) or "General")
+        if user_dept != str(head_department.name):
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not allowed")
+
     return build_employee_detail_payload(user, db)
 
 
