@@ -3249,6 +3249,7 @@ def attendance_log_page(
 @app.get("/api/attendance/history/{employee_id}")
 def get_employee_attendance_history(
     employee_id: int,
+    view: str = "weekly",
     current_user: User = Depends(require_roles(UserRole.hr_evaluator, UserRole.hr_head, UserRole.department_head)),
     db: Session = Depends(get_db),
 ):
@@ -3260,9 +3261,29 @@ def get_employee_attendance_history(
     if int(employee.id) not in accessible_employee_ids:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not allowed to view this employee's attendance")
 
+    today = date.today()
+    view_key = str(view or "weekly").strip().lower()
+
+    if view_key == "monthly":
+        start_date = date(today.year, today.month, 1)
+        if today.month == 12:
+            end_date = date(today.year + 1, 1, 1) - timedelta(days=1)
+        else:
+            end_date = date(today.year, today.month + 1, 1) - timedelta(days=1)
+        label = start_date.strftime("%B %Y")
+    else:
+        days_since_sunday = (today.weekday() + 1) % 7
+        start_date = today - timedelta(days=days_since_sunday)
+        end_date = start_date + timedelta(days=6)
+        label = f"{start_date.strftime('%B %-d') if os.name != 'nt' else start_date.strftime('%B %#d')} – {end_date.strftime('%B %-d, %Y') if os.name != 'nt' else end_date.strftime('%B %#d, %Y')}"
+
     records = (
         db.query(AttendanceRecord)
-        .filter(AttendanceRecord.user_id == int(employee.id))
+        .filter(
+            AttendanceRecord.user_id == int(employee.id),
+            AttendanceRecord.record_date >= start_date,
+            AttendanceRecord.record_date <= end_date,
+        )
         .order_by(AttendanceRecord.record_date.desc(), AttendanceRecord.id.desc())
         .all()
     )
@@ -3274,6 +3295,9 @@ def get_employee_attendance_history(
 
     return {
         "employeeId": int(employee.id),
+        "view": view_key if view_key in {"weekly", "monthly"} else "weekly",
+        "dateRange": label,
+        "totalHours": f"{sum(int(record.worked_seconds or 0) for record in records) // 3600}h {(sum(int(record.worked_seconds or 0) for record in records) % 3600) // 60:02d}m",
         "items": [
             {
                 "date": record.record_date.isoformat(),
@@ -3282,6 +3306,7 @@ def get_employee_attendance_history(
                 "time_out": format_time(record.time_out),
                 "total_hours": f"{int(record.worked_seconds or 0) // 3600}h {(int(record.worked_seconds or 0) % 3600) // 60:02d}m",
                 "status": str(record.status.value).title(),
+                "status_key": str(record.status.value).lower(),
             }
             for record in records
         ],

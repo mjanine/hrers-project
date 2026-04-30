@@ -61,12 +61,16 @@
         const dateRangeText = document.getElementById('dateRangeText');
         const totalHoursValue = document.getElementById('totalHoursValue');
         const periodText = document.getElementById('periodText');
+        const weeklyViewBtn = document.getElementById('weeklyViewBtn');
+        const monthlyViewBtn = document.getElementById('monthlyViewBtn');
 
         let weekOffset = 0;
         let weekStartDate = new Date();
         let monitoringRows = [];
         let employeeDirectory = [];
         let activeEmployeeId = null;
+        let activeEmployeeRow = null;
+        let activeHistoryView = 'weekly';
         const filterState = { dept: 'All', status: 'All', date: null };
 
         const filterPopover = document.createElement('div');
@@ -259,13 +263,27 @@
             setModalOpen(false);
         }
 
-        function renderModalRows(items) {
+        function setHistoryViewActive(view) {
+            activeHistoryView = view === 'monthly' ? 'monthly' : 'weekly';
+
+            if (weeklyViewBtn) {
+                weeklyViewBtn.classList.toggle('active', activeHistoryView === 'weekly');
+            }
+            if (monthlyViewBtn) {
+                monthlyViewBtn.classList.toggle('active', activeHistoryView === 'monthly');
+            }
+            if (periodText) {
+                periodText.textContent = activeHistoryView === 'monthly' ? 'Month' : 'Week';
+            }
+        }
+
+        function renderModalRows(items, viewLabel, totalHoursLabel) {
             if (!modalTableBody) return;
             modalTableBody.innerHTML = '';
 
             if (!items || !items.length) {
                 modalTableBody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:1rem;">No attendance history found.</td></tr>';
-                if (totalHoursValue) totalHoursValue.textContent = '0h 00m';
+                if (totalHoursValue) totalHoursValue.textContent = totalHoursLabel || '0h 00m';
                 return;
             }
 
@@ -273,36 +291,45 @@
 
             items.forEach(function (item) {
                 const row = document.createElement('tr');
-                const workedHours = String(item.total_hours || '0h 00m');
+                const workedHours = String(item.hours || item.total_hours || '0h 00m');
                 const hoursMatch = workedHours.match(/^(\d+)h\s+(\d{2})m$/i);
                 if (hoursMatch) {
                     totalSeconds += (parseInt(hoursMatch[1], 10) * 3600) + (parseInt(hoursMatch[2], 10) * 60);
                 }
 
+                const statusCell = document.createElement('td');
+                const statusBadge = document.createElement('span');
+                statusBadge.className = 'status-badge ' + String(item.status_key || item.status || '').toLowerCase();
+                statusBadge.textContent = item.status || '--';
+                statusCell.appendChild(statusBadge);
+
                 row.innerHTML = `
                     <td>${item.date || '--'}</td>
                     <td>${item.day || '--'}</td>
-                    <td>${formatModalTime(item.time_in)}</td>
-                    <td>${formatModalTime(item.time_out)}</td>
+                    <td>${formatModalTime(item.timeIn || item.time_in)}</td>
+                    <td>${formatModalTime(item.timeOut || item.time_out)}</td>
                     <td>${workedHours}</td>
-                    <td>${item.status || '--'}</td>
                 `;
+                row.appendChild(statusCell);
                 modalTableBody.appendChild(row);
             });
 
             if (totalHoursValue) {
-                const totalHours = Math.floor(totalSeconds / 3600);
-                const totalMinutes = Math.floor((totalSeconds % 3600) / 60);
-                totalHoursValue.textContent = totalHours + 'h ' + String(totalMinutes).padStart(2, '0') + 'm';
+                totalHoursValue.textContent = totalHoursLabel || (Math.floor(totalSeconds / 3600) + 'h ' + String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0') + 'm');
+            }
+            if (dateRangeText && viewLabel) {
+                dateRangeText.textContent = viewLabel;
             }
         }
 
-        async function loadEmployeeHistory(employeeRow) {
+        async function loadEmployeeHistory(employeeRow, view) {
             if (!employeeRow) return;
             const employeeId = employeeRow.userId || employeeRow.employeeId || employeeRow.id;
             if (employeeId == null) return;
 
+            activeEmployeeRow = employeeRow;
             activeEmployeeId = employeeId;
+            setHistoryViewActive(view || activeHistoryView || 'weekly');
 
             if (modalTableBody) {
                 modalTableBody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:1rem;">Loading attendance history...</td></tr>';
@@ -312,25 +339,31 @@
             if (modalPosition) modalPosition.textContent = employeeRow.title || 'Employee';
             if (modalDepartment) modalDepartment.textContent = employeeRow.department || 'General';
             if (dateRangeText) dateRangeText.textContent = 'Attendance Log';
-            if (periodText) periodText.textContent = 'Log';
             if (totalHoursValue) totalHoursValue.textContent = '0h 00m';
 
             setModalOpen(true);
 
             try {
-                const response = await fetch('/api/attendance/history/' + encodeURIComponent(employeeId));
+                const response = await fetch('/api/attendance/history/' + encodeURIComponent(employeeId) + '?view=' + encodeURIComponent(activeHistoryView));
                 if (!response.ok) {
-                    renderModalRows([]);
+                    renderModalRows([], dateRangeText ? dateRangeText.textContent : '', '0h 00m');
                     return;
                 }
 
                 const payload = await response.json();
                 if (activeEmployeeId !== employeeId) return;
-                renderModalRows(payload.items || []);
+                setHistoryViewActive(payload.view || activeHistoryView);
+                renderModalRows(payload.items || [], payload.dateRange || dateRangeText.textContent, payload.totalHours || '0h 00m');
             } catch (error) {
                 if (activeEmployeeId !== employeeId) return;
-                renderModalRows([]);
+                renderModalRows([], dateRangeText ? dateRangeText.textContent : '', '0h 00m');
             }
+        }
+
+        async function switchHistoryView(view) {
+            if (!activeEmployeeRow) return;
+            setHistoryViewActive(view);
+            await loadEmployeeHistory(activeEmployeeRow, activeHistoryView);
         }
 
         function applyFilters() {
@@ -528,6 +561,18 @@
 
         if (modalCloseBtn) {
             modalCloseBtn.addEventListener('click', closeEmployeeModal);
+        }
+
+        if (weeklyViewBtn) {
+            weeklyViewBtn.addEventListener('click', function () {
+                switchHistoryView('weekly');
+            });
+        }
+
+        if (monthlyViewBtn) {
+            monthlyViewBtn.addEventListener('click', function () {
+                switchHistoryView('monthly');
+            });
         }
 
         if (employeeModal) {
