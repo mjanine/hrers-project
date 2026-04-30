@@ -1,4 +1,4 @@
-﻿(function () {
+﻿(() => {
     function stripTime(value) {
         const d = new Date(value);
         d.setHours(0, 0, 0, 0);
@@ -16,7 +16,14 @@
         return 1 + diffDays;
     }
 
-    document.addEventListener('DOMContentLoaded', function () {
+    let initialized = false;
+
+    function initMonitoringPage() {
+        if (initialized) {
+            return;
+        }
+        initialized = true;
+
         const sidebar = document.getElementById('sidebar');
         const logoToggle = document.getElementById('logoToggle');
         const closeBtn = document.getElementById('closeBtn');
@@ -48,33 +55,34 @@
         let weekOffset = 0;
         let weekStartDate = new Date();
         let monitoringRows = [];
+        let employeeDirectory = [];
         const filterState = { dept: 'All', status: 'All', date: null };
 
         const filterPopover = document.createElement('div');
         filterPopover.className = 'head-filter-popover';
         filterPopover.style.display = 'none';
-        filterPopover.innerHTML = '\\
-            <div class="head-filter-title">Filters</div>\\
-            <div class="head-filter-grid">\\
-                <label class="head-filter-label">Department</label>\\
-                <select id="hfDept" class="head-filter-select">\\
-                    <option>All</option>\\
-                </select>\\
-                <label class="head-filter-label">Status (Selected day)</label>\\
-                <select id="hfStatus" class="head-filter-select">\\
-                    <option>All</option>\\
-                    <option>Present</option>\\
-                    <option>Late</option>\\
-                    <option>Absent</option>\\
-                    <option>Leave</option>\\
-                    <option>Active</option>\\
-                </select>\\
-            </div>\\
-            <div class="head-filter-actions">\\
-                <button type="button" class="head-filter-btn head-filter-btn-ghost" id="hfClear">Clear</button>\\
-                <button type="button" class="head-filter-btn head-filter-btn-primary" id="hfApply">Apply</button>\\
-            </div>\\
-        ';
+        filterPopover.innerHTML = `
+            <div class="head-filter-title">Filters</div>
+            <div class="head-filter-grid">
+                <label class="head-filter-label">Department</label>
+                <select id="hfDept" class="head-filter-select">
+                    <option>All</option>
+                </select>
+                <label class="head-filter-label">Status (Selected day)</label>
+                <select id="hfStatus" class="head-filter-select">
+                    <option>All</option>
+                    <option>Present</option>
+                    <option>Late</option>
+                    <option>Absent</option>
+                    <option>Leave</option>
+                    <option>Active</option>
+                </select>
+            </div>
+            <div class="head-filter-actions">
+                <button type="button" class="head-filter-btn head-filter-btn-ghost" id="hfClear">Clear</button>
+                <button type="button" class="head-filter-btn head-filter-btn-primary" id="hfApply">Apply</button>
+            </div>
+        `;
 
         const controlsRow = document.querySelector('.controls-row');
         if (controlsRow) {
@@ -166,6 +174,37 @@
             if (el) el.textContent = String(value);
         }
 
+        function updateDashboardStats(stats) {
+            if (!stats) return;
+            setStatValue(0, stats.totalEmployees ?? 0);
+            setStatValue(1, stats.present ?? 0);
+            setStatValue(2, stats.absent ?? 0);
+            setStatValue(3, stats.leave ?? 0);
+            setStatValue(4, stats.late ?? 0);
+        }
+
+        async function loadDashboardStats() {
+            try {
+                const response = await fetch('/api/attendance/stats');
+                if (!response.ok) return;
+                const payload = await response.json();
+                updateDashboardStats(payload);
+            } catch (error) {
+                // Leave the placeholder values in place if the API is unavailable.
+            }
+        }
+
+        async function loadEmployeeDirectory() {
+            try {
+                const response = await fetch('/api/employees/list');
+                if (!response.ok) return;
+                const payload = await response.json();
+                employeeDirectory = Array.isArray(payload) ? payload : [];
+            } catch (error) {
+                employeeDirectory = [];
+            }
+        }
+
         function updateStats() {
             const rows = tbody ? Array.from(tbody.querySelectorAll('tr')) : [];
             const visible = rows.filter(function (row) { return row.style.display !== 'none'; });
@@ -214,16 +253,16 @@
                 tr.dataset.dayStatuses = (item.days || []).map(function (d) { return d.status || 'none'; }).join(',');
 
                 const employeeCell = document.createElement('td');
-                employeeCell.innerHTML = '\\
-                    <div class="user-cell">\\
-                        <div class="avatar"><i class="fas fa-user"></i></div>\\
-                        <div class="user-info">\\
-                            <span class="name">' + (item.name || '--') + '</span>\
-                            <span class="title">' + (item.title || 'Employee') + '</span>\
-                            <span class="dept-badge">' + (item.department || 'General') + '</span>\\
-                        </div>\\
-                    </div>\\
-                ';
+                employeeCell.innerHTML = `
+                <div class="user-cell">
+                    <div class="avatar"><i class="fas fa-user"></i></div>
+                    <div class="user-info">
+                        <span class="name">${item.name || '--'}</span>
+                        <span class="title">${item.title || 'Employee'}</span>
+                        <span class="dept-badge">${item.department || 'General'}</span>
+                    </div>
+                </div>
+            `;
                 tr.appendChild(employeeCell);
 
                 (item.days || []).forEach(function (day) {
@@ -255,6 +294,16 @@
 
             const existing = new Set();
             deptSel.innerHTML = '<option>All</option>';
+
+            employeeDirectory.forEach(function (item) {
+                const dept = item.department || 'General';
+                if (existing.has(dept)) return;
+                existing.add(dept);
+                const opt = document.createElement('option');
+                opt.value = dept;
+                opt.textContent = dept;
+                deptSel.appendChild(opt);
+            });
 
             monitoringRows.forEach(function (item) {
                 const dept = item.department || 'General';
@@ -371,6 +420,18 @@
         }
 
         setDateButtonLabel();
-        loadWeekData();
-    });
+        Promise.all([
+            loadDashboardStats(),
+            loadEmployeeDirectory(),
+            loadWeekData(),
+        ]).catch(function () {
+            // The page can still render partial data even if one request fails.
+        });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initMonitoringPage, { once: true });
+    } else {
+        initMonitoringPage();
+    }
 })();

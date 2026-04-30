@@ -3,6 +3,242 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Log | HR</title>
+    <link rel="shortcut icon" type="image/png" href="../../static/img/general/uph.png">
+    <link rel="stylesheet" href="../../static/css/employee/emp_attendance.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+
+    <div class="background"></div>
+
+    <div class="master-app-container">
+
+        <div class="sidebar" id="sidebar">
+            <div class="top-section">
+                <div class="logo-wrapper" id="logoToggle">
+                    <img src="../../static/img/general/uph.png" class="logo" alt="Logo">
+                    <div class="open-icon">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+                <button class="close-btn" id="closeBtn">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+            </div>
+
+            <ul class="menu">
+                <li>
+                    <a href="../admin/dashboard.html" class="menu-item">
+                        <i class="fas fa-border-all"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="../hr/hr_employee_view.html" class="menu-item">
+                        <i class="fas fa-users"></i>
+                        <span>Employees</span>
+                    </a>
+                </li>
+                <hr>
+                <li>
+                    <a href="../hr/hr_attendance.html" class="menu-item active">
+                        <i class="fas fa-calendar-check"></i>
+                        <span>Attendance</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="bottom-section">
+                <a href="../login/login.html" class="menu-item logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Log Out</span>
+                </a>
+            </div>
+        </div>
+
+        <main class="main-container" id="mainContent">
+
+            <div class="master-content-wrapper">
+
+                <div class="dashboard-header dashboard-header--compact-right">
+                    <h1 style="color: #000000;">Attendance Log</h1>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="content-card attendance-section">
+                        <div class="attendance-card-accent"></div>
+                        <div class="card-header">
+                            <div class="card-title-group">
+                                <span class="card-icon-wrap" aria-hidden="true"><i class="fas fa-fingerprint"></i></span>
+                                <h2>Today’s attendance</h2>
+                            </div>
+                            <span class="date-now">Monday, February 8 | 8:14 AM</span>
+                        </div>
+                        <p class="status-text">Select an employee to view their attendance logs.</p>
+                        <div class="stats-row">
+                            <div class="stat-chip">
+                                <span class="stat-chip-label"><i class="fas fa-stopwatch"></i> Session</span>
+                                <p id="workingTime" class="stat-chip-value">Working for: --</p>
+                            </div>
+                            <div class="stat-chip">
+                                <span class="stat-chip-label"><i class="fas fa-sign-in-alt"></i> Start</span>
+                                <p id="timeInDisplay" class="stat-chip-value">Time In: --</p>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-clock-in" id="clockBtn" disabled>Clock actions disabled</button>
+                    </div>
+                </div>
+
+                <div class="content-card summary-section">
+                    <div class="summary-header">
+                        <div class="summary-title-wrap">
+                            <span class="card-icon-wrap card-icon-wrap--muted" aria-hidden="true"><i class="fas fa-calendar-week"></i></span>
+                            <h2>Weekly summary</h2>
+                        </div>
+                        <div class="week-picker">
+                            <button type="button" class="week-nav" aria-label="Previous week"><i class="fas fa-chevron-left"></i></button>
+                            <span>Current Week</span>
+                            <button type="button" class="week-nav" aria-label="Next week"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table class="attendance-table">
+                            <thead>
+                                <tr>
+                                    <th>Week</th>
+                                    <th>Sunday</th>
+                                    <th>Monday</th>
+                                    <th>Tuesday</th>
+                                    <th>Wednesday</th>
+                                    <th>Thursday</th>
+                                    <th>Friday</th>
+                                    <th>Saturday</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="week-label">--</td>
+                                    <td>--</td>
+                                    <td>--</td>
+                                    <td>--</td>
+                                    <td>--</td>
+                                    <td>--</td>
+                                    <td>--</td>
+                                    <td>--</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="footer-actions">
+                        <button class="btn-history" id="openHistory">View Full History</button>
+                    </div>
+                </div>
+
+            </div>
+            </main>
+
+        <div class="history-modal" id="historyModal">
+            <div class="history-modal-content">
+                <div class="history-modal-header">
+                    <div class="employee-tab">
+                        <label for="employeeSelect">Employee</label>
+                        <select id="employeeSelect" class="employee-select"><option>Loading employees...</option></select>
+                    </div>
+                    <div class="header-controls">
+                        <div class="view-toggle">
+                            <button class="view-btn active" id="weeklyViewBtn">Weekly View</button>
+                            <button class="view-btn" id="monthlyViewBtn">Monthly View</button>
+                        </div>
+                        <div class="date-navigator">
+                            <i class="fas fa-chevron-left" id="prevPeriod"></i>
+                            <span id="historyDateRange">--</span>
+                            <i class="fas fa-chevron-right" id="nextPeriod"></i>
+                        </div>
+                    </div>
+                    <span class="close-history" id="closeHistory">&times;</span>
+                </div>
+                <div class="history-modal-body">
+                    <div class="history-layout-grid">
+                        <div class="table-section">
+                            <table class="history-log-table" id="weeklyTable">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Day</th>
+                                        <th>Time In</th>
+                                        <th>Time Out</th>
+                                        <th>Total Hours</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="weeklyTableBody">
+                                    <tr><td colspan="6" style="text-align: center; padding: 2rem;">Loading attendance records...</td></tr>
+                                </tbody>
+                            </table>
+                            <div class="monthly-grid" id="monthlyGrid">
+                                </div>
+                        </div>
+
+                        <aside class="history-sidebar">
+                            <div class="employee-details-card">
+                                <h3>Employee Details</h3>
+                                <div class="profile-circle">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="details-rows">
+                                    <div class="detail-item"><strong>Employee ID</strong><span>--</span></div>
+                                    <div class="detail-item"><strong>Position</strong><span>--</span></div>
+                                    <div class="detail-item"><strong>Department</strong><span>--</span></div>
+                                    <div class="detail-item"><strong>Employment Type</strong><span>--</span></div>
+                                </div>
+                            </div>
+                            <div class="hours-summary-box">
+                                <span id="hoursSummaryLabel">Total Hours This Week</span>
+                                <span id="totalHoursCount">0h 00m</span>
+                            </div>
+                        </aside>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="clockOutOverlay" class="clock-out-overlay" aria-hidden="true">
+            <div class="clock-out-dialog" role="dialog" aria-modal="true" aria-labelledby="clockOutDialogTitle">
+                <div id="clockOutConfirmStep" class="clock-out-step">
+                    <div class="clock-out-icon clock-out-icon--confirm">
+                        <i class="fas fa-door-open"></i>
+                    </div>
+                    <h2 id="clockOutDialogTitle" class="clock-out-title">Clock out now?</h2>
+                    <p class="clock-out-message">Your shift will end and today’s working time will be recorded.</p>
+                    <div class="clock-out-actions">
+                        <button type="button" class="clock-out-btn clock-out-btn--ghost" id="clockOutCancel">Cancel</button>
+                        <button type="button" class="clock-out-btn clock-out-btn--danger" id="clockOutConfirmBtn">Yes, clock out</button>
+                    </div>
+                </div>
+                <div id="clockOutSuccessStep" class="clock-out-step clock-out-step--hidden" hidden>
+                    <div class="clock-out-icon clock-out-icon--success">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <h2 class="clock-out-title">You’re clocked out</h2>
+                    <p class="clock-out-duration" id="clockOutDurationText">Total time: 0h 00m</p>
+                    <p class="clock-out-sub">Shift saved. See you next time.</p>
+                    <button type="button" class="clock-out-btn clock-out-btn--primary" id="clockOutDismiss">Done</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <script src="../../static/js/hr/hr_attendance.js"></script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Attendance Log | HR System</title>
     <link rel="shortcut icon" type="image/png" href="../../static/img/general/uph.png">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">

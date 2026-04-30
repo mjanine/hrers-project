@@ -1,4 +1,286 @@
 /**
+ * hr_attendance.js
+ * HR view - attendance viewer for multiple employees.
+ * Mirrors `emp_attendance.js` patterns but allows selecting an employee
+ * and passes `employeeId` to summary/today endpoints. Clock actions are disabled.
+ */
+
+/* ELEMENT SELECTORS */
+const sidebar    = document.getElementById("sidebar");
+const logoToggle = document.getElementById("logoToggle");
+const closeBtn   = document.getElementById("closeBtn");
+
+const clockBtn           = document.getElementById("clockBtn"); // intentionally disabled in template
+const workingTimeDisplay = document.getElementById("workingTime");
+const timeInDisplay      = document.getElementById("timeInDisplay");
+
+const historyModal     = document.getElementById("historyModal");
+const openHistoryBtn   = document.getElementById("openHistory");
+const closeHistoryBtn  = document.getElementById("closeHistory");
+const weeklyViewBtn    = document.getElementById("weeklyViewBtn");
+const monthlyViewBtn   = document.getElementById("monthlyViewBtn");
+const historyDateRange = document.getElementById("historyDateRange");
+const weeklyTable      = document.getElementById("weeklyTable");
+const weeklyTableBody  = document.getElementById("weeklyTableBody");
+const monthlyGrid      = document.getElementById("monthlyGrid");
+const totalHoursCount  = document.getElementById("totalHoursCount");
+const prevPeriodBtn    = document.getElementById("prevPeriod");
+const nextPeriodBtn    = document.getElementById("nextPeriod");
+
+const employeeSelect   = document.getElementById("employeeSelect");
+
+const clockOutOverlay      = document.getElementById("clockOutOverlay");
+const clockOutConfirmStep  = document.getElementById("clockOutConfirmStep");
+const clockOutSuccessStep  = document.getElementById("clockOutSuccessStep");
+const clockOutCancelBtn    = document.getElementById("clockOutCancel");
+const clockOutConfirmBtn   = document.getElementById("clockOutConfirmBtn");
+const clockOutDismissBtn   = document.getElementById("clockOutDismiss");
+const clockOutDurationText = document.getElementById("clockOutDurationText");
+
+/* STATE */
+let currentView = "weekly";
+let weekOffset  = 0;
+let monthOffset = 0;
+let weeklySummaryData = null;
+let monthlySummaryData = null;
+let selectedEmployeeId = null;
+
+/* SIDEBAR UI */
+closeBtn?.addEventListener("click", () => sidebar?.classList.add("collapsed"));
+logoToggle?.addEventListener("click", () => sidebar?.classList.toggle("collapsed"));
+
+/* FETCH HELPERS (multi-employee aware) */
+async function fetchJson(url, options = {}) {
+    try {
+        const res = await fetch(url, options);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return await res.json();
+    } catch (err) {
+        console.error('Fetch error:', url, err);
+        return null;
+    }
+}
+
+async function fetchEmployees() {
+    // Attempt to load employee list for HR selection. Backend may return minimal profile objects.
+    const list = await fetchJson('/api/employees?limit=200');
+    if (!Array.isArray(list)) return [];
+    return list;
+}
+
+/* ATTENDANCE STATE (for selected employee) */
+async function refreshAttendanceState(employeeId) {
+    if (!employeeId) {
+        workingTimeDisplay.innerText = 'Working for: --';
+        timeInDisplay.innerText = 'Time In: --';
+        return;
+    }
+
+    const payload = await fetchJson(`/api/attendance/today?employeeId=${encodeURIComponent(employeeId)}`);
+    if (!payload) return;
+
+    const totalSeconds = Number(payload.workedSeconds || 0);
+    workingTimeDisplay.innerText = `Working for: ${formatDuration(totalSeconds)}`;
+    timeInDisplay.innerText = payload.timeIn
+        ? `Time In: ${new Date(payload.timeIn).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
+        : 'Time In: --';
+}
+
+function formatDuration(seconds) {
+    const hrs = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    return `${hrs}h ${mins.toString().padStart(2, '0')}m`;
+}
+
+/* SUMMARY (uses employeeId query param) */
+async function loadAttendanceSummary(view, offset, employeeId) {
+    try {
+        const url = `/api/attendance/summary?view=${encodeURIComponent(view)}&offset=${encodeURIComponent(offset)}${employeeId ? `&employeeId=${encodeURIComponent(employeeId)}` : ''}`;
+        const resp = await fetch(url);
+        if (!resp.ok) return null;
+        return await resp.json();
+    } catch (e) {
+        console.error('loadAttendanceSummary failed', e);
+        return null;
+    }
+}
+
+function capitalize(str){ return String(str||'').charAt(0).toUpperCase()+String(str||'').slice(1); }
+
+function renderWeekly() {
+    const data = weeklySummaryData;
+    if (!data) {
+        historyDateRange.textContent = "No data";
+        totalHoursCount.textContent = "0h 00m";
+        weeklyTableBody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 1rem;">No attendance records found for this period.</td></tr>';
+        return;
+    }
+    historyDateRange.textContent = data.label;
+    totalHoursCount.textContent  = data.total;
+
+    const rows = (data.rows || []).map(r => `
+        <tr>
+            <td>${r.date}</td>
+            <td>${r.day}</td>
+            <td>${r.timeIn}</td>
+            <td>${r.timeOut}</td>
+            <td>${r.hours}</td>
+            <td><span class="status-badge ${r.status}">${capitalize(r.status)}</span></td>
+        </tr>
+    `).join('');
+
+    const totalRow = `
+        <tr class="total-row">
+            <td colspan="4">Total Hours This Week</td>
+            <td colspan="2">${data.total}</td>
+        </tr>
+    `;
+
+    weeklyTableBody.innerHTML = rows + totalRow;
+}
+
+function renderMonthly() {
+    const data = monthlySummaryData;
+    if (!data) {
+        historyDateRange.textContent = "No data";
+        totalHoursCount.textContent = "0h 00m";
+        monthlyGrid.innerHTML = '<div class="month-day-cell empty">No records found for this period.</div>';
+        return;
+    }
+    historyDateRange.textContent = data.label;
+    totalHoursCount.textContent  = data.total;
+
+    const dayNames = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+    let html = dayNames.map(d=>`<div class="month-day-header">${d}</div>`).join('');
+    for (let i=0;i<data.firstDayOfWeek;i++) html += `<div class="month-day-cell empty"></div>`;
+    for (let d=1; d<=data.daysInMonth; d++) {
+        const dayOfWeek = (data.firstDayOfWeek + d -1) % 7;
+        const isWeekend = dayOfWeek===0 || dayOfWeek===6;
+        const att = data.attendance && data.attendance[d];
+        const statusClass = att ? att.status : (isWeekend ? 'weekend' : '');
+        const statusLabel = att ? capitalize(att.status) : (isWeekend ? 'Off' : '');
+        const hoursLabel = att ? att.hours : '';
+        html += `
+            <div class="month-day-cell">
+                <span class="day-num">${d}</span>
+                ${statusClass?`<span class="day-status ${statusClass}">${statusLabel}</span>`:''}
+                ${hoursLabel?`<span class="day-hours">${hoursLabel}</span>`:''}
+            </div>
+        `;
+    }
+    monthlyGrid.innerHTML = html;
+}
+
+async function switchView(view) {
+    currentView = view;
+    if (view === 'weekly') {
+        weeklyViewBtn.classList.add('active');
+        monthlyViewBtn.classList.remove('active');
+        weeklyTable.style.display = 'table';
+        monthlyGrid.classList.remove('active');
+        weeklySummaryData = await loadAttendanceSummary('weekly', weekOffset, selectedEmployeeId);
+        renderWeekly();
+    } else {
+        monthlyViewBtn.classList.add('active');
+        weeklyViewBtn.classList.remove('active');
+        weeklyTable.style.display = 'none';
+        monthlyGrid.classList.add('active');
+        monthlySummaryData = await loadAttendanceSummary('monthly', monthOffset, selectedEmployeeId);
+        renderMonthly();
+    }
+}
+
+weeklyViewBtn?.addEventListener('click', () => switchView('weekly'));
+monthlyViewBtn?.addEventListener('click', () => switchView('monthly'));
+
+prevPeriodBtn?.addEventListener('click', () => {
+    if (currentView === 'weekly') { weekOffset++; loadAttendanceSummary('weekly', weekOffset, selectedEmployeeId).then(d => { weeklySummaryData = d; renderWeekly(); }); }
+    else { monthOffset++; loadAttendanceSummary('monthly', monthOffset, selectedEmployeeId).then(d => { monthlySummaryData = d; renderMonthly(); }); }
+});
+
+nextPeriodBtn?.addEventListener('click', () => {
+    if (currentView === 'weekly') { if (weekOffset===0) return; weekOffset--; loadAttendanceSummary('weekly', weekOffset, selectedEmployeeId).then(d=>{ weeklySummaryData = d; renderWeekly(); }); }
+    else { if (monthOffset===0) return; monthOffset--; loadAttendanceSummary('monthly', monthOffset, selectedEmployeeId).then(d=>{ monthlySummaryData = d; renderMonthly(); }); }
+});
+
+openHistoryBtn?.addEventListener('click', () => historyModal.classList.add('open'));
+closeHistoryBtn?.addEventListener('click', () => historyModal.classList.remove('open'));
+historyModal?.addEventListener('click', e => { if (e.target === historyModal) historyModal.classList.remove('open'); });
+
+/* Employee selection handling */
+function populateEmployeeSelect(list) {
+    if (!employeeSelect) return;
+    employeeSelect.innerHTML = '';
+    if (!list || !list.length) {
+        const opt = document.createElement('option'); opt.textContent = 'No employees found'; opt.value = '';
+        employeeSelect.appendChild(opt);
+        return;
+    }
+    const placeholder = document.createElement('option'); placeholder.textContent = 'Select an employee'; placeholder.value = ''; employeeSelect.appendChild(placeholder);
+    list.forEach(emp => {
+        const opt = document.createElement('option');
+        const label = emp.fullName || `${emp.firstName || ''} ${emp.lastName || ''}`.trim() || emp.employeeNo || emp.id || 'Employee';
+        opt.textContent = `${label} ${emp.employeeNo ? `(${emp.employeeNo})` : ''}`;
+        opt.value = emp.id || emp.employeeNo || '';
+        employeeSelect.appendChild(opt);
+    });
+}
+
+employeeSelect?.addEventListener('change', (e) => {
+    selectedEmployeeId = e.target.value || null;
+    // Refresh UI for selected employee
+    refreshAttendanceState(selectedEmployeeId);
+    // Reload summary/modal data for selected employee
+    switchView(currentView);
+    loadEmployeeDetails(selectedEmployeeId);
+});
+
+/* Employee details */
+async function loadEmployeeDetails(employeeId) {
+    if (!employeeId) return;
+    // Try employees endpoint first, fall back to profile endpoint
+    let profile = await fetchJson(`/api/employees/${encodeURIComponent(employeeId)}`);
+    if (!profile) profile = await fetchJson(`/api/profile/${encodeURIComponent(employeeId)}`);
+    if (!profile) return;
+
+    const employeeTab = document.querySelector('.employee-tab');
+    const detailItems = document.querySelectorAll('.details-rows .detail-item');
+    if (employeeTab) employeeTab.querySelector('label')?.removeAttribute('disabled');
+    if (detailItems[0]) detailItems[0].querySelector('span').textContent = profile.employeeNo || profile.id || '--';
+    if (detailItems[1]) detailItems[1].querySelector('span').textContent = profile.position || profile.roleLabel || '--';
+    if (detailItems[2]) detailItems[2].querySelector('span').textContent = profile.department || '--';
+    if (detailItems[3]) detailItems[3].querySelector('span').textContent = profile.employmentType || '--';
+}
+
+/* Init: load employees, then set defaults */
+async function init() {
+    const employees = await fetchEmployees();
+    populateEmployeeSelect(employees);
+    // If only one employee returned, auto-select
+    if (employees && employees.length === 1) {
+        employeeSelect.value = employees[0].id || employees[0].employeeNo || '';
+        selectedEmployeeId = employeeSelect.value || null;
+        refreshAttendanceState(selectedEmployeeId);
+        loadEmployeeDetails(selectedEmployeeId);
+        switchView('weekly');
+    }
+}
+
+init().catch(() => {});
+
+/* Header date updater (copied behavior) */
+function updateHeader() {
+    const dateElement = document.querySelector('.date-now');
+    if (dateElement) {
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+        const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        dateElement.innerText = `${dateStr} | ${timeStr}`;
+    }
+}
+setInterval(updateHeader, 60000);
+updateHeader();
+/**
  * emp_attendance.js
  * Place at: static/js/attendance/emp_attendance.js
  * ============================================================

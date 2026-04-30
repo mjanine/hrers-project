@@ -576,6 +576,80 @@ def attendance_summary_payload(record: AttendanceRecord | None) -> dict:
     }
 
 
+def get_department_name_for_user(user: User, db: Session) -> str | None:
+    """Return the active department name for a department head, or `None` if unavailable."""
+
+    if user.role != UserRole.department_head:
+        return None
+
+    department = (
+        db.query(Department)
+        .filter(Department.head_user_id == int(user.id), Department.is_active == True)
+        .first()
+    )
+    return str(department.name) if department else None
+
+
+def get_accessible_employee_ids(current_user: User, db: Session) -> list[int]:
+    """Return employee user IDs the current user is allowed to view."""
+
+    if current_user.role in {UserRole.hr_evaluator, UserRole.hr_head, UserRole.admin, UserRole.school_director}:
+        return [
+            int(row[0])
+            for row in (
+                db.query(User.id)
+                .filter(User.role == UserRole.employee, User.is_active == True)
+                .order_by(User.full_name.asc())
+                .all()
+            )
+        ]
+
+    if current_user.role == UserRole.department_head:
+        department_name = get_department_name_for_user(current_user, db)
+        if not department_name:
+            return []
+
+        rows = (
+            db.query(PositionChangeRequest.requester_user_id)
+            .filter(PositionChangeRequest.current_department == department_name)
+            .distinct()
+            .all()
+        )
+        return [int(row[0]) for row in rows]
+
+    if current_user.role == UserRole.employee:
+        return [int(current_user.id)]
+
+    return []
+
+
+def build_employee_search_payload(user: User, db: Session) -> dict[str, str | int | bool]:
+    """Build a compact employee record for search and selection APIs."""
+
+    latest_position = (
+        db.query(PositionChangeRequest)
+        .filter(PositionChangeRequest.requester_user_id == int(user.id))
+        .order_by(PositionChangeRequest.created_at.desc(), PositionChangeRequest.id.desc())
+        .first()
+    )
+
+    if user.role == UserRole.department_head:
+        department_name = get_department_name_for_user(user, db) or "General"
+    else:
+        department_name = str((latest_position.current_department if latest_position else None) or "General")
+
+    position_name = str((latest_position.current_position if latest_position and latest_position.current_position else None) or str(user.role.value).replace("_", " ").title())
+
+    return {
+        "id": int(user.id),
+        "employeeNo": str(user.employee_no or f"EMP-{int(user.id):03d}"),
+        "fullName": str(user.full_name),
+        "department": department_name,
+        "position": position_name,
+        "isActive": bool(user.is_active),
+    }
+
+
 def build_weekly_attendance_summary(records: list[AttendanceRecord], offset: int) -> dict:
     today = date.today()
     days_since_sunday = (today.weekday() + 1) % 7
@@ -2860,12 +2934,60 @@ def clock_out(
 def attendance_summary(
     view: str = "weekly",
     offset: int = 0,
+    employeeId: int | None = None,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    """
+    Return an attendance summary for the requested view and offset.
+
+    - `view` can be `weekly` or `monthly`.
+    - `offset` is an integer offset (weeks or months) where 0 is the current period.
+    - Optional `employeeId` allows HR/Head callers to request another employee's summary.
+
+    Security: regular employees may only request their own data. HR roles may request any employee.
+    Department heads may request employees within their department only.
+    """
+
+    target_user_id = int(current_user.id)
+    # If an employeeId is provided, validate access and use it instead of the current user
+    if employeeId is not None:
+        # Access control: employee can only view their own
+        def _can_view(emp_id: int) -> bool:
+            # Employees can only view themselves
+            if current_user.role == UserRole.employee:
+                return int(current_user.id) == int(emp_id)
+
+            # HR roles can view any employee
+            if current_user.role in {UserRole.hr_evaluator, UserRole.hr_head, UserRole.admin, UserRole.school_director}:
+                return True
+
+            # Department head: allow only employees in the same department
+            if current_user.role == UserRole.department_head:
+                head_dept = db.query(Department).filter(Department.head_user_id == int(current_user.id), Department.is_active == True).first()
+                if not head_dept:
+                    return False
+                # determine employee's latest department via PositionChangeRequest
+                latest = (
+                    db.query(PositionChangeRequest)
+                    .filter(PositionChangeRequest.requester_user_id == int(emp_id))
+                    .order_by(PositionChangeRequest.created_at.desc(), PositionChangeRequest.id.desc())
+                    .first()
+                )
+                if latest and latest.current_department:
+                    return str(latest.current_department).strip() == str(head_dept.name).strip()
+                return False
+
+            return False
+
+        if not _can_view(employeeId):
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not allowed to view this employee's attendance")
+
+        target_user_id = int(employeeId)
+
     records = (
         db.query(AttendanceRecord)
-        .filter(AttendanceRecord.user_id == int(current_user.id))
+        .filter(AttendanceRecord.user_id == target_user_id)
         .order_by(AttendanceRecord.record_date.asc())
         .all()
     )
@@ -2879,9 +3001,12 @@ def attendance_summary(
 @app.get("/api/attendance/monitoring")
 def attendance_monitoring(
     offset: int = 0,
+    query: str | None = None,
     current_user: User = Depends(require_roles(UserRole.hr_evaluator, UserRole.hr_head, UserRole.department_head, UserRole.school_director, UserRole.admin)),
     db: Session = Depends(get_db),
 ):
+    """Return the weekly attendance monitoring grid for all accessible employees."""
+
     safe_offset = max(-52, min(52, offset))
     today = date.today()
     sunday_index = (today.weekday() + 1) % 7
@@ -2889,13 +3014,9 @@ def attendance_monitoring(
     week_start = current_week_start - timedelta(days=safe_offset * 7)
     week_end = week_start + timedelta(days=6)
 
-    employees = (
-        db.query(User)
-        .filter(User.role == UserRole.employee, User.is_active == True)
-        .order_by(User.full_name.asc())
-        .all()
-    )
-    employee_ids = [int(user.id) for user in employees]
+    employee_ids = get_accessible_employee_ids(current_user, db)
+    employees_query = db.query(User).filter(User.id.in_(employee_ids), User.is_active == True).order_by(User.full_name.asc())
+    employees = employees_query.all() if employee_ids else []
 
     records = []
     if employee_ids:
@@ -2912,6 +3033,8 @@ def attendance_monitoring(
     attendance_lookup: dict[tuple[int, date], AttendanceRecord] = {}
     for record in records:
         attendance_lookup[(int(record.user_id), record.record_date)] = record
+
+    query_text = str(query or "").strip().lower()
 
     def get_status_payload(record: AttendanceRecord | None, current_day: date) -> dict[str, str]:
         if not record:
@@ -2948,16 +3071,15 @@ def attendance_monitoring(
 
     rows: list[dict[str, object]] = []
     for user in employees:
-        latest_position = (
-            db.query(PositionChangeRequest)
-            .filter(PositionChangeRequest.requester_user_id == int(user.id))
-            .order_by(PositionChangeRequest.created_at.desc())
-            .first()
-        )
+        payload = build_employee_search_payload(user, db)
+        title = str(payload["position"] or "Employee")
+        department = str(payload["department"] or "General")
+        employee_no = str(payload["employeeNo"] or f"EMP-{int(user.id):03d}")
 
-        title = (latest_position.current_position if latest_position and latest_position.current_position else "Employee")
-        department = (latest_position.current_department if latest_position and latest_position.current_department else "General")
-        employee_no = str(user.employee_no or f"EMP-{int(user.id):03d}")
+        if query_text:
+            combined = f"{str(user.full_name)} {employee_no} {department} {title}".lower()
+            if query_text not in combined:
+                continue
 
         days: list[dict[str, object]] = []
         for day_index in range(7):
@@ -2992,3 +3114,127 @@ def attendance_monitoring(
         "weekLabel": f"{week_start.strftime('%b')} {week_start.day} - {week_end.strftime('%b')} {week_end.day}, {week_end.year}",
         "rows": rows,
     }
+
+
+@app.get("/api/attendance/stats")
+def attendance_dashboard_stats(
+    current_user: User = Depends(require_roles(UserRole.hr_evaluator, UserRole.hr_head, UserRole.department_head, UserRole.school_director, UserRole.admin)),
+    db: Session = Depends(get_db),
+):
+    """Return today's attendance counts for the dashboard cards."""
+
+    today = date.today()
+    employee_ids = get_accessible_employee_ids(current_user, db)
+    if not employee_ids:
+        return {
+            "totalEmployees": 0,
+            "present": 0,
+            "absent": 0,
+            "late": 0,
+            "leave": 0,
+        }
+
+    employees = (
+        db.query(User.id)
+        .filter(User.id.in_(employee_ids), User.role == UserRole.employee, User.is_active == True)
+        .all()
+    )
+    active_employee_ids = [int(row[0]) for row in employees]
+
+    today_records = (
+        db.query(AttendanceRecord.user_id, AttendanceRecord.status, AttendanceRecord.time_in, AttendanceRecord.time_out)
+        .filter(
+            AttendanceRecord.user_id.in_(active_employee_ids),
+            AttendanceRecord.record_date == today,
+        )
+        .all()
+    )
+
+    status_by_user_id: dict[int, str] = {}
+    for user_id, status, time_in, time_out in today_records:
+        if time_in and not time_out:
+            status_by_user_id[int(user_id)] = "present"
+            continue
+        status_by_user_id[int(user_id)] = str(status.value).lower()
+
+    present = 0
+    absent = 0
+    late = 0
+    leave = 0
+
+    for user_id in active_employee_ids:
+        status_value = status_by_user_id.get(int(user_id))
+        if status_value in {"present", "active"}:
+            present += 1
+        elif status_value == "late":
+            late += 1
+        elif status_value in {"leave", "holiday"}:
+            leave += 1
+        else:
+            absent += 1
+
+    return {
+        "totalEmployees": len(active_employee_ids),
+        "present": present,
+        "absent": absent,
+        "late": late,
+        "leave": leave,
+    }
+
+
+@app.get("/api/employees/list")
+def employees_list(
+    query: str | None = None,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Return a scoped employee list, optionally filtered by name, ID, or department."""
+
+    employee_ids = get_accessible_employee_ids(current_user, db)
+    if not employee_ids:
+        return []
+
+    query_text = str(query or "").strip().lower()
+    users = (
+        db.query(User)
+        .filter(User.id.in_(employee_ids), User.is_active == True)
+        .order_by(User.full_name.asc())
+        .all()
+    )
+
+    payload: list[dict[str, str | int | bool]] = []
+    for user in users:
+        employee_payload = build_employee_search_payload(user, db)
+        if query_text:
+            combined = f"{employee_payload['fullName']} {employee_payload['employeeNo']} {employee_payload['department']}".lower()
+            if query_text not in combined:
+                continue
+        payload.append(employee_payload)
+
+    return payload
+
+
+@app.get("/attendance/hr", response_class=HTMLResponse)
+def hr_attendance_page(
+    request: Request,
+    current_user: User = Depends(require_roles(UserRole.hr_evaluator, UserRole.hr_head)),
+):
+    """Render the HR attendance page. Access restricted to HR roles."""
+    return render_role_page(request, "hr", "hr_attendance.html")
+
+
+@app.get("/attendance/head", response_class=HTMLResponse)
+def head_attendance_page(
+    request: Request,
+    current_user: User = Depends(require_roles(UserRole.department_head)),
+):
+    """Render the Department Head attendance page. Access restricted to department heads."""
+    return render_role_page(request, "head", "head_attendance.html")
+
+@app.get("/attendance/monitoring", response_class=HTMLResponse)
+def monitoring_attendance_page(
+    request: Request,
+    current_user: User = Depends(require_roles(UserRole.hr_evaluator, UserRole.hr_head, UserRole.department_head)),
+):
+    """Render the Attendance Monitoring dashboard for Heads and HR."""
+    return render_role_page(request, "hr", "hr_attendancemonitoring.html")

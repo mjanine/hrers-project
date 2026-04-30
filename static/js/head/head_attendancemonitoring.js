@@ -53,28 +53,28 @@
         const filterPopover = document.createElement('div');
         filterPopover.className = 'head-filter-popover';
         filterPopover.style.display = 'none';
-        filterPopover.innerHTML = '\\
-            <div class="head-filter-title">Filters</div>\\
-            <div class="head-filter-grid">\\
-                <label class="head-filter-label">Department</label>\\
-                <select id="hfDept" class="head-filter-select">\\
-                    <option>All</option>\\
-                </select>\\
-                <label class="head-filter-label">Status (Selected day)</label>\\
-                <select id="hfStatus" class="head-filter-select">\\
-                    <option>All</option>\\
-                    <option>Present</option>\\
-                    <option>Late</option>\\
-                    <option>Absent</option>\\
-                    <option>Leave</option>\\
-                    <option>Active</option>\\
-                </select>\\
-            </div>\\
-            <div class="head-filter-actions">\\
-                <button type="button" class="head-filter-btn head-filter-btn-ghost" id="hfClear">Clear</button>\\
-                <button type="button" class="head-filter-btn head-filter-btn-primary" id="hfApply">Apply</button>\\
-            </div>\\
-        ';
+        filterPopover.innerHTML = `
+            <div class="head-filter-title">Filters</div>
+            <div class="head-filter-grid">
+                <label class="head-filter-label">Department</label>
+                <select id="hfDept" class="head-filter-select">
+                    <option>All</option>
+                </select>
+                <label class="head-filter-label">Status (Selected day)</label>
+                <select id="hfStatus" class="head-filter-select">
+                    <option>All</option>
+                    <option>Present</option>
+                    <option>Late</option>
+                    <option>Absent</option>
+                    <option>Leave</option>
+                    <option>Active</option>
+                </select>
+            </div>
+            <div class="head-filter-actions">
+                <button type="button" class="head-filter-btn head-filter-btn-ghost" id="hfClear">Clear</button>
+                <button type="button" class="head-filter-btn head-filter-btn-primary" id="hfApply">Apply</button>
+            </div>
+        `;
 
         const controlsRow = document.querySelector('.controls-row');
         if (controlsRow) {
@@ -214,16 +214,16 @@
                 tr.dataset.dayStatuses = (item.days || []).map(function (d) { return d.status || 'none'; }).join(',');
 
                 const employeeCell = document.createElement('td');
-                employeeCell.innerHTML = '\\
-                    <div class="user-cell">\\
-                        <div class="avatar"><i class="fas fa-user"></i></div>\\
-                        <div class="user-info">\\
-                            <span class="name">' + (item.name || '--') + '</span>\
-                            <span class="title">' + (item.title || 'Employee') + '</span>\
-                            <span class="dept-badge">' + (item.department || 'General') + '</span>\\
-                        </div>\\
-                    </div>\\
-                ';
+                employeeCell.innerHTML = `
+                    <div class="user-cell">
+                        <div class="avatar"><i class="fas fa-user"></i></div>
+                        <div class="user-info">
+                            <span class="name">${item.name || '--'}</span>
+                            <span class="title">${item.title || 'Employee'}</span>
+                            <span class="dept-badge">${item.department || 'General'}</span>
+                        </div>
+                    </div>
+                `;
                 tr.appendChild(employeeCell);
 
                 (item.days || []).forEach(function (day) {
